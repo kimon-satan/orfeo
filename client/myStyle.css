@@ -1,1 +1,58 @@
-/* CSS declarations go here */
+
+
+.toggleBtn {
+
+	display:inline-block;
+	width: 64px;
+	height: 64px;
+	border: 1px-solid;
+
+}
+
+.disable {
+
+	opacity:0.5;
+
+}
+
+#where {background: url(images/where_sm.png) 0 0;}
+#where.active {background: url(images/where_sm.png) 0 -64px;}
+
+.step#north {background: url(images/up_sm.png) 0 0;}
+.step#south {background: url(images/down_sm.png) 0 0;}
+.step#west {background: url(images/left_sm.png) 0 0;}
+.step#east {background: url(images/right_sm.png) 0 0;}
+
+
+.step.active#north {background: url(images/up_sm.png) 0 -64px;}
+.step.active#south {background: url(images/down_sm.png) 0 -64px;}
+.step.active#west {background: url(images/left_sm.png) 0 -64px;}
+.step.active#east {background: url(images/right_sm.png) 0 -64px;}
+
+
+@media (min-width: 768px) { 
+
+
+	.toggleBtn {
+
+		display:inline-block;
+		width: 128px;
+		height: 128px;
+
+	}
+
+	#where {background: url(images/where.png) 0 0;}
+	#where.active {background: url(images/where.png) 0 -128px;}
+
+	.step#north {background: url(images/up.png) 0 0;}
+	.step#south {background: url(images/down.png) 0 0;}
+	.step#west {background: url(images/left.png) 0 0;}
+	.step#east {background: url(images/right.png) 0 0;}
+
+	.step.active#north {background: url(images/up.png) 0 -128px;}
+	.step.active#south {background: url(images/down.png) 0 -128px;}
+	.step.active#west {background: url(images/left.png) 0 -128px;}
+	.step.active#east {background: url(images/right.png) 0 -128px;}
+
+
+}

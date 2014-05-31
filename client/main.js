@@ -1,12 +1,13 @@
 
 audio = 0;
+playerPos = {x:0, y:0};
 
 
 Meteor.startup(function(){
 
   Session.set("isLoaded", false);
   Session.set("isAudioInit", false);
-  Session.set("isTest2", false);
+  Session.set("screenMode", 0);
 
   audio = new aapiWrapper();
 
@@ -26,27 +27,21 @@ UI.registerHelper("isAudioReady", function(){
   return Session.get("isAudioInit") && Session.get("isLoaded");
 });
 
-UI.registerHelper("isTest2", function(){
-  return Session.get("isTest2");
+UI.registerHelper("navScreen", function(){
+  return Session.get("screenMode") == 1;
 });
 
-Template.load.isAudioInit = function () {
-    return Session.get("isAudioInit");
-};
-
-Template.load.isLoaded = function () {
-    return Session.get("isLoaded");
-};
 
 function loadAudioFiles(){
   
-  var files = ["field.mp3", "footstep.mp3"];
+  var audioList = ["field", "footstep"];
+  var files = [];
 
-  /*for(var item in audioList){
+  for(var item in audioList){
 
     files.push("sounds/" + audioList[item] + ".mp3");
 
-  }*/
+  }
 
   if(audio.loadSounds(files, function(){
 
@@ -56,31 +51,77 @@ function loadAudioFiles(){
 
 }
 
-Template.testSound.events({
+Template.startSplash.events({
 
-  'click a#playOnce':function(e){
-    console.log("playOnce");
-    audio.playOnce("footstep", {amp: 1}, function(){
-
-      Session.set("isTest2", true);
-      
-    });
-    e.preventDefault();
-  },
-
-
-  'click a#playLoop':function(e){
-    console.log("playLoop");
-    audio.startLooping("field", 1, 1);
-    e.preventDefault();
-  },
-
-
-  'click a#newView':function(e){
-    console.log("newView");
-    Session.set("isTest2", true);
+  'click #begin':function(e){
+    Session.set("screenMode", 1);
     e.preventDefault();
   }
+
+
+});
+
+Template.navScreen.events({
+
+    'click .step': function(event){
+    
+        var id = event.target.id;
+        if($(event.target).hasClass('disable'))return;
+
+        $(event.target).addClass('active');
+
+        $('.step').not('#' + id).addClass('disable');
+
+
+
+
+       /* if(id == "north")playerPos.y = Math.max(playerPos.y - 1, 0);
+        if(id == "south")playerPos.y = Math.min(playerPos.y + 1, terrainMap.ySize - 1);
+        if(id == "east")playerPos.x = Math.min(playerPos.x + 1, terrainMap.xSize - 1);
+        if(id == "west")playerPos.x = Math.max(playerPos.x - 1, 0);
+        //TODO: routine for hitting edges
+
+      
+        var newTerrain = terrainTypes[terrainMap.map[playerPos.y][playerPos.x]]; //cols & rows reversed
+
+         console.log(newTerrain);
+
+        audio.playOnce('footstep', {amp: 1}, function(){
+
+          $(this).removeClass('active');
+          $('.step').not('#' + id).removeClass('disable');
+
+           if(newTerrain.bgSound != cTerrain.bgSound){
+
+              audio.stopLooping(cTerrain.bgSound, 1);
+              cTerrain = newTerrain;
+              audio.playOnce(cTerrain.whereSound, {amp: 0.75, offset: 2});
+              audio.startLooping(cTerrain.bgSound, 1, 1);
+
+            }else{
+              cTerrain = newTerrain;
+            }
+
+        }.bind(this));*/
+
+        event.preventDefault();
+
+    },  
+
+    'click #where': function(event){
+
+      console.log("where am i ?");
+      $(event.target).addClass("active");
+
+       /* audio.playOnce(cTerrain.whereSound, {amp: 0.75}, function(){
+
+          $(this).removeClass('active');
+
+        }.bind(this));*/
+
+      event.preventDefault();
+
+    }
 
 });
 

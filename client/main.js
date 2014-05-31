@@ -1,6 +1,11 @@
 
 audio = 0;
-playerPos = {x:0, y:0};
+
+//these need to become database functions
+//playerPos = {x:0, y:0};
+
+/*terrainTypes, terrainMap;
+cTerrain;*/
 
 
 Meteor.startup(function(){

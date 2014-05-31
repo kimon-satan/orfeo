@@ -1,0 +1,62 @@
+<head>
+  <title>Meteor AapiWrapper test</title>
+  <meta name="viewport" content="minimal-ui width=device-width, initial-scale=1, maximum-scale=1">
+</head>
+
+<body>
+
+	<div class="container">
+	{{#if isAudioReady}}
+
+		{{#if isTest2}}
+			{{>test2}}
+		{{else}}
+			{{>testSound}}
+		{{/if}}
+	{{else}}
+		{{>load}}
+	{{/if}}
+	</div>
+
+</body>
+
+<template name="load">
+  <h1>Is the audio loaded ? </h1>
+  
+  <div><p>isInit: {{isAudioInit}}</p></div>
+  <div><p>isLoaded: {{isLoaded}}</p></div>
+  
+
+</template>
+
+
+<template name="testSound">
+  
+  <h1>test the sound</h1>
+
+  <div class="row">
+  	<div class="col-xs-12">
+  	<a href="javascript:;" class="btn btn-default" id="playOnce">play once</a>
+	<br/><br/>
+	</div>
+  </div>
+  <div class="row">
+  	 <div class="col-xs-12">
+  	<a href="javascript:;" class="btn btn-default" id="playLoop">play loop</a>
+  	<br/><br/>
+  	</div>
+  </div>
+   
+   <div class="row">
+   	 <div class="col-xs-12">
+   	<a href="javascript:;" class="btn btn-default" id="newView">new view</a>
+   	<br/><br/>
+   </div>
+   </div>
+
+</template>
+
+<template name="test2">
+	<h1>this is test2</h1>
+
+</template>

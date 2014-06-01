@@ -14,7 +14,15 @@
   		{{#if navScreen}}
   			{{> navScreen}}
   		{{else}}
-  			{{>startSplash}}
+
+        {{#if currentUser}}
+  			   {{#if resetPassword}}
+              {{>resetPasswordForm}}
+           {{/if}}
+
+        {{else}}
+          {{>startSplash}}
+        {{/if}}
   		{{/if}}
 
   	{{else}}
@@ -34,8 +42,8 @@
 <template name="startSplash">
   <br/>
 
-  <div class="tbspacer"><a href="javascript:;" id="signIn" class="begin btn btn-primary btn-sm">Sign In</a>
-  <a href="javascript:;" id="signUp" class="begin btn btn-warning btn-sm">Sign Up</a></div>
+  <div class="tbspacer"><a href="javascript:;" id="signIn" class="btn btn-default btn-sm">Sign In</a>
+  <a href="javascript:;" id="signUp" class="btn btn-default btn-sm">Sign Up</a></div>
   <br/>
 
 
@@ -47,17 +55,43 @@
     {{>signUpForm}}
   {{/if}}
 
+
+
   <div id="loginError">{{loginError}}</div>
 
-  <div class="tbspacer"><a href="javascript:;" id="begin" class="begin btn btn-success btn-lg">Play</a></div>
+  <div class="tbspacer"><a href="javascript:;" id="begin" class="btn btn-success btn-lg">Play</a></div>
+
+</template>
+
+<template name="resetPasswordForm">
+  <h2>Please reset your password</h2>
+  <form role="form">
+
+      <div class="form-group">
+        <label for="inputPassword">Password</label>
+        <input type="password" class="form-control" id="inputPassword" placeholder="Password">
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirm password</label>
+        <input type="password" class="form-control" id="inputPassword" placeholder="Confirm Password">
+      </div>
+
+      <div class="form-group">
+        <div class="tbspacer"><a href="javascript:;" id="submit" class="btn btn-primary btn-lg">Play</a></div>
+      </div>
+
+  </form>
+
 
 </template>
 
 <template name="signInForm">
 
   <form role="form">
+
     <div class="form-group">
-      <label for="inputEmail">Sign in with email address</label>
+      <label for="inputEmail">Email address</label>
       <input type="email" class="form-control" id="inputEmail" placeholder="Enter email">
     </div>
 
@@ -67,8 +101,6 @@
         <input type="password" class="form-control" id="inputPassword" placeholder="Password">
       </div>
      {{/if}}
-
-
   </form>
 
 </template>
@@ -76,8 +108,9 @@
 <template name="signUpForm">
 
   <form role="form">
+
     <div class="form-group">
-      <label for="inputEmail">Sign up with email address</label>
+      <label for="inputEmail">Email address</label>
       <input type="email" class="form-control" id="inputEmail" placeholder="Enter email">
     </div>
 

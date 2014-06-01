@@ -17,7 +17,17 @@ Meteor.startup(function(){
   Session.set("screenMode", 0);
   Session.set("loginError", "");
   Session.set("isPriv", false);
+  Session.set("isResetPassword", false);
+  Session.set("isAdmin", false);
+  Session.set("isDesign", false);
 
+  if(Meteor.user()){
+
+    if(Meteor.user().profile.isPasswordSet == false){
+        Session.set("isResetPassword", true);
+    }
+
+  }
 
   audio = new aapiWrapper();
 
@@ -32,6 +42,10 @@ Meteor.startup(function(){
 
 });
 
+
+UI.registerHelper("resetPassword", function(){
+  return Session.get("isResetPassword");
+});
 
 UI.registerHelper("isAudioReady", function(){
   return Session.get("isAudioInit") && Session.get("isLoaded");
@@ -67,15 +81,24 @@ Template.startSplash.events({
     
     if(Session.get("signIn")){
       var email = $('#inputEmail').val();
+      var password = $('#inputPassword').val();
+
+      if(typeof password === 'undefined')password = '1234';
 
       if(validateEmail(email)){
-        Meteor.loginWithPassword(email, "1234", function(error){
+        Meteor.loginWithPassword(email, password, function(error){
 
           if(!error){
-            Session.set("screenMode", 1);
+            
+            
+
+            }else{
+              Session.set("screenMode", 1);
+            }
+
+
           }else if(error.reason == "Incorrect password"){
             Session.set("isPriv", true);
-            console.log("priv user");
           }else{
             console.log(error.reason);
           }
@@ -121,11 +144,15 @@ Template.startSplash.events({
   'click #signIn':function(e){
     Session.set("signIn", true);
     Session.set("signUp", false);
+    $('#signIn').addClass("btn-warning");
+    $('#signUp').removeClass("btn-warning");
     console.log("sign in");
     e.preventDefault();
   },
 
   'click #signUp':function(e){
+    $('#signUp').addClass("btn-warning");
+    $('#signIn').removeClass("btn-warning");
     Session.set("signUp", true);
     Session.set("signIn", false);
     e.preventDefault();
@@ -133,6 +160,23 @@ Template.startSplash.events({
 
 
 });
+
+function setAdminVariables(){
+
+  if(Meteor.user().profile.role == 'admin' || Meteor.user().profile.role == 'design'){
+              
+              if(Meteor.user().profile.isPasswordSet == false){
+                Session.set("isResetPassword", true);
+              }else{
+                if(Meteor.user().profile.role == 'admin'){
+                  Session.set("isAdmin", true);
+                  Session.set("isDesign", true);
+                }else{
+                  Session.set("isDesign", true);
+                }
+  }
+
+}
 
 Template.startSplash.signIn = function(){ return Session.get("signIn");}
 Template.startSplash.signUp = function(){ return Session.get("signUp");}

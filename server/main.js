@@ -1,4 +1,4 @@
-SuUsers = new Meteor.Collection("SuUsers");
+SUsers = new Meteor.Collection("SUsers");
 
 Meteor.startup(function(){
 
@@ -27,14 +27,32 @@ Meteor.methods({
 
 	initSu:function(userId){
 
-		if(SuUsers.find({}).fetch().length == 0){
+		if(SUsers.find({}).fetch().length == 0){
 
-			SuUsers.insert({user: userId});
+			SUsers.insert({user: userId});
 		}
 
 	},
 
-	makeAdmin: function(userId){
+	makeSu: function(userId){
+
+
+
+	},
+
+	removeSu: function(userId){
+
+
+
+	},
+
+	makeDesigner: function(userId){
+
+
+
+	},
+
+	removeDesigner: function(userId){
 
 
 

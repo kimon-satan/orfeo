@@ -1,5 +1,5 @@
 <head>
-  <title>Meteor AapiWrapper test</title>
+  <title>Orfeo</title>
   <meta name="viewport" content="minimal-ui width=device-width, initial-scale=1, maximum-scale=1">
 </head>
 
@@ -33,57 +33,59 @@
 
 <template name="startSplash">
   <br/>
+
+  <div class="tbspacer"><a href="javascript:;" id="signIn" class="begin btn btn-primary btn-sm">Sign In</a>
+  <a href="javascript:;" id="signUp" class="begin btn btn-warning btn-sm">Sign Up</a></div>
   <br/>
-  <a href="javascript:;" id="begin" class="begin btn btn-success">Begin</a>
+
+
+  {{#if signIn}}
+    {{>signInForm}}
+  {{/if}}
+
+  {{#if signUp}}
+    {{>signUpForm}}
+  {{/if}}
+
+  <div id="loginError"></div>
+
+  <div class="tbspacer"><a href="javascript:;" id="begin" class="begin btn btn-success btn-lg">Play</a></div>
+
 </template>
 
+<template name="signInForm">
 
-<template name="navScreen">
-  
-  <div>
-    <!---just spacing for now -->
-    <br/>
-    <br/>
-  </div>
-
-  <div class="row">
-    <div class="col-md-3"></div>
-    <div class= "col-xs-12 col-md-6">
-      <div class = "row">      
-
-
-        <div class="col-xs-12">
-          <a href="javascript:;" id="north" class="step toggleBtn"></a>
-        </div>
-
-      </div>
-
-      <div class ="row">
-
-        <div class="col-xs-4">
-          <a href="javascript:;" id="west" class="step toggleBtn"></a>
-        </div>
-        <div class="col-xs-4">
-          <a href="javascript:;" id="where" class="toggleBtn"></a>
-        </div>
-        <div class="col-xs-4">
-          <a href="javascript:;" id="east" class="step toggleBtn"></a>
-        </div>
-      </div>  
-
-      <div class ="row">
-
-        <div class="col-xs-12">
-          <a href="javascript:;" id="south" class="step toggleBtn"></a>
-        </div>
-
-      </div>
+  <form role="form">
+    <div class="form-group">
+      <label for="inputEmail">Sign in with email address</label>
+      <input type="email" class="form-control" id="inputEmail" placeholder="Enter email">
     </div>
-  </div>
+
+      {{#if priv}}
+      <div class="form-group">
+        <label for="inputPassword">Password</label>
+        <input type="password" class="form-control" id="inputPassword" placeholder="Password">
+      </div>
+     {{/if}}
+
+
+  </form>
 
 </template>
 
-<template name="test2">
-	<h1>this is test2</h1>
+<template name="signUpForm">
+
+  <form role="form">
+    <div class="form-group">
+      <label for="inputEmail">Sign up with email address</label>
+      <input type="email" class="form-control" id="inputEmail" placeholder="Enter email">
+    </div>
+
+  </form>
 
 </template>
+
+
+
+
+

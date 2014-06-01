@@ -12,7 +12,10 @@ Meteor.startup(function(){
 
   Session.set("isLoaded", false);
   Session.set("isAudioInit", false);
+  Session.set("signIn", false);
+  Session.set("signUp", false);
   Session.set("screenMode", 0);
+
 
   audio = new aapiWrapper();
 
@@ -59,76 +62,78 @@ function loadAudioFiles(){
 Template.startSplash.events({
 
   'click #begin':function(e){
-    Session.set("screenMode", 1);
+    
+    if(Session.get("signIn")){
+      var email = $('#inputEmail').val();
+      console.log(email);
+    }else if(Session.get("signUp")){
+      var email = $('#inputEmail').val();
+      console.log(email);
+    }else{
+      Session.set("screenMode", 1);
+    }
+
+    e.preventDefault();
+  },
+
+  'click #signIn':function(e){
+    Session.set("signIn", true);
+    Session.set("signUp", false);
+    console.log("sign in");
+    e.preventDefault();
+  },
+
+  'click #signUp':function(e){
+    Session.set("signUp", true);
+    Session.set("signIn", false);
     e.preventDefault();
   }
 
 
 });
 
-Template.navScreen.events({
-
-    'click .step': function(event){
-    
-        var id = event.target.id;
-        if($(event.target).hasClass('disable'))return;
-
-        $(event.target).addClass('active');
-
-        $('.step').not('#' + id).addClass('disable');
+Template.startSplash.signIn = function(){ return Session.get("signIn");}
+Template.startSplash.signUp = function(){ return Session.get("signUp");}
 
 
+Template.signInForm.events({
 
+  'click':function(e){e.preventDefault();},
 
-       /* if(id == "north")playerPos.y = Math.max(playerPos.y - 1, 0);
-        if(id == "south")playerPos.y = Math.min(playerPos.y + 1, terrainMap.ySize - 1);
-        if(id == "east")playerPos.x = Math.min(playerPos.x + 1, terrainMap.xSize - 1);
-        if(id == "west")playerPos.x = Math.max(playerPos.x - 1, 0);
-        //TODO: routine for hitting edges
-
-      
-        var newTerrain = terrainTypes[terrainMap.map[playerPos.y][playerPos.x]]; //cols & rows reversed
-
-         console.log(newTerrain);
-
-        audio.playOnce('footstep', {amp: 1}, function(){
-
-          $(this).removeClass('active');
-          $('.step').not('#' + id).removeClass('disable');
-
-           if(newTerrain.bgSound != cTerrain.bgSound){
-
-              audio.stopLooping(cTerrain.bgSound, 1);
-              cTerrain = newTerrain;
-              audio.playOnce(cTerrain.whereSound, {amp: 0.75, offset: 2});
-              audio.startLooping(cTerrain.bgSound, 1, 1);
-
-            }else{
-              cTerrain = newTerrain;
-            }
-
-        }.bind(this));*/
-
-        event.preventDefault();
-
-    },  
-
-    'click #where': function(event){
-
-      console.log("where am i ?");
-      $(event.target).addClass("active");
-
-       /* audio.playOnce(cTerrain.whereSound, {amp: 0.75}, function(){
-
-          $(this).removeClass('active');
-
-        }.bind(this));*/
-
-      event.preventDefault();
-
+  'keypress':function(e){
+    //catch the return
+    if(e.keyCode == 13){
+      e.preventDefault();
     }
+  }
 
 });
+
+Template.signInForm.priv = function(){ return false; }
+
+Template.signUpForm.events({
+
+  'click':function(e){e.preventDefault();},
+
+  'keypress':function(e){
+    //catch the return
+    if(e.keyCode == 13){
+      e.preventDefault();
+    }
+  }
+
+});
+
+
+
+
+
+
+
+
+
+
+
 
 
 

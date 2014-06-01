@@ -9,64 +9,116 @@
 
     <h1>Orfeo</h1>
 
-  	{{#if isAudioReady}}
 
-  		{{#if navScreen}}
-  			{{> navScreen}}
-  		{{else}}
+    {{#if currentUser}}
+      {{#if isSu}}
+        {{>su}}
+      {{else}}
+        {{>game}}
+      {{/if}}
+    {{else}}
+      {{>hello}}
+    {{/if}}
 
-        {{#if currentUser}}
-  			   {{#if resetPassword}}
-              {{>resetPasswordForm}}
-           {{/if}}
-
-        {{else}}
-          {{>startSplash}}
-        {{/if}}
-  		{{/if}}
-
-  	{{else}}
-  		{{>load}}
-  	{{/if}}
   </div>
 
 </body>
 
-<template name="load">
-  <br/>
-  <h2>loading</h2>
-  <br/>
-  <img src="images/whiteLoader.gif">
-</template>
+<template name="hello">
 
-<template name="startSplash">
-  <br/>
-
-  <div class="tbspacer"><a href="javascript:;" id="signIn" class="btn btn-default btn-sm">Sign In</a>
-  <a href="javascript:;" id="signUp" class="btn btn-default btn-sm">Sign Up</a></div>
-  <br/>
-
-
-  {{#if signIn}}
-    {{>signInForm}}
+  {{#if isFrontPage}}
+    {{>frontPage}}
   {{/if}}
 
-  {{#if signUp}}
-    {{>signUpForm}}
+  {{#if isRegister}}
+    {{>register}}
   {{/if}}
 
-
-
-  <div id="loginError">{{loginError}}</div>
-
-  <div class="tbspacer"><a href="javascript:;" id="begin" class="btn btn-success btn-lg">Play</a></div>
+  {{#if isLogin}}
+    {{>login}}
+  {{/if}}
 
 </template>
 
-<template name="resetPasswordForm">
-  <h2>Please reset your password</h2>
+
+<template name="frontPage">
+
+  <div class="tbspacer"><a href="javascript:;" id="login" class="btn btn-default btn-sm">Resume game</a>
+  <a href="javascript:;" id="register" class="btn btn-default btn-sm">Create Profile</a></div>
+  <br/>
+
+   <div class="tbspacer"><a href="javascript:;" id="justPlay" class="btn btn-success btn-lg">Just Play</a></div>
+
+</template>
+
+
+
+<template name="login">
+
+  <form role="form">
+    <div class="form-group">
+      <label for="inputEmail">Email address</label>
+      <input type="email" class="form-control" id="inputEmail" placeholder="Enter email">
+    </div>
+    
+    <div class="form-group">
+      <label for="inputPassword">Password</label>
+      <input type="password" class="form-control" id="inputPassword" placeholder="Password">
+    </div>
+
+    {{>loginErrors}}
+
+    <div class="tbspacer"><a href="javascript:;" id="resume" class="btn btn-success btn-lg">Resume Game</a></div>
+
+  </form>
+
+</template>
+
+
+<template name="register">
+
   <form role="form">
 
+    <div class="form-group">
+      <label for="inputEmail">Email address</label>
+      <input type="email" class="form-control" id="inputEmail" placeholder="Enter email">
+    </div>
+
+    <div class="form-group">
+      <label for="inputUn">username</label>
+      <input type="text" class="form-control" id="inputUn" placeholder="Enter your name">
+    </div>
+
+    <div class="form-group">
+      <label for="inputPassword">Password</label>
+      <input type="password" class="form-control" id="inputPassword" placeholder="Password">
+    </div>
+
+    <div class="form-group">
+      <label for="confirmPassword">Confirm Password</label>
+      <input type="password" class="form-control" id="confirmPassword" placeholder="Password">
+    </div>
+
+    {{>loginErrors}}
+    
+
+    <div class="tbspacer"><a href="javascript:;" id="play" class="btn btn-success btn-lg">Start Playing</a></div>
+
+
+  </form>
+
+</template>
+
+<template name="loginErrors">
+
+  <div class = "errors">{{loginError}}</div>
+
+</template>
+
+<!--
+<template name="resetPassword">
+  <h2>Please reset your password</h2>
+  <form role="form">
       <div class="form-group">
         <label for="inputPassword">Password</label>
         <input type="password" class="form-control" id="inputPassword" placeholder="Password">
@@ -80,43 +132,11 @@
       <div class="form-group">
         <div class="tbspacer"><a href="javascript:;" id="submit" class="btn btn-primary btn-lg">Play</a></div>
       </div>
-
   </form>
+</template> -->
 
 
-</template>
 
-<template name="signInForm">
-
-  <form role="form">
-
-    <div class="form-group">
-      <label for="inputEmail">Email address</label>
-      <input type="email" class="form-control" id="inputEmail" placeholder="Enter email">
-    </div>
-
-      {{#if priv}}
-      <div class="form-group">
-        <label for="inputPassword">Password</label>
-        <input type="password" class="form-control" id="inputPassword" placeholder="Password">
-      </div>
-     {{/if}}
-  </form>
-
-</template>
-
-<template name="signUpForm">
-
-  <form role="form">
-
-    <div class="form-group">
-      <label for="inputEmail">Email address</label>
-      <input type="email" class="form-control" id="inputEmail" placeholder="Enter email">
-    </div>
-
-  </form>
-
-</template>
 
 
 

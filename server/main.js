@@ -31,8 +31,8 @@ Meteor.methods({
 		if(SUsers.find({}).fetch().length == 0){
 
 			SUsers.insert({user: user._id, email: user.emails[0].address});
-			Accounts.setPassword(user._id, "password");
-			Meteor.users.update(user._id, {$set: {profile: {role: 'admin', isPasswordSet: false}}});
+			Meteor.users.update(user._id, {$set: {profile: {role: 'admin'}}});
+			
 		}
 
 	},

@@ -1,3 +1,33 @@
+
+UI.registerHelper("isAudioReady", function(){
+  return Session.get("isAudioInit") && Session.get("isLoaded");
+});
+
+Template.game.created = function(){
+
+  if(!Session.get("isAudioInit"))startAudio();
+
+}
+
+Template.game.isStartSplash = function(){
+  return Session.get("screenMode") == 0;
+};
+
+Template.game.isNavScreen = function(){
+  return Session.get("screenMode") == 1;
+};
+
+
+Template.startSplash.events({
+
+  'click #begin':function(e){
+
+      Session.set("screenMode", 1);
+      e.preventDefault();
+  }
+
+});
+
 /*----------------------------------------------------------------------------------------------*/
 
 Template.navScreen.events({
@@ -63,3 +93,37 @@ Template.navScreen.events({
     }
 
 });
+
+function startAudio(){
+ 
+  audio = new aapiWrapper();
+
+  if(audio.init()){
+    Session.set("isAudioInit", true);
+    loadAudioFiles();
+
+  }else{
+    console.log("init failed");
+  }
+
+}
+
+function loadAudioFiles(){
+  
+  var audioList = ["field", "footstep"];
+  var files = [];
+
+  for(var item in audioList){
+
+    files.push("sounds/" + audioList[item] + ".mp3");
+
+  }
+
+  if(audio.loadSounds(files, function(){
+
+    Session.set("isLoaded" , true);
+    Session.set("screenMode", 0);
+
+  }));
+
+}

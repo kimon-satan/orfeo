@@ -1,3 +1,33 @@
+<template name="game">
+    {{#if isAudioReady}}
+
+      {{#if isStartSplash}}
+        {{> startSplash}}
+      {{/if}}
+
+      {{#if isNavScreen}}
+        {{> navScreen}}
+      {{/if}}
+
+    {{else}}
+      {{>load}}
+    {{/if}}
+</template>
+
+<template name="load">
+  <br/>
+  <h2>loading</h2>
+  <br/>
+  <img src="images/whiteLoader.gif">
+</template>
+
+<template name="startSplash">
+  <br/>
+  <p>This is some place holder text for the introductory story. This screen is needed as an extra UI event has to trigger the audio</p>
+  <br/>
+  <div class="tbspacer"><a href="javascript:;" id="begin" class="btn btn-success btn-lg">Enter</a></div>
+</template>
+
 <template name="navScreen">
   
   <div>

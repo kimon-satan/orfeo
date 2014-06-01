@@ -1,4 +1,5 @@
 SUsers = new Meteor.Collection("SUsers");
+Designers = new Meteor.Collection("Designers");
 
 Meteor.startup(function(){
 
@@ -25,14 +26,16 @@ Meteor.publish('gameData', function(userId){
 
 Meteor.methods({
 
-	initSu:function(userId){
+	initSu:function(user){
 
 		if(SUsers.find({}).fetch().length == 0){
 
-			SUsers.insert({user: userId});
+			SUsers.insert({user: user._id, email: user.emails[0].address});
+			Accounts.setPassword(user._id, "asdfg");
 		}
 
 	},
+
 
 	makeSu: function(userId){
 
@@ -68,23 +71,6 @@ Meteor.methods({
 });
 
 
-function generateTempId(n){
-
-	var chars = "abcdefghijklmnnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ!@£$%^&*()-=_+";	
-	var count = 0;
-	var str;
-	var idx;
-
-	while(count < n){
-
-		idx = Math.random() * (chars.length - 1);
-		str += chars[idx];
-		count++;
-	}
-
-	return str;
-
-}
 
 function checkAuth(userId){
 

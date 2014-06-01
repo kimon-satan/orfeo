@@ -15,6 +15,8 @@ Meteor.startup(function(){
   Session.set("signIn", false);
   Session.set("signUp", false);
   Session.set("screenMode", 0);
+  Session.set("loginError", "");
+  Session.set("isPriv", false);
 
 
   audio = new aapiWrapper();
@@ -65,11 +67,51 @@ Template.startSplash.events({
     
     if(Session.get("signIn")){
       var email = $('#inputEmail').val();
-      console.log(email);
+
+      if(validateEmail(email)){
+        Meteor.loginWithPassword(email, "1234", function(error){
+
+          if(!error){
+            Session.set("screenMode", 1);
+          }else if(error.reason == "Incorrect password"){
+            Session.set("isPriv", true);
+            console.log("priv user");
+          }else{
+            console.log(error.reason);
+          }
+
+        });
+      }else{
+
+        Session.set("loginError", "Please enter a valid email addresss.");
+
+      }
+
+
     }else if(Session.get("signUp")){
       var email = $('#inputEmail').val();
-      console.log(email);
+
+      if(validateEmail(email)){ //might need more validation here (check what bootstrap does)
+        Accounts.createUser({email: email, password: "1234"}, function(error){
+
+          if(!error){
+            Session.set("screenMode", 1);
+          }else{
+            Session.set("loginError", error.reason);
+          }
+
+        });
+
+      }else{
+
+        Session.set("loginError", "Please enter a valid email addresss.");
+
+      }
+      
+
     }else{
+      var uId = generateTempId(10);
+      Accounts.createUser({username: uId, password: "1234"});
       Session.set("screenMode", 1);
     }
 
@@ -94,7 +136,8 @@ Template.startSplash.events({
 
 Template.startSplash.signIn = function(){ return Session.get("signIn");}
 Template.startSplash.signUp = function(){ return Session.get("signUp");}
-
+Template.startSplash.loginError = function(){ return Session.get("loginError");}
+Template.signInForm.priv = function(){return Session.get("isPriv");}
 
 Template.signInForm.events({
 
@@ -109,7 +152,6 @@ Template.signInForm.events({
 
 });
 
-Template.signInForm.priv = function(){ return false; }
 
 Template.signUpForm.events({
 
@@ -124,6 +166,30 @@ Template.signUpForm.events({
 
 });
 
+
+
+function generateTempId(n){
+
+  var chars = "abcdefghijklmnnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ!@£$%^&*()-=_+";  
+  var count = 0;
+  var str;
+  var idx;
+
+  while(count < n){
+
+    idx = Math.random() * (chars.length - 1);
+    str += chars[idx];
+    count++;
+  }
+
+  return str;
+
+}
+
+function validateEmail(email) { 
+    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+}; 
 
 
 

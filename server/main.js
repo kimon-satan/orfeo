@@ -85,6 +85,14 @@ Meteor.methods({
 
 
 
+	},
+
+	clearAllAudio: function(userId){
+
+		if(checkAdmin(userId)){
+			AudioFiles.remove({});
+		}
+
 	}
 
 

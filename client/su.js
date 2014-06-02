@@ -45,6 +45,8 @@ Template.su.isManageDesigners = function(){return Session.get("suMode") == "mana
 Template.su.isManagePlayers = function(){return Session.get("suMode") == "managePlayers";}
 
 
+//TODO much later fill in all the user manager stuff here .... including adding players as admin/designers & a name search
+
 Template.manageSus.susers = function(){
 	return Meteor.users.find({'profile.role': 'admin'});
 }
@@ -52,3 +54,8 @@ Template.manageSus.susers = function(){
 Template.manageSus.email = function(){
 	return this.emails[0].address;
 }
+
+
+
+
+

@@ -1,10 +1,34 @@
 
+var fs = Npm.require('fs');
 
 Meteor.startup(function(){
 
+	//repopulate the list of audioFiles
+	AudioFiles.remove({});
+	var dirs = fs.readdirSync('../client/app/sounds');
+	//console.log(dirs);
+	for(var dir in dirs){
 
+		(function(){
+
+		var fileList = [];
+		var files = fs.readdirSync('../client/app/sounds/' + dirs[dir]);
+
+		//console.log(files);
+
+		for(var i = 0; i < files.length; i++){
+			AudioFiles.insert({parent: dirs[dir], filename: files[i]});
+		}
+
+		})();
+	}
+
+	console.log(AudioFiles.find().fetch());
 
 });
+
+
+
 
 
 /*-------------------------user collections -----------------------------*/
@@ -87,13 +111,15 @@ Meteor.methods({
 
 	},
 
-	clearAllAudio: function(userId){
 
-		if(checkAdmin(userId)){
-			AudioFiles.remove({});
-		}
+	initPlayer: function(userId){
+
+		PlayerGameData.insert({player: userId, type: "pos", x: 0, y: 0});
+		PlayerGameData.insert({player: userId, level: 0});
 
 	}
+
+
 
 
 

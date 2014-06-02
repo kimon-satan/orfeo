@@ -4,11 +4,53 @@
 
 <template name ="designRelease">
 
-<h2>designer</h2>
-
-<input id="fileChooser" type="file"/>
-<!-- this will eventually be design level -->
-
-{{uploadProgress}}
+	{{>terrainMaker}}
 
 </template>
+
+<template name="terrainMaker">
+
+		<h2>Terrain maker</h2>
+
+	<form role="form">
+	  <div class="form-group">
+	    <label for="terrainName">Terrain Name</label>
+	    <input type="text" class="form-control" id="terrainName" placeholder="eg. forest">
+	  </div>
+
+<!-- Split button -->
+<div class="form-group">
+  <div class="btn-group">
+  <button type="button" class="btn btn-default">audio type</button>
+  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+    <span class="caret"></span>
+    <span class="sr-only">Toggle Dropdown</span>
+  </button>
+  <ul class="dropdown-menu" role="menu">
+   	{{#each audioFiles}}
+		<li><a href="#">{{this.filename}}</a></li>
+   	{{/each}}
+  </ul>
+	</div>
+	  <div class="btn-group">
+  <button type="button" class="btn btn-default">audio file</button>
+  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+    <span class="caret"></span>
+    <span class="sr-only">Toggle Dropdown</span>
+  </button>
+  <ul class="dropdown-menu" role="menu">
+   	{{#each audioFiles}}
+		<li><a href="#">{{this.filename}}</a></li>
+   	{{/each}}
+  </ul>
+	</div>
+</div>
+	 
+	  <div class="form-group">
+	  <button type="submit" id="addTerrain" class="btn btn-success">Add Terrain</button>
+	</div>
+	</form>
+
+
+</template>
+

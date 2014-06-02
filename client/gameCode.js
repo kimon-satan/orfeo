@@ -1,12 +1,23 @@
 
+
+
+
 UI.registerHelper("isAudioReady", function(){
   return Session.get("isAudioInit") && Session.get("isLoaded");
 });
 
 Template.game.created = function(){
 
-  if(!Session.get("isAudioInit"))startAudio();
+    var id = Meteor.user()._id;
 
+  Meteor.subscribe("PlayerGameData", {id: id}, { onReady: function(){
+     Meteor.subscribe("AudioFiles",{}, {onReady: function(){
+
+      if(!Session.get("isAudioInit"))startAudio();
+     }});
+
+  }});
+ 
 }
 
 Template.game.isStartSplash = function(){
@@ -41,17 +52,18 @@ Template.navScreen.events({
 
         $('.step').not('#' + id).addClass('disable');
 
+        var playerPos = PlayerGameData.findOne({player: Meteor.user()._id, type: "pos"});
 
-
-
-       /* if(id == "north")playerPos.y = Math.max(playerPos.y - 1, 0);
+        if(id == "north")playerPos.y = Math.max(playerPos.y - 1, 0);
         if(id == "south")playerPos.y = Math.min(playerPos.y + 1, terrainMap.ySize - 1);
         if(id == "east")playerPos.x = Math.min(playerPos.x + 1, terrainMap.xSize - 1);
         if(id == "west")playerPos.x = Math.max(playerPos.x - 1, 0);
+
         //TODO: routine for hitting edges
 
-      
-        var newTerrain = terrainTypes[terrainMap.map[playerPos.y][playerPos.x]]; //cols & rows reversed
+        PlayerGameData.update({player: Meteor.user()._id, type: "pos"}, {$set: {x: playerPos.x, y: playerPos.y}});
+            
+       /* var newTerrain = terrainTypes[terrainMap.map[playerPos.y][playerPos.x]]; //cols & rows reversed
 
          console.log(newTerrain);
 
@@ -100,7 +112,8 @@ function startAudio(){
 
   if(audio.init()){
     Session.set("isAudioInit", true);
-    loadAudioFiles();
+    loadAudioFiles(); 
+  
 
   }else{
     console.log("init failed");
@@ -109,21 +122,16 @@ function startAudio(){
 }
 
 function loadAudioFiles(){
-  
-  var audioList = ["field", "footstep"];
-  var files = [];
 
-  for(var item in audioList){
+  var files = AudioFiles.find({}).fetch();
 
-    files.push("sounds/" + audioList[item] + ".mp3");
+  console.log(files);
 
-  }
-
-  if(audio.loadSounds(files, function(){
+  audio.loadSounds( files , function(){
 
     Session.set("isLoaded" , true);
     Session.set("screenMode", 0);
 
-  }));
+  });
 
 }

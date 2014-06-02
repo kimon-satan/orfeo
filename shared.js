@@ -1,15 +1,14 @@
 ////////// Shared code (client and server) //////////
 
-var localPath = "~/Code/JavaScript/projects/orfeo/uploads/sounds"
 
 SUsers = new Meteor.Collection("SUsers");
 Designers = new Meteor.Collection("Designers");
 PlayerGameData = new Meteor.Collection("PlayerGameData"); //game data for individual players
 
 
-AudioFiles = new FS.Collection("AudioFiles", {
-  stores: [new FS.Store.FileSystem("AudioFiles", {path: localPath})]
-});
+AudioFiles = new Meteor.Collection("AudioFiles");
+
+
 GameMapRelease = new Meteor.Collection("GameMapRelease"); //the final game map
 GameDefsRelease = new Meteor.Collection("GameDefsRelease"); //the final game definitions
 
@@ -24,13 +23,6 @@ Meteor.users.deny({
 
 });
 
-AudioFiles.allow({
-
-	update: function(user){if(Meteor.users.findOne(user).profile.role == 'admin')return true;},
-	insert: function(user){if(Meteor.users.findOne(user).profile.role == 'admin')return true;}, 
-	remove: function(user){if(Meteor.users.findOne(user).profile.role == 'admin')return true;}	
-
-});
 
 GameMapRelease.deny({
 

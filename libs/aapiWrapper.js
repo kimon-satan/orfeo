@@ -37,14 +37,16 @@ aapiWrapper.prototype.loadSounds = function(files, callBack){
 			var i = parseInt(a);
       
       //get the file name
-      var name = files[i].split("/");
-      name = name[name.length-1].split(".");
+      var name = files[i].filename;
+      name = name.split(".");
       name = name[0];
 
 			parent.sampleObjs[name] = new appiSample(name);
+      var fp = "sounds/" + files[i].parent + "/" + files[i].filename;
+      console.log(fp);
 
 			var req = new XMLHttpRequest();
-			req.open('GET', files[i], true);
+			req.open('GET', fp, true);
 			req.responseType = 'arraybuffer';
 
       req.addEventListener('load', function(event){
@@ -59,8 +61,6 @@ aapiWrapper.prototype.loadSounds = function(files, callBack){
 
 		})(this); 
 	}
-
-  
 
 }
 

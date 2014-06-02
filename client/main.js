@@ -41,8 +41,7 @@ Deps.autorun(function(){
 
     }
 
-      Meteor.subscribe("PlayerGameData", id);
-      Meteor.subscribe("AudioFiles");
+
       Meteor.subscribe("GameMapRelease");
       Meteor.subscribe("GameDefsRelease");
   }
@@ -66,6 +65,7 @@ Template.frontPage.events({
 
       var uId = generateTempId(10);
       Accounts.createUser({username: uId, password: "1234"});
+      Meteor.call("initPlayer", uId);
       Session.set("screenMode", 0);
       e.preventDefault();
   },
@@ -195,7 +195,6 @@ function validateEmail(email) {
     var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email);
 }; 
-
 
 
 

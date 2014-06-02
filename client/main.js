@@ -64,8 +64,12 @@ Template.frontPage.events({
   'click #justPlay':function(e){
 
       var uId = generateTempId(10);
-      Accounts.createUser({username: uId, password: "1234"});
-      Meteor.call("initPlayer", uId);
+      Accounts.createUser({username: uId, password: "1234"}, function(){
+
+        Meteor.call("initPlayer", Meteor.user()._id);
+
+      });
+
       Session.set("screenMode", 0);
       e.preventDefault();
   },
@@ -144,6 +148,7 @@ Template.register.events({
         Accounts.createUser({username: uname, email: email, password: password, profile: {role: 'player'}}, function(err){
 
           if(!err){
+            Meteor.call("initPlayer", Meteor.user()._id);
             Session.set("screenMode", 0);
           }else{
             Session.set("loginError", err.reason);

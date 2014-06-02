@@ -61,7 +61,7 @@ Template.navScreen.events({
 
         //TODO: routine for hitting edges
 
-        PlayerGameData.update({player: Meteor.user()._id, type: "pos"}, {$set: {x: playerPos.x, y: playerPos.y}});
+        PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
             
        /* var newTerrain = terrainTypes[terrainMap.map[playerPos.y][playerPos.x]]; //cols & rows reversed
 
@@ -123,7 +123,7 @@ function startAudio(){
 
 function loadAudioFiles(){
 
-  var files = AudioFiles.find({}).fetch();
+  var files = AudioFiles.find({dt: 'file'}).fetch();
 
   console.log(files);
 

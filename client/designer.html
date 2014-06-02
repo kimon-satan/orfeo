@@ -21,19 +21,19 @@
 <!-- Split button -->
 <div class="form-group">
   <div class="btn-group">
-  <button type="button" class="btn btn-default">audio type</button>
+  <button type="button" class="btn btn-default">{{currentType}}</button>
   <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
     <span class="caret"></span>
     <span class="sr-only">Toggle Dropdown</span>
   </button>
   <ul class="dropdown-menu" role="menu">
-   	{{#each audioFiles}}
-		<li><a href="#">{{this.filename}}</a></li>
+   	{{#each audioTypes}}
+		<li><a href="#">{{this.type}}</a></li>
    	{{/each}}
   </ul>
 	</div>
 	  <div class="btn-group">
-  <button type="button" class="btn btn-default">audio file</button>
+  <button type="button" class="btn btn-default">{{currentFile}}</button>
   <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
     <span class="caret"></span>
     <span class="sr-only">Toggle Dropdown</span>

@@ -23,6 +23,21 @@ Meteor.users.deny({
 
 });
 
+PlayerGameData.allow({
+
+	update: function(user, doc){
+
+		if(Meteor.users.findOne(user).profile.role == 'admin' || 
+			user == doc.player){
+			console.log('allow');
+			return true;
+		}else{
+			return false;
+		}
+							
+	}
+
+});
 
 GameMapRelease.deny({
 

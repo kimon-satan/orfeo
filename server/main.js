@@ -9,6 +9,8 @@ Meteor.startup(function(){
 	//console.log(dirs);
 	for(var dir in dirs){
 
+		AudioFiles.insert({type: dirs[dir], dt: 'type'});
+
 		(function(){
 
 		var fileList = [];
@@ -17,13 +19,13 @@ Meteor.startup(function(){
 		//console.log(files);
 
 		for(var i = 0; i < files.length; i++){
-			AudioFiles.insert({parent: dirs[dir], filename: files[i]});
+			AudioFiles.insert({parent: dirs[dir], filename: files[i], dt: 'file'});
 		}
 
 		})();
 	}
 
-	console.log(AudioFiles.find().fetch());
+	//console.log(AudioFiles.find().fetch());
 
 });
 
@@ -114,6 +116,7 @@ Meteor.methods({
 
 	initPlayer: function(userId){
 
+		console.log("init");
 		PlayerGameData.insert({player: userId, type: "pos", x: 0, y: 0});
 		PlayerGameData.insert({player: userId, level: 0});
 

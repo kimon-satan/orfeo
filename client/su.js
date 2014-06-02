@@ -22,7 +22,7 @@ Template.su.events({
 		e.preventDefault();
 	},
 
-	'click li':function(e){
+	'click #suNav > li':function(e){
 
 		var id = e.currentTarget.id;
 		$('#suNav > li').removeClass("active");

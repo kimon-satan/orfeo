@@ -39,18 +39,18 @@ PlayerGameData.allow({
 
 });
 
-GameMapRelease.deny({
+GameMapRelease.allow({
 
-	update: function(user){return Meteor.user().profile.role != 'admin';},
-	insert: function(user){return Meteor.user().profile.role != 'admin';}, 
-	remove: function(user){return Meteor.user().profile.role != 'admin';}	
+	update: function(user){return Meteor.user().profile.role == 'admin';},
+	insert: function(user){return Meteor.user().profile.role == 'admin';}, 
+	remove: function(user){return Meteor.user().profile.role == 'admin';}	
 });
 
-GameDefsRelease.deny({
+GameDefsRelease.allow({
 
-	update: function(user){return Meteor.user().profile.role != 'admin';},
-	insert: function(user){return Meteor.user().profile.role != 'admin';}, 
-	remove: function(user){return Meteor.user().profile.role != 'admin';}	
+	update: function(user){return Meteor.user().profile.role == 'admin';},
+	insert: function(user){return Meteor.user().profile.role == 'admin';}, 
+	remove: function(user){return Meteor.user().profile.role == 'admin';}	
 });
 
 

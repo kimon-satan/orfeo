@@ -1,0 +1,5 @@
+1./ push through to basic level designer using table selector
+2./ then add in sandboxing features 
+    -- work out some basic principles for linking levels (ie. reciprical links only ?)
+
+3./ now add special override objects and changes to appi wrapper to accomodate panning and mulitple instantiations of the same file 

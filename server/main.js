@@ -1,5 +1,4 @@
-SUsers = new Meteor.Collection("SUsers");
-Designers = new Meteor.Collection("Designers");
+
 
 Meteor.startup(function(){
 
@@ -8,20 +7,46 @@ Meteor.startup(function(){
 });
 
 
-Meteor.publish('allPlayers', function(userId){
+/*-------------------------user collections -----------------------------*/
 
-	if(checkAuth(userId)){
+Meteor.publish('SUsers', function(userId){
+	if(checkAdmin(userId)){
+		return SUsers.find({}); 
+	}
+});
+
+Meteor.publish('Designers', function(userId){
+	if(checkAdmin(userId)){
+		return Designers.find({}); 
+	}
+});
+
+Meteor.publish('AllPlayers', function(userId){
+	if(checkAdmin(userId)){
 		return Meteor.users.find({}); 
 	}
+});
 
+Meteor.publish('PlayerGameData', function(userId){
+	return PlayerGameData.find({player: userId}); 
 });
 
 
-Meteor.publish('gameData', function(userId){
+/*----------------------design collections ---------------------------------*/
 
-	return GameData.find({player: user._id}); 
-
+Meteor.publish('AudioFiles', function(){
+	return AudioFiles.find({}); 
 });
+
+
+Meteor.publish('GameMapRelease', function(){
+	return GameMapRelease.find({}); 
+});
+
+Meteor.publish('GameDefsRelease', function(){
+	return GameDefsRelease.find({}); 
+});
+
 
 
 Meteor.methods({
@@ -68,9 +93,19 @@ Meteor.methods({
 
 
 
-function checkAuth(userId){
+function checkAdmin(userId){
 
-	if(SuUsers.findOne({user: userId})){
+	if(SUsers.findOne({user: userId})){
+		return true;
+	}else{
+		return false;
+	}
+	
+}
+
+function checkDesigner(userId){
+
+	if(Designers.findOne({user: userId})){
 		return true;
 	}else{
 		return false;

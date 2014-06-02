@@ -1,39 +1,84 @@
 <template name="su">
 
-	{{#if isAdminMenu}}
-		{{>adminMenu}}
-	{{/if}}
+	<ul class="nav nav-pills nav-justified">
 
-	{{#if isManageSus}}
-		{{/manageSus}}
-	{{/if}}
+		{{#if isAdmin}}
+	   	<li class="active"><a href="#">Manage Super Users</a></li>
+	  	<li><a href="#">Manage Designers</a></li>
+	  	<li><a href="#">Configure Final Design</a></li>
+	  	{{/if}}
+	  	<li><a href="#">Level Designer</a></li>
+	  	<li><a href="#">Test Level</a></li>
+	  	<li><a href="#">Play</a></li>
 
-	{{#if isDesign}}
-		{{/design}}
-	{{/if}}
+	  	{{#if isManageSus}}
+			{{>manageSus}}
+		{{/if}}
 
-	{{#if isPlay}}
-		{{>game}}
-	{{/if}}
+		{{#if isDesign}}
+			{{>design}}
+		{{/if}}
+
+		{{#if isPlay}}
+			{{>game}}
+		{{/if}}
+
+	</ul>
+
 
 </template>
 
-<template name ="adminMenu">
 
-	<h2>Admin Menu</h2>
-	<br/>
-	<div class="tbspacer"><a href="javascript:;" id="manageUsers" class="btn btn-success btn-lg">Manage Super Users</a></div>
-	<div class="tbspacer"><a href="javascript:;" id="managePlayers" class="btn btn-success btn-lg">Manage Players</a></div>
-	<div class="tbspacer"><a href="javascript:;" id="design" class="btn btn-success btn-lg">Design</a></div>
-	<div class="tbspacer"><a href="javascript:;" id="play" class="btn btn-success btn-lg">Play</a></div>
-
-</template>
 
 <template name ="manageSus">
 
+	<h2>Super Users</h2>
+	<table class="table table-bordered">
+		<thead>
+			<tr>
+				<th>username</th>
+				<th>email</th>
+				<th>demote</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			{{#each susers}}
+			<tr class="{{profile.status}}">
+				<td>{{username}}</td>
+				<td>{{email}}</td>
+				<td><button type="button" class="btn btn-danger" id="{{username}}">demote</button></td>
+			</tr>
+			{{/each}}
+		</tbody>
+	</table>
+
 </template>
 
+
+
 <template name ="managePlayers">
+
+	<h2>All Players</h2>
+	<table class="table table-bordered">
+		<thead>
+			<tr>
+				<th>username</th>
+				<th>email</th>
+				<th>remove</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			{{#each players}}
+			<tr class="{{profile.status}}">
+				<td>{{username}}</td>
+				<td>{{email}}</td>
+				<td><button type="button" class="btn btn-danger" id="{{username}}">remove</button></td>
+			</tr>
+			{{/each}}
+		</tbody>
+	</table>
 
 </template>
 

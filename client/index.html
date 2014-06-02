@@ -7,9 +7,6 @@
 
 	<div class="container-fluid text-center">
 
-    <h1>Orfeo</h1>
-
-
     {{#if currentUser}}
       {{#if isSu}}
         {{>su}}
@@ -25,6 +22,8 @@
 </body>
 
 <template name="hello">
+
+  <h1>Orfeo</h1>
 
   {{#if isFrontPage}}
     {{>frontPage}}

@@ -22,6 +22,33 @@ Meteor.startup(function(){
 
 });
 
+Deps.autorun(function(){
+
+  if(Meteor.user()){
+
+    var id = Meteor.user()._id;
+
+    if(Meteor.user().profile.role == 'admin'){
+
+      Meteor.subscribe("AllPlayers", id);
+      Meteor.subscribe("SUsers", id);
+      Meteor.subscribe("Designers", id);
+      Meteor.subscribe("PlayerGameData", id);
+
+    }else if(Meteor.user().profile.role == 'designer'){
+
+      //subcriptions to sandbox collections to go here
+
+    }
+
+      Meteor.subscribe("PlayerGameData", id);
+      Meteor.subscribe("AudioFiles");
+      Meteor.subscribe("GameMapRelease");
+      Meteor.subscribe("GameDefsRelease");
+  }
+
+});
+
 
 UI.registerHelper("isSu", function(){
 

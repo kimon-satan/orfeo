@@ -60,13 +60,8 @@ Meteor.methods({
 
 
 
-	},
-
-	addEmail:function(userId){
-
-		
-
 	}
+
 
 
 });

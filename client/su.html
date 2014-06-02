@@ -1,5 +1,44 @@
 <template name="su">
 
-	<h1>Admin Menu</h1>
-	
+	{{#if isAdminMenu}}
+		{{>adminMenu}}
+	{{/if}}
+
+	{{#if isManageSus}}
+		{{/manageSus}}
+	{{/if}}
+
+	{{#if isDesign}}
+		{{/design}}
+	{{/if}}
+
+	{{#if isPlay}}
+		{{>game}}
+	{{/if}}
+
 </template>
+
+<template name ="adminMenu">
+
+	<h2>Admin Menu</h2>
+	<br/>
+	<div class="tbspacer"><a href="javascript:;" id="manageUsers" class="btn btn-success btn-lg">Manage Super Users</a></div>
+	<div class="tbspacer"><a href="javascript:;" id="managePlayers" class="btn btn-success btn-lg">Manage Players</a></div>
+	<div class="tbspacer"><a href="javascript:;" id="design" class="btn btn-success btn-lg">Design</a></div>
+	<div class="tbspacer"><a href="javascript:;" id="play" class="btn btn-success btn-lg">Play</a></div>
+
+</template>
+
+<template name ="manageSus">
+
+</template>
+
+<template name ="managePlayers">
+
+</template>
+
+<template name ="design">
+
+</template>
+
+

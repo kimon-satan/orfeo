@@ -6,7 +6,7 @@ Meteor.startup(function(){
 	//repopulate the list of audioFiles
 	AudioFiles.remove({});
 	var dirs = fs.readdirSync('../client/app/sounds');
-	//console.log(dirs);
+
 	for(var dir in dirs){
 
 		AudioFiles.insert({type: dirs[dir], dt: 'type'});
@@ -16,8 +16,6 @@ Meteor.startup(function(){
 		var fileList = [];
 		var files = fs.readdirSync('../client/app/sounds/' + dirs[dir]);
 
-		//console.log(files);
-
 		for(var i = 0; i < files.length; i++){
 			AudioFiles.insert({parent: dirs[dir], filename: files[i], dt: 'file'});
 		}
@@ -25,7 +23,17 @@ Meteor.startup(function(){
 		})();
 	}
 
-	//console.log(AudioFiles.find().fetch());
+	//if there is no game map make an initial one
+	if(!GameMapRelease.findOne({type: 'cell'})){
+
+		for(var x = 0; x < 5; x++){
+			for(var y = 0; y < 5; y++){
+				GameMapRelease.insert(createMapCell('init',x,y));
+			}
+		}
+
+	}
+
 
 });
 

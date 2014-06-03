@@ -1,3 +1,32 @@
+Template.levelDesigner.created = function(){
+
+	Session.set("currentTerrain", "none");
+}
+
+Template.levelDesigner.events({
+
+	'click .terrainOption':function(e){
+
+		Session.set("currentTerrain", e.currentTarget.id);
+		e.preventDefault();
+	},
+
+	'click .cell':function(e){
+
+		var loc = e.currentTarget.id.split("-");
+		var cell = GameMapRelease.findOne({type: 'cell', level:'init', x: parseInt(loc[0]), y: parseInt(loc[1])});
+		GameMapRelease.update(cell._id ,{$set:{terrain: Session.get("currentTerrain")}});
+	}
+
+});
+
+Template.levelDesigner.currentTerrain = function(){
+	return Session.get("currentTerrain");
+}
+
+Template.terrainMap.mapRow = function(){return GameMapRelease.find({type: 'cell', level:'init', x: 0}).fetch();}
+Template.terrainMap.mapCol = function(y){return GameMapRelease.find({type: 'cell', level:'init', y: y}).fetch();}
+
 Template.terrainMaker.created = function(){
 
   Session.set("currentBackgroundType", "none");
@@ -37,7 +66,8 @@ Template.terrainMaker.events({
 
 });
 
-Template.terrainTable.terrains = function(){return GameDefsRelease.find({type: "terrain"}).fetch();}
+UI.registerHelper('terrains', function(){return GameDefsRelease.find({type: "terrain"}).fetch()});
+
 Template.terrainTable.creatorName = function(){return Meteor.users.findOne(this.creator).username;}
 
 Template.soundControls.audioFiles = function(type){  

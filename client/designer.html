@@ -1,11 +1,75 @@
 <template name ="designLevel">
 
+  {{>levelDesigner}}
+
 </template>
 
 <template name ="designRelease">
 
 	{{>terrainMaker}}
 
+</template>
+
+
+<template name="levelDesigner">
+
+  <h2>Level designer</h2>
+
+
+
+  <div class ="row">
+    <div class="col-xs-4">
+      <div class="panel panel-default">
+        <div class="panel-body">
+
+        <form role="form">
+        <div class="form-group">
+        <label for="width">Level width</label><input type="number" id="width" min="2" max="20" step="1" value="5">
+        </div>
+        <div class="form-group">
+        <label for="width">Level height</label><input type="number" id="height" min="2" max="20" step="1" value="5">
+        </div>
+
+        <label>Terrain type</label>
+        <div class="btn-group">
+
+          <button type="button" class="btn btn-default">{{currentTerrain}}</button>
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            {{#each terrains}}
+            <li><a class="terrainOption" id={{name}} href="#">{{name}}</a></li>
+            {{/each}}
+          </ul>
+        </div>
+
+       </form>
+      </div>
+      </div>
+
+    </div>
+    <div class="col-xs-8">
+        {{>terrainMap}}
+    </div>
+   
+  </div>
+
+</template>
+
+<template name="terrainMap">
+    <table class="table table-bordered">
+        <tbody>
+          {{#each mapRow}}
+          <tr>
+            {{#each mapCol this.y}}
+            <td class="cell" id="{{this.x}}-{{this.y}}">{{terrain}}</td>
+            {{/each}}
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
 </template>
 
 <template name="terrainMaker">

@@ -77,6 +77,24 @@ Admins can edit and delete any level
 //NB
 //functions need to be declared as anonymous globals in meteor to be available universally
 
+createMapCell = function(level, x, y){
+
+	//will need to add sections for i/o elements
+
+	var cell = {
+		type: 'cell', 
+		level: level, 
+		x: x, y: y, 
+		terrain: 'none', 
+		objects:[], 
+		n_override: "none", 
+		n_additions: [],
+		audibleTraces: []
+	};
+
+	return cell;
+}
+
 
 
 

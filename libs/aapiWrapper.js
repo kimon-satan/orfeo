@@ -38,8 +38,8 @@ aapiWrapper.prototype.loadSounds = function(files, callBack){
       
       //get the file name
       var name = files[i].filename;
-      name = name.split(".");
-      name = name[0];
+      //name = name.split(".");
+      //name = name[0];
 
 			parent.sampleObjs[name] = new appiSample(name);
       var fp = "sounds/" + files[i].parent + "/" + files[i].filename;

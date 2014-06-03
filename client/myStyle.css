@@ -19,6 +19,17 @@
 
 }
 
+.selected {
+	color: yellow;
+	background-color: black;
+}
+
+.subSelected {
+	color: white;
+	background-color: gray;
+}
+
+
 #where {background: url(images/where_sm.png) 0 0;}
 #where.active {background: url(images/where_sm.png) 0 -64px;}
 

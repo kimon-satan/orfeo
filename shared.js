@@ -17,42 +17,40 @@ GameDefsRelease = new Meteor.Collection("GameDefsRelease"); //the final game def
 
 Meteor.users.deny({
 		
-	update: function(user){return Meteor.user().profile.role != 'admin';},
-	insert: function(user){return Meteor.users.findOne(user).profile.role != 'admin';},
-	remove: function(user){return Meteor.user().profile.role != 'admin';}	
+	update: function(user){return Meteor.users.findOne(user).profile.role != 'admin' ;},
+	insert: function(user){return Meteor.users.findOne(user).profile.role != 'admin' ;},
+	remove: function(user){return Meteor.users.findOne(user).profile.role != 'admin' ;}	
 
 });
 
 PlayerGameData.allow({
 
-	update: function(user, doc){
+	update: accessTest
 
-		if(Meteor.users.findOne(user).profile.role == 'admin' || 
-			user == doc.player){
-			console.log('allow');
-			return true;
-		}else{
-			return false;
-		}
-							
-	}
-
-});
-
-GameMapRelease.allow({
-
-	update: function(user){return Meteor.user().profile.role == 'admin';},
-	insert: function(user){return Meteor.user().profile.role == 'admin';}, 
-	remove: function(user){return Meteor.user().profile.role == 'admin';}	
 });
 
 GameDefsRelease.allow({
 
-	update: function(user){return Meteor.user().profile.role == 'admin';},
-	insert: function(user){return Meteor.user().profile.role == 'admin';}, 
-	remove: function(user){return Meteor.user().profile.role == 'admin';}	
+	update: accessTest,
+	insert: accessTest,
+	remove: accessTest
 });
 
+GameMapRelease.allow({
+
+	update: accessTest,
+	insert: accessTest,
+	remove: accessTest
+});
+
+function accessTest (user , doc){
+	if(Meteor.users.findOne(user).profile.role == 'admin' || 
+		user == doc.player){
+		return true;
+	}else{
+		return false;
+	}
+}
 
 
 

@@ -1,11 +1,5 @@
 
-audio = 0;
 
-//these need to become database functions
-//playerPos = {x:0, y:0};
-
-/*terrainTypes, terrainMap;
-cTerrain;*/
 
 
 Meteor.startup(function(){
@@ -64,12 +58,7 @@ Template.frontPage.events({
   'click #justPlay':function(e){
 
       var uId = generateTempId(10);
-      Accounts.createUser({username: uId, password: "1234"}, function(){
-
-        Meteor.call("initPlayer", Meteor.user()._id);
-
-      });
-
+      Accounts.createUser({username: uId, password: "1234"});
       Session.set("screenMode", 0);
       e.preventDefault();
   },
@@ -148,7 +137,6 @@ Template.register.events({
         Accounts.createUser({username: uname, email: email, password: password, profile: {role: 'player'}}, function(err){
 
           if(!err){
-            Meteor.call("initPlayer", Meteor.user()._id);
             Session.set("screenMode", 0);
           }else{
             Session.set("loginError", err.reason);
@@ -182,13 +170,13 @@ function generateTempId(n){
 
   var chars = "abcdefghijklmnnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ!@£$%^&*()-=_+";  
   var count = 0;
-  var str;
+  var str = "";
   var idx;
 
   while(count < n){
 
     idx = Math.random() * (chars.length - 1);
-    str += chars[idx];
+    str += chars[parseInt(idx)];
     count++;
   }
 

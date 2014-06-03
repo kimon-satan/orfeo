@@ -98,7 +98,7 @@
         <div class="form-group">
           <button type="submit" id="addTerrain" class="btn btn-success">Add Terrain</button>
           <button type="submit" id="updateTerrain" class="btn btn-warning">Update Terrain</button>
-           <button type="submit" id="updateTerrain" class="btn btn-danger">Remove Terrain</button>
+          <button type="submit" id="removeTerrain" class="btn btn-danger">Remove Terrain</button>
         </div>
 
       </form>
@@ -118,7 +118,7 @@
 
     <tbody>
       {{#each terrains}}
-      <tr>
+      <tr id={{this.name}} class="terrainRow">
         <td>{{name}}</td>
         <td>{{creatorName}}</td>
       </tr>

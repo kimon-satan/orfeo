@@ -29,6 +29,7 @@ Template.terrainMap.mapCol = function(y){return GameMapRelease.find({type: 'cell
 
 Template.terrainMaker.created = function(){
 
+  Session.set("currentTerrain", "none");
   Session.set("currentBackgroundType", "none");
   Session.set("currentBackgroundFile", "none");
   Session.set("currentFootstepsType", "none");
@@ -61,7 +62,23 @@ Template.terrainMaker.events({
 		GameDefsRelease.insert(terrainObj);
 
 		e.preventDefault();
+	},
+
+	'click #removeTerrain':function(e){
+
+		if(confirm("are you sure you want to delete " + Session.get("currentTerrain").name + "... " )){	
+			GameDefsRelease.remove(Session.get("currentTerrain")._id, function(err){if(err){alert(err.reason)}});
+		}
+			
+		e.preventDefault();
+	},
+
+	'click #updateTerrain':function(e){
+
+		
+		e.preventDefault();
 	}
+
 
 
 });
@@ -69,6 +86,34 @@ Template.terrainMaker.events({
 UI.registerHelper('terrains', function(){return GameDefsRelease.find({type: "terrain"}).fetch()});
 
 Template.terrainTable.creatorName = function(){return Meteor.users.findOne(this.creator).username;}
+Template.terrainTable.events({
+
+	'click .terrainRow':function(e){
+
+		Session.set("currentTerrain", GameDefsRelease.findOne({type: 'terrain', name: e.currentTarget.id}));
+
+		$('.terrainRow').removeClass('selected');
+		$('.terrainRow > td' ).removeClass('selected');
+		$('#' + e.currentTarget.id + ' > td').removeClass('subSelected');
+		$('#' + e.currentTarget.id).removeClass('subSelected');
+		$('#' + e.currentTarget.id + ' > td').addClass('selected');
+		$('#' + e.currentTarget.id).addClass('selected');
+	},
+
+	'mouseenter .terrainRow':function(e){
+
+		$('.terrainRow').removeClass('subSelected');
+		$('.terrainRow > td' ).removeClass('subSelected');
+
+		if(e.currentTarget.id != Session.get("currentTerrain").name){
+			$('#' + e.currentTarget.id + ' > td').addClass('subSelected');
+			$('#' + e.currentTarget.id).addClass('subSelected');
+		}
+	}
+
+
+});
+
 
 Template.soundControls.audioFiles = function(type){  
 

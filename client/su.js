@@ -27,6 +27,7 @@ Template.su.events({
 		var id = e.currentTarget.id;
 		$('#suNav > li').removeClass("active");
 		$(e.currentTarget).addClass("active");
+		if(id != 'playGame' && Session.get("suMode") == 'playGame')audio.killAll();
 		Session.set("suMode", id);
 
 		e.preventDefault();

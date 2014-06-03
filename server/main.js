@@ -124,7 +124,8 @@ Meteor.methods({
 
 	initPlayer: function(userId){
 
-		console.log("init");
+		console.log("init" + userId);
+		PlayerGameData.remove({player: userId});
 		PlayerGameData.insert({player: userId, type: "pos", x: 0, y: 0});
 		PlayerGameData.insert({player: userId, level: 0});
 
@@ -136,6 +137,13 @@ Meteor.methods({
 
 });
 
+Accounts.onCreateUser(function(options ,user){
+
+	Meteor.call("initPlayer", user._id);
+	user.profile = {role: 'player'};
+	return user;
+
+});
 
 
 function checkAdmin(userId){

@@ -229,6 +229,17 @@ aapiWrapper.prototype.calcXFades = function(amp){
 
 }
 
+aapiWrapper.prototype.killAll = function(){
+
+  for(sample in this.sampleObjs){
+
+    if(this.sampleObjs[sample].isLooping){
+      this.stopLooping(sample, 0.5,0);
+    }
+  }
+
+}
+
 
 /*-------------------------------------other constructors------------------------------*/
 

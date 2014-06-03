@@ -1,5 +1,5 @@
 
-
+audio = 0;
 var cTerrain;
 
 UI.registerHelper("isAudioReady", function(){
@@ -8,15 +8,19 @@ UI.registerHelper("isAudioReady", function(){
 
 Template.game.created = function(){
 
-    var id = Meteor.user()._id;
+  var id = Meteor.user()._id;
+  console.log(id);
 
-  Meteor.subscribe("PlayerGameData", {id: id}, { onReady: function(){
+  Meteor.subscribe("PlayerGameData", id, { onReady: function(){
      Meteor.subscribe("AudioFiles",{}, {onReady: function(){
 
       if(!Session.get("isAudioInit"))startAudio();
      }});
 
   }});
+
+  console.log("subscribe");
+
  
 }
 
@@ -36,7 +40,8 @@ Template.startSplash.events({
       Session.set("screenMode", 1);
       var newCell = GameMapRelease.findOne({type: 'cell', level:'init', x: 0, y: 0});
       cTerrain = GameDefsRelease.findOne({type: 'terrain', name: newCell.terrain});
-      console.log(cTerrain);
+      audio.startLooping(cTerrain.background.audioFile, 1, 1);
+      audio.playOnce(cTerrain.narrator.audioFile, {amp: 0.75, offset: 2});
       e.preventDefault();
   }
 
@@ -69,15 +74,14 @@ Template.navScreen.events({
        var newCell = GameMapRelease.findOne({type: 'cell', level:'init', x: playerPos.x, y: playerPos.y});
        var newTerrain = GameDefsRelease.findOne({type: 'terrain', name: newCell.terrain});
 
-      console.log(newTerrain);
-
         audio.playOnce(cTerrain.footsteps.audioFile, {amp: 1}, function(){
 
-          $(this).removeClass('active');
+          $(event.target).removeClass('active');
           $('.step').not('#' + id).removeClass('disable');
 
-           if(newCell.background != cTerrain.background){
+           if(newTerrain.name!= cTerrain.name){
 
+              console.log("new terrain");
               audio.stopLooping(cTerrain.background.audioFile, 1);
               cTerrain = newTerrain;
               audio.playOnce(cTerrain.narrator.audioFile, {amp: 0.75, offset: 2});
@@ -98,11 +102,11 @@ Template.navScreen.events({
       console.log("where am i ?");
       $(event.target).addClass("active");
 
-       /* audio.playOnce(cTerrain.whereSound, {amp: 0.75}, function(){
+        audio.playOnce(cTerrain.narrator.audioFile, {amp: 0.75}, function(){
 
-          $(this).removeClass('active');
+          $(event.target).removeClass('active');
 
-        }.bind(this));*/
+        }.bind(this));
 
       event.preventDefault();
 

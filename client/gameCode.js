@@ -1,6 +1,6 @@
 
 audio = 0;
-var cTerrain;
+cTerrain = 0;
 
 UI.registerHelper("isAudioReady", function(){
   return Session.get("isAudioInit") && Session.get("isLoaded");

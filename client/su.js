@@ -27,6 +27,16 @@ Template.su.events({
 		var id = e.currentTarget.id;
 		$('#suNav > li').removeClass("active");
 		$(e.currentTarget).addClass("active");
+		if(id == 'playGame'){
+
+			//always start at 0
+			var playerPos = PlayerGameData.findOne({player: Meteor.user()._id, type: "pos"});
+			PlayerGameData.update(playerPos._id, {$set: {x: 0, y: 0}});
+			var newCell = GameMapRelease.findOne({type: 'cell', level:'init', x: 0, y: 0});
+      		cTerrain = GameDefsRelease.findOne({type: 'terrain', name: newCell.terrain});
+      		audio.startLooping(cTerrain.background.audioFile, 1, 1);
+      		audio.playOnce(cTerrain.narrator.audioFile, {amp: 0.75, offset: 2});
+		}
 		if(id != 'playGame' && Session.get("suMode") == 'playGame')audio.killAll();
 		Session.set("suMode", id);
 

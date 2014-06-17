@@ -1,7 +1,7 @@
 Template.levelDesigner.created = function(){
 
-	Session.set("currentKey", []);
-	updateCurrentKey();
+	Session.set("terrainKey", []);
+	updateTerrainKey();
 	Session.set("currentTerrain", "none");
 
 }
@@ -19,7 +19,7 @@ Template.levelDesigner.events({
 		var loc = e.currentTarget.id.split("-");
 		var cell = GameMapRelease.findOne({type: 'cell', level:'init', x: parseInt(loc[0]), y: parseInt(loc[1])});
 		GameMapRelease.update(cell._id ,{$set:{terrain: Session.get("currentTerrain")}});
-		updateCurrentKey();
+		updateTerrainKey();
 	}
 
 });
@@ -32,43 +32,34 @@ UI.registerHelper('terrains', function(){return GameDefsRelease.find({type: "ter
 
 Template.levelDesigner.terrainsUsed = function(){
 
-	return Session.get("currentKey");
+	return Session.get("terrainKey");
 
 };
 
-function updateCurrentKey(){
+function updateTerrainKey(){
 
-	var terrains = Session.get("currentKey");
+	var terrains = Session.get("terrainKey");
 	var cells = GameMapRelease.find({type: 'cell', level: 'init'});
 
 	cells.forEach(function(cell){
 
 		var found  = false;
+		var col = GameDefsRelease.findOne({type: 'terrain', name: cell.terrain}).color;
+
 		for(var i = 0; i < terrains.length; i ++){
 			if(terrains[i].name == cell.terrain){
 				found = true;
-				GameMapRelease.update(cell._id, {$set: {color: terrains[i].color}});
 				break;
 			}
 		}
 
-		if(!found){
-			
-			if(typeof cell.color === "undefined"){
-				var col = getRandomColor();
-			}else{
-				var col = cell.color;	
-			}
-			
-			terrains.push({name: cell.terrain, color: col});
-			GameMapRelease.update(cell._id, {$set: {color: col}});
-		}
+		if(!found)terrains.push({name: cell.terrain, color: col});
 
-
+		GameMapRelease.update(cell._id, {$set: {color: col}});
 
 	});
 
-	Session.set("currentKey", terrains);
+	Session.set("terrainKey", terrains);
 
 	UI.render(Template.terrainMap);
 
@@ -99,13 +90,24 @@ Template.terrainMaker.created = function(){
   	$('#' + ct.name).addClass('selected');
   	$('#addTerrain').addClass("disable");
 	$('#addTerrain').attr('disabled','disabled');
+	$('#colPicker').colorpicker();
 
-  })
+  });
 
 
 }
 
+
+
 Template.terrainMaker.events({
+
+	'changeColor #colPicker':function(e){
+
+		var ct = Session.get("currentTerrain");
+		ct.color = e.color.toHex();
+		Session.set("currentTerrain", ct);
+
+	},
 
 	'keyup #terrainName':function(e){
 
@@ -166,9 +168,10 @@ Template.terrainMaker.events({
 	'click #updateTerrain':function(e){
 
 		var td = GameDefsRelease.findOne(Session.get("currentTerrain")._id); //check theres a terrain
-		console.log(td);
+
 		if(td){
 			GameDefsRelease.update(td._id, {$set: { 
+				color: Session.get("currentTerrain").color,
 				background: Session.get("currentTerrain").background,
 				footsteps: Session.get("currentTerrain").footsteps,
 				narrator: Session.get("currentTerrain").narrator

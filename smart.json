@@ -1,6 +1,7 @@
 {
   "packages": {
     "bootstrap-3": {},
-    "collectionFS": {}
+    "collectionFS": {},
+    "bootstrap-colorpicker": {}
   }
 }

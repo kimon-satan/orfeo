@@ -1,5 +1,7 @@
 Template.levelDesigner.created = function(){
 
+
+
 	Session.set("currentTerrain", "none");
 }
 
@@ -29,13 +31,18 @@ Template.terrainMap.mapCol = function(y){return GameMapRelease.find({type: 'cell
 
 Template.terrainMaker.created = function(){
 
-  Session.set("currentTerrain", "none");
-  Session.set("currentBackgroundType", "none");
-  Session.set("currentBackgroundFile", "none");
-  Session.set("currentFootstepsType", "none");
-  Session.set("currentFootstepsFile", "none");
-  Session.set("currentNarratorType", "none");
-  Session.set("currentNarratorFile", "none");
+  var ct = GameDefsRelease.findOne({type: "terrain"});
+
+  Session.set("currentTerrain", ct);
+
+  Meteor.defer(function(){
+
+
+  	$('#' + ct.name + ' > td').addClass('selected');
+  	$('#' + ct.name).addClass('selected');
+
+  })
+
 
 }
 
@@ -43,23 +50,9 @@ Template.terrainMaker.events({
 
 	'click #addTerrain':function(e){
 
-		var terrainObj = {type: "terrain", creator: Meteor.user()._id};
-		terrainObj.name = $('#terrainName').val();
-		terrainObj.background = {folder: Session.get("currentBackgroundType"), 
-								 audioFile: Session.get("currentBackgroundFile"), 
-								amp: $('#bgAmp.Background').val()};
+		//will need safeties
 
-		terrainObj.footsteps= {folder: Session.get("currentFootstepsType"), 
-						 audioFile: Session.get("currentFootstepsFile"), 
-						amp: $('#bgAmp.Footsteps').val()};
-
-
-		terrainObj.narrator = {folder: Session.get("currentNarratorType"), 
-						 audioFile: Session.get("currentNarratorFile"), 
-						amp: $('#bgAmp.Narrator').val()};
-
-
-		GameDefsRelease.insert(terrainObj);
+		GameDefsRelease.insert(Session.get("currentTerrain"));
 
 		e.preventDefault();
 	},
@@ -67,6 +60,7 @@ Template.terrainMaker.events({
 	'click #removeTerrain':function(e){
 
 		if(confirm("are you sure you want to delete " + Session.get("currentTerrain").name + "... " )){	
+			//do this by searching for name first
 			GameDefsRelease.remove(Session.get("currentTerrain")._id, function(err){if(err){alert(err.reason)}});
 		}
 			
@@ -75,6 +69,15 @@ Template.terrainMaker.events({
 
 	'click #updateTerrain':function(e){
 
+		var td = GameDefsRelease.findOne(Session.get("currentTerrain")._id); //check theres a terrain
+		console.log(td);
+		if(td){
+			GameDefsRelease.update(td._id, {$set: { 
+				background: Session.get("currentTerrain").background,
+				footsteps: Session.get("currentTerrain").footsteps,
+				narrator: Session.get("currentTerrain").narrator
+			}});
+		}
 		
 		e.preventDefault();
 	}
@@ -82,6 +85,11 @@ Template.terrainMaker.events({
 
 
 });
+
+
+
+Template.terrainMaker.currentTerrain = function(){return Session.get("currentTerrain");}
+
 
 UI.registerHelper('terrains', function(){return GameDefsRelease.find({type: "terrain"}).fetch()});
 
@@ -98,6 +106,8 @@ Template.terrainTable.events({
 		$('#' + e.currentTarget.id).removeClass('subSelected');
 		$('#' + e.currentTarget.id + ' > td').addClass('selected');
 		$('#' + e.currentTarget.id).addClass('selected');
+
+
 	},
 
 	'mouseenter .terrainRow':function(e){
@@ -115,48 +125,88 @@ Template.terrainTable.events({
 });
 
 
+
+
+
 Template.soundControls.audioFiles = function(type){  
 
+	var folder;
 
-if(Session.get("current" + type + "Type") == "none"){
-    return AudioFiles.find({dt: 'file'}).fetch();
- }else{
-  	return AudioFiles.find({dt: 'file', parent: Session.get("current" + type + "Type")}).fetch();
- }
+	switch(type){
+
+		case "Background":
+		folder =  Session.get("currentTerrain").background.folder;
+		break;
+		case "Footsteps":
+		folder = Session.get("currentTerrain").footsteps.folder;
+		break;
+		case "Narrator":
+		folder =  Session.get("currentTerrain").narrator.folder;
+		break;
+
+	}
+
+  	return AudioFiles.find({dt: 'file', parent: folder}).fetch();
+ 
 }
 
 Template.soundControls.audioTypes = function(){return AudioFiles.find({dt: 'type'}).fetch();}
-Template.soundControls.currentType = function(type){return Session.get("current" + type + "Type");}
-Template.soundControls.currentFile = function(type){return Session.get("current" + type + "File");}
 
+Template.soundControls.audioParam = function(type, item){
+
+
+
+	switch(type){
+
+		case "Background":
+		return Session.get("currentTerrain").background[item.hash.item];
+		break;
+		case "Footsteps":
+		return Session.get("currentTerrain").footsteps[item.hash.item];
+		break;
+		case "Narrator":
+		return Session.get("currentTerrain").narrator[item.hash.item];
+		break;
+
+	}
+}
 
 Template.soundControls.events({
 
 	'click .typeOption':function(e){
 		
+		var terrainObj = Session.get("currentTerrain");
 
 		if($(e.currentTarget).hasClass('Background')){
-			Session.set("currentBackgroundType",$(e.currentTarget.id).selector);
-			Session.set("currentBackgroundFile", "none");
+			terrainObj.background.folder  = $(e.currentTarget.id).selector;
+			terrainObj.background.audioFile  = "none";
 		}else if($(e.currentTarget).hasClass('Footsteps')){
-			Session.set("currentFootstepsType",$(e.currentTarget.id).selector);
-			Session.set("currentFootstepsFile", "none");
+			terrainObj.footsteps.folder  = $(e.currentTarget.id).selector;
+			terrainObj.footsteps.audioFile  = "none";
 		}else{
-			Session.set("currentNarratorType",$(e.currentTarget.id).selector);
-			Session.set("currentNarratorFile", "none");
+			terrainObj.narrator.folder  = $(e.currentTarget.id).selector;
+			terrainObj.narrator.audioFile  = "none";
 		}
+
+		Session.set("currentTerrain", terrainObj);
+
 		e.preventDefault();
 	},
 
 	'click .fileOption':function(e){
 
+		var terrainObj = Session.get("currentTerrain");
+
 		if($(e.currentTarget).hasClass('Background')){
-			Session.set("currentBackgroundFile", $(e.currentTarget.id).selector);
+			terrainObj.background.audioFile  =  $(e.currentTarget.id).selector;
 		}else if($(e.currentTarget).hasClass('Footsteps')){
-			Session.set("currentFootstepsFile", $(e.currentTarget.id).selector);
+			terrainObj.footsteps.audioFile  =  $(e.currentTarget.id).selector;
 		}else{
-			Session.set("currentNarratorFile", $(e.currentTarget.id).selector);
+			terrainObj.narrator.audioFile  =  $(e.currentTarget.id).selector;
 		}
+
+		Session.set("currentTerrain", terrainObj);
+
 		e.preventDefault();
 	}
 

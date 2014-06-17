@@ -71,3 +71,19 @@
 
 
 }
+
+.designerCell{
+
+	width: 30px;
+	height: 30px;
+	border: 1px solid black;
+
+}
+
+.keyCell{
+
+	width: 30px;
+	height: 30px;
+	border: 1px solid black;
+
+}

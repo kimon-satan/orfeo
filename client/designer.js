@@ -1,8 +1,9 @@
 Template.levelDesigner.created = function(){
 
-
-
+	Session.set("currentKey", []);
+	updateCurrentKey();
 	Session.set("currentTerrain", "none");
+
 }
 
 Template.levelDesigner.events({
@@ -13,11 +14,12 @@ Template.levelDesigner.events({
 		e.preventDefault();
 	},
 
-	'click .cell':function(e){
+	'click .designerCell':function(e){
 
 		var loc = e.currentTarget.id.split("-");
 		var cell = GameMapRelease.findOne({type: 'cell', level:'init', x: parseInt(loc[0]), y: parseInt(loc[1])});
 		GameMapRelease.update(cell._id ,{$set:{terrain: Session.get("currentTerrain")}});
+		updateCurrentKey();
 	}
 
 });
@@ -25,6 +27,62 @@ Template.levelDesigner.events({
 Template.levelDesigner.currentTerrain = function(){
 	return Session.get("currentTerrain");
 }
+
+UI.registerHelper('terrains', function(){return GameDefsRelease.find({type: "terrain"}).fetch()});
+
+Template.levelDesigner.terrainsUsed = function(){
+
+	return Session.get("currentKey");
+
+};
+
+function updateCurrentKey(){
+
+	var terrains = Session.get("currentKey");
+	var cells = GameMapRelease.find({type: 'cell', level: 'init'});
+
+	cells.forEach(function(cell){
+
+		var found  = false;
+		for(var i = 0; i < terrains.length; i ++){
+			if(terrains[i].name == cell.terrain){
+				found = true;
+				GameMapRelease.update(cell._id, {$set: {color: terrains[i].color}});
+				break;
+			}
+		}
+
+		if(!found){
+			
+			if(typeof cell.color === "undefined"){
+				var col = getRandomColor();
+			}else{
+				var col = cell.color;	
+			}
+			
+			terrains.push({name: cell.terrain, color: col});
+			GameMapRelease.update(cell._id, {$set: {color: col}});
+		}
+
+
+
+	});
+
+	Session.set("currentKey", terrains);
+
+	UI.render(Template.terrainMap);
+
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
 
 Template.terrainMap.mapRow = function(){return GameMapRelease.find({type: 'cell', level:'init', x: 0}).fetch();}
 Template.terrainMap.mapCol = function(y){return GameMapRelease.find({type: 'cell', level:'init', y: y}).fetch();}
@@ -37,9 +95,10 @@ Template.terrainMaker.created = function(){
 
   Meteor.defer(function(){
 
-
   	$('#' + ct.name + ' > td').addClass('selected');
   	$('#' + ct.name).addClass('selected');
+  	$('#addTerrain').addClass("disable");
+	$('#addTerrain').attr('disabled','disabled');
 
   })
 
@@ -48,11 +107,48 @@ Template.terrainMaker.created = function(){
 
 Template.terrainMaker.events({
 
+	'keyup #terrainName':function(e){
+
+		ct = Session.get("currentTerrain");
+		ct.name = $('#terrainName').val();
+		Session.set("currentTerrain", ct);
+
+		$('.terrainRow').removeClass('selected');
+		$('.terrainRow > td' ).removeClass('selected');
+
+		if(GameDefsRelease.findOne({type: "terrain", name: ct.name})){
+			$('#addTerrain').addClass("disable");
+			$('#addTerrain').attr('disabled','disabled');
+
+		}else{
+
+			$('#addTerrain').removeClass("disable");
+			$('#addTerrain').removeAttr('disabled');
+			$('#removeTerrain').addClass("disable");
+			$('#removeTerrain').attr('disabled','disabled');
+			$('#updateTerrain').addClass("disable");
+			$('#updateTerrain').attr('disabled','disabled');
+		}
+
+		e.preventDefault();
+	},
+
 	'click #addTerrain':function(e){
 
-		//will need safeties
+		ct = Session.get("currentTerrain");
+		ct.creator = Meteor.user()._id;
+		delete ct['_id'];
 
-		GameDefsRelease.insert(Session.get("currentTerrain"));
+		GameDefsRelease.insert(ct, function(err){
+				if(err){alert(err.reason)}else{
+					$('#' + ct.name + ' > td').addClass('selected');
+  					$('#' + ct.name).addClass('selected');
+  					$('#addTerrain').addClass("disable");
+					$('#addTerrain').attr('disabled','disabled');
+				}
+			} );
+
+
 
 		e.preventDefault();
 	},
@@ -76,7 +172,9 @@ Template.terrainMaker.events({
 				background: Session.get("currentTerrain").background,
 				footsteps: Session.get("currentTerrain").footsteps,
 				narrator: Session.get("currentTerrain").narrator
-			}});
+			}}, function(err){
+				if(err){alert(err.reason)}
+			});
 		}
 		
 		e.preventDefault();
@@ -88,10 +186,11 @@ Template.terrainMaker.events({
 
 
 
+
 Template.terrainMaker.currentTerrain = function(){return Session.get("currentTerrain");}
 
 
-UI.registerHelper('terrains', function(){return GameDefsRelease.find({type: "terrain"}).fetch()});
+
 
 Template.terrainTable.creatorName = function(){return Meteor.users.findOne(this.creator).username;}
 Template.terrainTable.events({
@@ -106,7 +205,12 @@ Template.terrainTable.events({
 		$('#' + e.currentTarget.id).removeClass('subSelected');
 		$('#' + e.currentTarget.id + ' > td').addClass('selected');
 		$('#' + e.currentTarget.id).addClass('selected');
-
+		$('#updateTerrain').removeClass("disable");
+		$('#updateTerrain').removeAttr('disabled');
+		$('#removeTerrain').removeClass("disable");
+		$('#removeTerrain').removeAttr('disabled');
+		$('#addTerrain').addClass("disable");
+		$('#addTerrain').attr('disabled','disabled');
 
 	},
 
@@ -173,6 +277,7 @@ Template.soundControls.audioParam = function(type, item){
 
 Template.soundControls.events({
 
+
 	'click .typeOption':function(e){
 		
 		var terrainObj = Session.get("currentTerrain");
@@ -203,6 +308,25 @@ Template.soundControls.events({
 			terrainObj.footsteps.audioFile  =  $(e.currentTarget.id).selector;
 		}else{
 			terrainObj.narrator.audioFile  =  $(e.currentTarget.id).selector;
+		}
+
+		Session.set("currentTerrain", terrainObj);
+
+		e.preventDefault();
+	},
+
+	'click .ampBox':function(e){
+
+		var terrainObj = Session.get("currentTerrain");
+
+		console.log(parseFloat(e.currentTarget.value));
+
+		if($(e.currentTarget).hasClass('Background')){
+			terrainObj.background.amp  =  parseFloat(e.currentTarget.value);
+		}else if($(e.currentTarget).hasClass('Footsteps')){
+			terrainObj.footsteps.amp  =  parseFloat(e.currentTarget.value);
+		}else{
+			terrainObj.narrator.amp  = parseFloat(e.currentTarget.value);
 		}
 
 		Session.set("currentTerrain", terrainObj);

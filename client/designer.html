@@ -39,22 +39,21 @@
 
               <label for="levelName">Level Name</label>
 
-              <input type="text" class="form-control" id="levelName" placeholder="eg. forest" value={{currentLevel.level}}>
+              <input type="text" class="form-control adjustable" id="levelName" placeholder="eg. forest" value={{currentLevel.level}}>
 
             </div>
 
 
             <div class="form-group">
-              <label for="width">Level width</label><input type="number" id="width" min="2" max="50" step="1" value={{currentLevel.width}}>
+              <label for="width">Level width</label><input type="number" class="adjustable" id="width" min="2" max="50" step="1" value={{currentLevel.width}}>
             </div>
             <div class="form-group">
-              <label for="width">Level height</label><input type="number" id="height" min="2" max="50" step="1" value={{currentLevel.height}}>
+              <label for="width">Level height</label><input type="number" class="adjustable" id="height" min="2" max="50" step="1" value={{currentLevel.height}}>
             </div>
 
             <div class="form-group">
-              <button type="submit" id="addLevel" class="btn btn-success">Add Level</button>
-              <button type="submit" id="updateLevel" class="btn btn-warning">Update Level</button>
-              <button type="submit" id="removeLevel" class="btn btn-danger">Remove Level</button>
+              <button type="submit" id="copyLevel" class="btn btn-success">Copy Level</button>
+              <button type="submit" id="removeLevel" class="btn btn-danger adjustable">Delete Level</button>
             </div>
           </form>
 
@@ -67,7 +66,7 @@
           <label>Terrain type</label>
           <div class="btn-group">
 
-            <button type="button" class="btn btn-default">{{currentTerrain}}</button>
+            <button type="button" class="btn btn-default">{{currentTerrain.name}}</button>
             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
               <span class="caret"></span>
               <span class="sr-only">Toggle Dropdown</span>

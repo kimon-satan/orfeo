@@ -1,10 +1,7 @@
 Template.levelDesigner.created = function(){
-
-	Session.set("terrainKey", []);
 	
-	Session.set("currentTerrain", "none");
+	Session.set("currentTerrain", DesignerGameDefs.findOne({creator: Meteor.user()._id}));
 	Session.set("currentLevel", DesignerGameMaps.findOne({type: 'levelHeader', creator: "server"}));
-	//updateTerrainKey();
 
 	Meteor.defer(function(){
 
@@ -20,17 +17,14 @@ Template.levelDesigner.events({
 
 	'click .terrainOption':function(e){
 
-		Session.set("currentTerrain", e.currentTarget.id);
+		Session.set("currentTerrain", DesignerGameDefs.findOne({name: e.currentTarget.id, creator: Meteor.user()._id }));
 		e.preventDefault();
 	},
 
-	'click #addLevel':function(e){
+	'click #copyLevel':function(e){
 
 		var level = Session.get("currentLevel");
-		var name = $('#levelName').val();
-		makeLevelCopy(level.level, level.creator, name, Meteor.user()._id, function(err){
-			if(err)alert(err);
-		})
+		makeLevelCopy(level.level, level.creator, level.level, Meteor.user()._id);
 		e.preventDefault();
 
 	},
@@ -53,9 +47,6 @@ Template.levelDesigner.events({
 		
 	},
 
-	'click #updateLevel':function(e){
-
-	},
 
 	'click .designerCell':function(e){
 
@@ -67,7 +58,7 @@ Template.levelDesigner.events({
 			x: parseInt(loc[0]), y: parseInt(loc[1])});
 		
 
-		DesignerGameMaps.update(cell._id ,{$set:{terrain: Session.get("currentTerrain")}});
+		DesignerGameMaps.update(cell._id ,{$set:{terrain: Session.get("currentTerrain")._id}});
 		updateTerrainKey();
 		
 	}
@@ -75,16 +66,24 @@ Template.levelDesigner.events({
 
 });
 
-Template.levelDesigner.currentLevel = function(){return Session.get("currentLevel");}
-Template.levelDesigner.currentTerrain = function(){return Session.get("currentTerrain");}
+Template.levelDesigner.currentLevel = function(){return Session.get("currentLevel")}
+Template.levelDesigner.currentTerrain = function(){return Session.get("currentTerrain")}
 Template.levelDesigner.terrainsUsed = function(){
 
 	var k = DesignerGameMaps.findOne(Session.get("currentLevel")._id).terrainKey;
-	return DesignerGameDefs.find({type: 'terrain', name: {$in: k}, creator: Session.get("currentLevel").creator}, {fields: {color: 1, name: 1}}).fetch();
+	return DesignerGameDefs.find({ _id: {$in: k} }, {fields: {color: 1, name: 1}}).fetch();
 
 }
 
 Template.terrainMap.mapRow = function(){
+	console.log(DesignerGameMaps.find({
+	type: 'cell', 
+	creator: Session.get("currentLevel").creator,
+	level: Session.get("currentLevel").level,
+	 x: 0},
+	 {sort: ["y", "asc"]}).fetch().length
+
+		);
 	return DesignerGameMaps.find({
 	type: 'cell', 
 	creator: Session.get("currentLevel").creator,
@@ -94,6 +93,7 @@ Template.terrainMap.mapRow = function(){
 }
 
 Template.terrainMap.mapCol = function(y){
+
 	return DesignerGameMaps.find({
 		type: 'cell', 
 		creator: Session.get("currentLevel").creator, 
@@ -103,9 +103,9 @@ Template.terrainMap.mapCol = function(y){
 
 Template.terrainMap.cellColor = function(){
 
-	var t = DesignerGameDefs.findOne({creator: Session.get("currentLevel").creator, type: 'terrain', name: this.terrain});
+	var t = DesignerGameDefs.findOne(this.terrain);
 	if(!t){
-		return 'FFFFFF'
+		return 'FFFFFF';
 	}else{
 		return t.color;
 	}
@@ -122,6 +122,7 @@ Template.levelTable.events({
 	'click .levelRow':function(e){
 
 		Session.set("currentLevel", DesignerGameMaps.findOne(e.currentTarget.id));
+		console.log(Session.get("currentLevel"));
 		updateTerrainKey();
 
 		$('.levelRow').removeClass('selected');
@@ -160,36 +161,55 @@ Template.levelTable.events({
 
 /*-------------------------------HELPER FUNCTIONS------------------------------------*/
 
-function makeLevelCopy(o_levelName, o_creator, n_levelName, n_creator, callBack){
+function makeLevelCopy(o_levelName, o_creator, n_levelName, n_creator){
 
-	var err;
 
-	if(DesignerGameMaps.findOne({level: n_levelName, creator: n_creator}))err = "please choose a new name and try again";
-
-	if(typeof err == "undefined"){
-		DesignerGameMaps.find({level: o_levelName, creator: o_creator}).forEach(function(elem){
-			elem.level = n_levelName;
-			elem.creator = n_creator;
-			delete elem["_id"];
-
-			//copy over all the terrains
-			if(!DesignerGameDefs.findOne({type: "terrain", name: elem.terrain, creator: n_creator})){
-
-				var t = DesignerGameDefs.findOne({type: "terrain", name: elem.terrain, creator: o_creator});
-				if(t){
-					delete t["_id"];
-					t.creator = n_creator;
-					DesignerGameDefs.insert(t);
-				}
-			}
-
-			//this will need to be done for the other elements in the cell
-
-			DesignerGameMaps.insert(elem);
-		});
+	if(DesignerGameMaps.findOne({level: n_levelName, creator: n_creator})){
+		n_levelName = n_levelName + "_" + generateTempId(5);
 	}
 
-	if(typeof callBack === "function")callBack(err);
+	var clh = DesignerGameMaps.findOne(Session.get("currentLevel")._id);
+	delete clh["_id"];
+	clh.creator = n_creator;
+	clh.level = n_levelName;
+	DesignerGameMaps.insert(clh, function(err, id){
+		clh._id = id;
+	});
+
+	DesignerGameMaps.find({type: 'cell', level: o_levelName, creator: o_creator}).forEach(function(elem){
+
+
+		elem.level = n_levelName;
+		elem.creator = n_creator;
+		delete elem["_id"];
+		
+		if(elem.terrain != "none"){
+			var o_t = DesignerGameDefs.findOne(elem.terrain);
+			var n_t = DesignerGameDefs.findOne({type: "terrain", name: o_t.name, creator: n_creator});
+
+			//copy over all the terrains
+			if(!n_t){
+
+				n_t = DesignerGameDefs.findOne({type: "terrain", name: elem.terrain, creator: o_creator});
+				if(n_t){
+					delete n_t["_id"];
+					n_t.creator = n_creator;
+					DesignerGameDefs.insert(n_t, function(err, id){ 
+						n_t._id = id;
+					});
+				}
+
+			}
+			
+			elem.terrain = n_t._id;
+		}
+
+		//this will need to be done for the other elements in the cell
+
+		DesignerGameMaps.insert(elem);
+	});
+
+	return clh._id;
 
 }
 
@@ -207,16 +227,15 @@ function updateTerrainKey(){
 
 	DesignerGameDefs.find({type: 'terrain', creator: Meteor.user()._id}).forEach(function(t){
 
-		if(DesignerGameMaps.findOne({type: 'cell', level: Session.get("currentLevel").level, creator: Meteor.user()._id, terrain: t.name})){
+		if(DesignerGameMaps.findOne({type: 'cell', level: Session.get("currentLevel").level, creator: Meteor.user()._id, terrain: t._id})){
 
-			terrains.push(t.name);
+			terrains.push(t._id);
 
 		}
 
 	});
 
 	DesignerGameMaps.update(Session.get("currentLevel")._id, {$set:{terrainKey: terrains}});
-	//UI.render(Template.terrainMap);
 
 }
 

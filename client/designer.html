@@ -4,96 +4,131 @@
 
 </template>
 
+<template name ="designElements">
+
+  {{>terrainMaker}}
+
+</template>
+
 <template name ="designRelease">
 
-	{{>terrainMaker}}
+  <h2>Configure release</h2>
 
 </template>
 
 
+<!-- -----------------------------------------------------LEVEL DESIGNER ------------------------------------- -->
+
 <template name="levelDesigner">
-
-  <h2>Level designer</h2>
-
-
 
   <div class ="row">
     <div class="col-xs-4">
       <div class="panel panel-default">
         <div class="panel-body">
+          <form role="form">
+          <div class="form-group">
 
-        <form role="form">
-        <div class="form-group">
-        <label for="width">Level width</label><input type="number" id="width" min="2" max="20" step="1" value="5">
-        </div>
-        <div class="form-group">
-        <label for="width">Level height</label><input type="number" id="height" min="2" max="20" step="1" value="5">
-        </div>
+            <label for="levelName">Level Name</label>
 
-        <label>Terrain type</label>
-        <div class="btn-group">
+            <input type="text" class="form-control" id="levelName" placeholder="eg. forest" value={{currentTerrain.name}}>
 
-          <button type="button" class="btn btn-default">{{currentTerrain}}</button>
-          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-            <span class="caret"></span>
-            <span class="sr-only">Toggle Dropdown</span>
-          </button>
-          <ul class="dropdown-menu" role="menu">
-            {{#each terrains}}
-            <li><a class="terrainOption" id={{name}} href="#">{{name}}</a></li>
-            {{/each}}
-          </ul>
-        </div>
+          </div>
 
-       </form>
-      </div>
-      </div>
 
-      <div>
-        <h3>map key</h3>
-
-        <table class="table">
-        <tbody>
-
-        {{#each terrainsUsed}}
-        <tr>
-          <td>{{name}}</td>
-          
-          <td>
-            <div class = "keyCell" style="background-color: {{color}}">
+            <div class="form-group">
+              <label for="width">Level width</label><input type="number" id="width" min="2" max="20" step="1" value="5">
             </div>
-          </td>
-        </tr>
-        {{/each}}
+            <div class="form-group">
+              <label for="width">Level height</label><input type="number" id="height" min="2" max="20" step="1" value="5">
+            </div>
 
-      </tbody>
-      </table>
+            <div class="form-group">
+              <button type="submit" id="addLevel" class="btn btn-success">Add Level</button>
+              <button type="submit" id="updateLevel" class="btn btn-warning">Update Level</button>
+              <button type="submit" id="removeLevel" class="btn btn-danger">Remove Level</button>
+            </div>
+
+          </form>
+        </div>
       </div>
+
+      <div class="panel panel-default">
+        <div class="panel-body">
+
+          <label>Terrain type</label>
+          <div class="btn-group">
+
+            <button type="button" class="btn btn-default">{{currentTerrain}}</button>
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+              <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              {{#each terrains}}
+              <li><a class="terrainOption" id={{name}} href="#">{{name}}</a></li>
+              {{/each}}
+            </ul>
+          </div>
+
+
+
+          <div>
+            <h3>map key</h3>
+
+            <table class="table">
+              <tbody>
+
+                {{#each terrainsUsed}}
+                <tr>
+                  <td>{{name}}</td>
+
+                  <td>
+                    <div class = "keyCell" style="background-color: {{color}}">
+                    </div>
+                  </td>
+                </tr>
+                {{/each}}
+
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+      </div>
+
 
     </div>
 
 
     <div class="col-xs-8">
-        {{>terrainMap}}
+      {{>terrainMap}}
     </div>
-   
+
+
+
   </div>
+
+
 
 </template>
 
 <template name="terrainMap">
-    <table>
-        <tbody>
-          {{#each mapRow}}
-          <tr>
-            {{#each mapCol this.y}}
-            <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{this.color}}"></td>
-            {{/each}}
-          </tr>
-          {{/each}}
-        </tbody>
-      </table>
+  <table>
+    <tbody>
+      {{#each mapRow}}
+      <tr>
+        {{#each mapCol this.y}}
+        <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{this.color}}"></td>
+        {{/each}}
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
 </template>
+
+
+<!-- ------------------------------------------- ELEMENT DESIGNERS ----------------------------------------------- -->
 
 <template name="terrainMaker">
 
@@ -111,11 +146,11 @@
       <form role="form">
         <div class="form-group">
           <div class="input-group">
-          <!--<label for="terrainName">Terrain Name</label>-->
-           <span class="input-group-addon">Name</span>
-          <input type="text" class="form-control" id="terrainName" placeholder="eg. forest" value={{currentTerrain.name}}>
-          <span class="input-group-addon" id="colPicker" style = "background-color: {{currentTerrain.color}}"></span>
-           </div>
+            <!--<label for="terrainName">Terrain Name</label>-->
+            <span class="input-group-addon">Name</span>
+            <input type="text" class="form-control" id="terrainName" placeholder="eg. forest" value={{currentTerrain.name}}>
+            <span class="input-group-addon" id="colPicker" style = "background-color: {{currentTerrain.color}}"></span>
+          </div>
         </div>
 
         {{>soundControls sc_type="Background"}}
@@ -155,41 +190,41 @@
 </template>
 
 <template name="soundControls">
-<div class="panel panel-default">
-  <div class="panel-heading">{{sc_type}}</div>
-  <div class="panel-body">
+  <div class="panel panel-default">
+    <div class="panel-heading">{{sc_type}}</div>
+    <div class="panel-body">
 
-  <div class="form-group">
-    <div class="btn-group">
-      <button type="button" class="btn btn-default">{{audioParam sc_type item="folder"}}</button>
-      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-        <span class="caret"></span>
-        <span class="sr-only">Toggle Dropdown</span>
-      </button>
-     
-     <ul class="dropdown-menu" role="menu">
-        {{#each audioTypes}}
-        <li><a class="typeOption {{../sc_type}}" id={{this.type}} href="#">{{this.type}}</a></li>
-        {{/each}}
-     </ul>
-    </div>
-    <div class="btn-group">
-      <button type="button" class="btn btn-default">{{audioParam sc_type item="audioFile"}}</button>
-      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-        <span class="caret"></span>
-        <span class="sr-only">Toggle Dropdown</span>
-      </button>
-      <ul class="dropdown-menu" role="menu">
-        {{#each audioFiles sc_type}}
-        <li><a class="fileOption {{../sc_type}}" id={{this.filename}} href="#">{{this.filename}}</a></li>
-        {{/each}}
-      </ul>
-    </div>
+      <div class="form-group">
+        <div class="btn-group">
+          <button type="button" class="btn btn-default">{{audioParam sc_type item="folder"}}</button>
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+          </button>
 
-    <label for="amp">Volume</label>
-    <input class ="ampBox {{sc_type}}" type="number" min="0.1" max="1" step="0.05" value={{audioParam sc_type item="amp"}}>
-  </div>
-  </div>
+          <ul class="dropdown-menu" role="menu">
+            {{#each audioTypes}}
+            <li><a class="typeOption {{../sc_type}}" id={{this.type}} href="#">{{this.type}}</a></li>
+            {{/each}}
+          </ul>
+        </div>
+        <div class="btn-group">
+          <button type="button" class="btn btn-default">{{audioParam sc_type item="audioFile"}}</button>
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            {{#each audioFiles sc_type}}
+            <li><a class="fileOption {{../sc_type}}" id={{this.filename}} href="#">{{this.filename}}</a></li>
+            {{/each}}
+          </ul>
+        </div>
+
+        <label for="amp">Volume</label>
+        <input class ="ampBox {{sc_type}}" type="number" min="0.1" max="1" step="0.05" value={{audioParam sc_type item="amp"}}>
+      </div>
+    </div>
   </div>
 
 </template>

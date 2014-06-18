@@ -24,59 +24,16 @@ Template.levelDesigner.events({
 
 });
 
-Template.levelDesigner.currentTerrain = function(){
-	return Session.get("currentTerrain");
-}
-
-UI.registerHelper('terrains', function(){return GameDefsRelease.find({type: "terrain"}).fetch()});
-
-Template.levelDesigner.terrainsUsed = function(){
-
-	return Session.get("terrainKey");
-
-};
-
-function updateTerrainKey(){
-
-	var terrains = Session.get("terrainKey");
-	var cells = GameMapRelease.find({type: 'cell', level: 'init'});
-
-	cells.forEach(function(cell){
-
-		var found  = false;
-		var col = GameDefsRelease.findOne({type: 'terrain', name: cell.terrain}).color;
-
-		for(var i = 0; i < terrains.length; i ++){
-			if(terrains[i].name == cell.terrain){
-				found = true;
-				break;
-			}
-		}
-
-		if(!found)terrains.push({name: cell.terrain, color: col});
-
-		GameMapRelease.update(cell._id, {$set: {color: col}});
-
-	});
-
-	Session.set("terrainKey", terrains);
-
-	UI.render(Template.terrainMap);
-
-}
-
-function getRandomColor() {
-    var letters = '0123456789ABCDEF'.split('');
-    var color = '#';
-    for (var i = 0; i < 6; i++ ) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-}
-
+Template.levelDesigner.currentTerrain = function(){return Session.get("currentTerrain");}
+Template.levelDesigner.terrainsUsed = function(){return Session.get("terrainKey");};
 
 Template.terrainMap.mapRow = function(){return GameMapRelease.find({type: 'cell', level:'init', x: 0}).fetch();}
 Template.terrainMap.mapCol = function(y){return GameMapRelease.find({type: 'cell', level:'init', y: y}).fetch();}
+
+
+/*------------------------------------TERRAIN MAKER---------------------------------------------*/
+
+UI.registerHelper('terrains', function(){return GameDefsRelease.find({type: "terrain"}).fetch()});
 
 Template.terrainMaker.created = function(){
 
@@ -232,7 +189,7 @@ Template.terrainTable.events({
 });
 
 
-
+/*----------------------------------------SOUND CONTROL -------------------------------*/
 
 
 Template.soundControls.audioFiles = function(type){  
@@ -339,3 +296,44 @@ Template.soundControls.events({
 
 
 });
+
+
+/*-------------------------------HELPER FUNCTIONS------------------------------------*/
+
+function updateTerrainKey(){
+
+	var terrains = Session.get("terrainKey");
+	var cells = GameMapRelease.find({type: 'cell', level: 'init'});
+
+	cells.forEach(function(cell){
+
+		var found  = false;
+		var col = GameDefsRelease.findOne({type: 'terrain', name: cell.terrain}).color;
+
+		for(var i = 0; i < terrains.length; i ++){
+			if(terrains[i].name == cell.terrain){
+				found = true;
+				break;
+			}
+		}
+
+		if(!found)terrains.push({name: cell.terrain, color: col});
+
+		GameMapRelease.update(cell._id, {$set: {color: col}});
+
+	});
+
+	Session.set("terrainKey", terrains);
+
+	UI.render(Template.terrainMap);
+
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}

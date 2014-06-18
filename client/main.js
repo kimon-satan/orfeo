@@ -43,11 +43,7 @@ Deps.autorun(function(){
 });
 
 
-UI.registerHelper("isSu", function(){
 
-  if(Meteor.user())return (Meteor.user().profile.role == 'admin' || Meteor.user().profile.role == 'designer');
-
-});
 
 Template.hello.isFrontPage = function(){ return (Session.get("loginMode") == 0 ); }
 Template.hello.isLogin = function(){ return (Session.get("loginMode") == 1 ) ; }

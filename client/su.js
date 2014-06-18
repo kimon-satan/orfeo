@@ -10,6 +10,12 @@ UI.registerHelper("isDesigner", function(){
 
 });
 
+UI.registerHelper("isSu", function(){
+
+  if(Meteor.user())return (Meteor.user().profile.role == 'admin' || Meteor.user().profile.role == 'designer');
+
+});
+
 Template.su.created = function(){
 
 	Session.set("suMode", "playGame");	
@@ -29,6 +35,7 @@ Template.su.events({
 		$(e.currentTarget).addClass("active");
 		if(id == 'playGame'){
 
+			//FIXME this is causing double playback
 			//always start at 0
 			var playerPos = PlayerGameData.findOne({player: Meteor.user()._id, type: "pos"});
 			PlayerGameData.update(playerPos._id, {$set: {x: 0, y: 0}});
@@ -49,6 +56,7 @@ Template.su.events({
 
 Template.su.isPlay = function(){return Session.get("suMode") == "playGame";}
 Template.su.isDesignLevel = function(){return Session.get("suMode") == "designLevel";}
+Template.su.isDesignElements = function(){return Session.get("suMode") == "designElements";}
 Template.su.isDesignRelease = function(){return Session.get("suMode") == "designRelease";}
 
 Template.su.isManageSus = function(){return Session.get("suMode") == "manageSUsers";}

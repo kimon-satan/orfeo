@@ -1,6 +1,6 @@
 
 1.   / resizing 
-    a level header document would be wise
+finish off level designer UI and redo terrain pointers as ids
 
 2. a bit of extra info for playtester 
 2. release init level selector, copying mechanism, changed flag using TS
@@ -16,3 +16,4 @@ resource load points (configure in release)
 BUGS
 
 multiple plays / players when returning to play game
+access denied bug for level designer

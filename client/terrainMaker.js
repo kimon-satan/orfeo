@@ -11,12 +11,7 @@ Template.terrainMaker.created = function(){
 
   Meteor.defer(function(){
 
-  	$('#' + ct.name + ' > td').addClass('selected');
-  	$('#' + ct.name).addClass('selected');
-	$('#colPicker').colorpicker();
-	$('#' + ct._id + ' > td').addClass('selected');
-	$('#' + ct._id ).addClass('selected');
-	disableAdjustables();
+  	selectTerrain(ct._id);
 
   });
 
@@ -70,11 +65,7 @@ Template.terrainMaker.events({
 
 		DesignerGameDefs.insert(ct, function(err, id){
 				if(err){alert(err.reason)}else{
-					$('#' + id + ' > td').addClass('selected');
-  					$('#' + id).addClass('selected');
-  					$('#addTerrain').addClass("disable");
-					$('#addTerrain').attr('disabled','disabled');
-					Session.set("currentTerrain", DesignerGameDefs.findOne(id));
+					selectTerrain(id);
 				}
 			} );
 
@@ -87,7 +78,15 @@ Template.terrainMaker.events({
 
 		if(confirm("are you sure you want to delete " + Session.get("currentTerrain").name + "... " )){	
 			
-			DesignerGameDefs.remove(Session.get("currentTerrain")._id, function(err){if(err){alert(err.reason)}});
+			var r = checkForDependencies(DesignerGameDefs.findOne(Session.get("currentTerrain")._id));
+		
+			if(!r){
+				DesignerGameDefs.remove(Session.get("currentTerrain")._id, function(err){if(err){alert(err.reason)}});
+			}else{
+				alert("I can't delete this because of a dependency in " + r + "\nremove the terrain from this level first.")
+			}
+
+			selectTerrain(DesignerGameDefs.findOne({creator: 'server'})._id);
 		}
 			
 		e.preventDefault();
@@ -103,25 +102,43 @@ Template.terrainMaker.events({
 Template.terrainMaker.currentTerrain = function(){return DesignerGameDefs.findOne(Session.get("currentTerrain")._id);}
 Template.terrainTable.creatorName = function(){return getCreatorName(this.creator)}
 
+function selectTerrain(id){
+
+	Session.set("currentTerrain", DesignerGameDefs.findOne(id));
+
+	$('.terrainRow').removeClass('selected');
+	$('.terrainRow > td' ).removeClass('selected');
+	$('#' + id + ' > td').removeClass('subSelected');
+	$('#' + id ).removeClass('subSelected');
+	$('#' + id + ' > td').addClass('selected');
+	$('#' + id).addClass('selected');
+
+	if(checkClientIsOwner(Meteor.user()._id, Session.get("currentTerrain"))){
+		enableAdjustables();
+	}else{
+		disableAdjustables();
+	}
+
+}
+
+
+function checkForDependencies(doc){
+
+	var depend = DesignerGameMaps.findOne({creator: doc.creator, type: 'cell', terrain: doc.name});
+	
+	if(!depend){
+		return false;
+	}else{
+		return depend.level;
+	}
+
+}
+
 Template.terrainTable.events({
 
 	'click .terrainRow':function(e){
 
-		Session.set("currentTerrain", DesignerGameDefs.findOne(e.currentTarget.id));
-
-		$('.terrainRow').removeClass('selected');
-		$('.terrainRow > td' ).removeClass('selected');
-		$('#' + e.currentTarget.id + ' > td').removeClass('subSelected');
-		$('#' + e.currentTarget.id).removeClass('subSelected');
-		$('#' + e.currentTarget.id + ' > td').addClass('selected');
-		$('#' + e.currentTarget.id).addClass('selected');
-
-		if(checkClientIsOwner(Meteor.user()._id, Session.get("currentTerrain"))){
-			enableAdjustables();
-		}else{
-			disableAdjustables();
-		}
-
+		selectTerrain(e.currentTarget.id);
 
 	},
 
@@ -170,13 +187,13 @@ Template.soundControls.audioFiles = function(type){
 	switch(type){
 
 		case "Background":
-		folder =  Session.get("currentTerrain").background.folder;
+		folder =  DesignerGameDefs.findOne(Session.get("currentTerrain")._id).background.folder;
 		break;
 		case "Footsteps":
-		folder = Session.get("currentTerrain").footsteps.folder;
+		folder = DesignerGameDefs.findOne(Session.get("currentTerrain")._id).footsteps.folder;
 		break;
 		case "Narrator":
-		folder =  Session.get("currentTerrain").narrator.folder;
+		folder =  DesignerGameDefs.findOne(Session.get("currentTerrain")._id).narrator.folder;
 		break;
 
 	}
@@ -194,13 +211,13 @@ Template.soundControls.audioParam = function(type, item){
 	switch(type){
 
 		case "Background":
-		return Session.get("currentTerrain").background[item.hash.item];
+		return DesignerGameDefs.findOne(Session.get("currentTerrain")._id).background[item.hash.item];
 		break;
 		case "Footsteps":
-		return Session.get("currentTerrain").footsteps[item.hash.item];
+		return DesignerGameDefs.findOne(Session.get("currentTerrain")._id).footsteps[item.hash.item];
 		break;
 		case "Narrator":
-		return Session.get("currentTerrain").narrator[item.hash.item];
+		return DesignerGameDefs.findOne(Session.get("currentTerrain")._id).narrator[item.hash.item];
 		break;
 
 	}
@@ -221,14 +238,13 @@ Template.soundControls.events({
 				{$set: {'background.folder': $(e.currentTarget.id).selector, 'background.audioFile':'none'}});
 
 		}else if($(e.currentTarget).hasClass('Footsteps')){
+
 			DesignerGameDefs.update(Session.get("currentTerrain")._id, 
 				{$set: {'footsteps.folder': $(e.currentTarget.id).selector, 'footsteps.audioFile':'none'}});
 		}else{
 			DesignerGameDefs.update(Session.get("currentTerrain")._id, 
 				{$set: {'narrator.folder': $(e.currentTarget.id).selector, 'narrator.audioFile':'none'}});
 		}
-
-		
 
 		e.preventDefault();
 	},

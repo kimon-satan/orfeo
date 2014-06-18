@@ -1,6 +1,8 @@
 
 var fs = Npm.require('fs');
 
+SUsers = new Meteor.Collection("SUsers"); //just holds the inital uadmin
+
 Meteor.startup(function(){
 
 	//repopulate the list of audioFiles
@@ -28,7 +30,29 @@ Meteor.startup(function(){
 
 		for(var x = 0; x < 5; x++){
 			for(var y = 0; y < 5; y++){
-				GameMapRelease.insert(createMapCell('init',x,y));
+				GameMapRelease.insert(createMapCell('init',x,y, "server"));
+			}
+		}
+
+	}
+
+	//populate DesignerGameDefs with default objects
+	if(!DesignerGameDefs.findOne({type: 'terrain'})){
+		
+
+		var daudio = {folder: "none", audioFile: "none", amp: 0.5};
+		var terrain = {name: "default", type: "terrain", creator: "server", background: daudio, footsteps: daudio, narrator: daudio};
+
+		DesignerGameDefs.insert(terrain);
+
+	}
+
+	//if there is no game map make an initial one
+	if(!DesignerGameMaps.findOne({type: 'cell'})){
+
+		for(var x = 0; x < 5; x++){
+			for(var y = 0; y < 5; y++){
+				DesignerGameMaps.insert(createMapCell('init',x,y, "server"));
 			}
 		}
 
@@ -39,25 +63,24 @@ Meteor.startup(function(){
 
 
 
-
-
 /*-------------------------user collections -----------------------------*/
 
-Meteor.publish('SUsers', function(userId){
-	if(checkAdmin(userId)){
-		return SUsers.find({}); 
-	}
-});
-
-Meteor.publish('Designers', function(userId){
-	if(checkAdmin(userId)){
-		return Designers.find({}); 
-	}
-});
 
 Meteor.publish('AllPlayers', function(userId){
 	if(checkAdmin(userId)){
 		return Meteor.users.find({}); 
+	}
+});
+
+Meteor.publish('MyAccount', function(userId){
+	
+	return Meteor.users.find(userId); 
+	
+});
+
+Meteor.publish('Designers', function(userId){
+	if(checkDesigner(userId)){
+		return Meteor.users.find({'profile.role': {$in: ['designer', 'admin']}}); 
 	}
 });
 
@@ -80,6 +103,22 @@ Meteor.publish('GameMapRelease', function(){
 Meteor.publish('GameDefsRelease', function(){
 	return GameDefsRelease.find({}); 
 });
+
+Meteor.publish("DesignerGameMaps", function(userId){
+	if(checkDesigner(userId)){
+		return DesignerGameMaps.find({}); 
+	}
+});
+
+Meteor.publish("DesignerGameDefs", function(userId){
+	if(checkDesigner(userId)){
+		return DesignerGameDefs.find({}); 
+	}
+});
+
+
+
+//will need design collections
 
 
 
@@ -160,7 +199,7 @@ function checkAdmin(userId){
 function checkDesigner(userId){
 
 	var user = Meteor.users.findOne(userId);
-	if(user.profile.role == "admin"){
+	if(user.profile.role == "admin" || user.profile.role == "designer"){
 		return true;
 	}else{
 		return false;

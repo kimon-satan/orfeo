@@ -25,17 +25,25 @@ Deps.autorun(function(){
     if(Meteor.user().profile.role == 'admin'){
 
       Meteor.subscribe("AllPlayers", id);
-      Meteor.subscribe("SUsers", id);
-      Meteor.subscribe("Designers", id);
-      Meteor.subscribe("PlayerGameData", id);
+      Meteor.subscribe("DesignerGameMaps", id);
+      Meteor.subscribe("DesignerGameDefs", id);
+     
 
     }else if(Meteor.user().profile.role == 'designer'){
 
+      Meteor.subscribe("Designers", id);
+      Meteor.subscribe("DesignerGameMaps", id);
+      Meteor.subscribe("DesignerGameDefs", id);
+     
       //subcriptions to sandbox collections to go here
+
+    }else{
+
+      Meteor.subscribe("MyAccount", id);
 
     }
 
-
+      Meteor.subscribe("PlayerGameData", id);
       Meteor.subscribe("GameMapRelease");
       Meteor.subscribe("GameDefsRelease");
   }
@@ -60,13 +68,13 @@ Template.frontPage.events({
   },
 
   'click #login':function(e){
-    console.log("login");
+    //console.log("login");
     Session.set("loginMode", 1);
     e.preventDefault();
   },
 
   'click #register':function(e){
-    console.log("register");
+    //console.log("register");
     Session.set("loginMode", 2);
     e.preventDefault();
   }

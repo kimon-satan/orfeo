@@ -23,16 +23,25 @@
 
   <div class ="row">
     <div class="col-xs-4">
+
+
       <div class="panel panel-default">
         <div class="panel-body">
+          {{>levelTable}}
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-body">
+
           <form role="form">
-          <div class="form-group">
+            <div class="form-group">
 
-            <label for="levelName">Level Name</label>
+              <label for="levelName">Level Name</label>
 
-            <input type="text" class="form-control" id="levelName" placeholder="eg. forest" value={{currentTerrain.name}}>
+              <input type="text" class="form-control" id="levelName" placeholder="eg. forest" value={{currentTerrain.name}}>
 
-          </div>
+            </div>
 
 
             <div class="form-group">
@@ -47,8 +56,8 @@
               <button type="submit" id="updateLevel" class="btn btn-warning">Update Level</button>
               <button type="submit" id="removeLevel" class="btn btn-danger">Remove Level</button>
             </div>
-
           </form>
+
         </div>
       </div>
 
@@ -94,23 +103,36 @@
           </div>
 
         </div>
-
       </div>
 
-
     </div>
-
 
     <div class="col-xs-8">
       {{>terrainMap}}
     </div>
 
-
-
   </div>
 
+</template>
 
+<template name="levelTable">
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Level name</th>
+        <th>Creator</th>
+      </tr>
+    </thead>
 
+    <tbody>
+      {{#each levels}}
+      <tr id={{this.name}} class="levelRow">
+        <td>{{name}}</td>
+        <td>{{creatorName}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
 </template>
 
 <template name="terrainMap">
@@ -119,7 +141,7 @@
       {{#each mapRow}}
       <tr>
         {{#each mapCol this.y}}
-        <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{this.color}}"></td>
+        <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{this.color}}">{{this.x}}</td>
         {{/each}}
       </tr>
       {{/each}}

@@ -1,13 +1,11 @@
 ////////// Shared code (client and server) //////////
 
-
-SUsers = new Meteor.Collection("SUsers");
-Designers = new Meteor.Collection("Designers");
 PlayerGameData = new Meteor.Collection("PlayerGameData"); //game data for individual players
-
 
 AudioFiles = new Meteor.Collection("AudioFiles");
 
+DesignerGameMaps = new Meteor.Collection("DesignerGameMaps"); //prototypes game map
+DesignerGameDefs = new Meteor.Collection("DesignerGameDefs"); //prototypes game defs
 
 GameMapRelease = new Meteor.Collection("GameMapRelease"); //the final game map
 GameDefsRelease = new Meteor.Collection("GameDefsRelease"); //the final game definitions
@@ -17,18 +15,17 @@ GameDefsRelease = new Meteor.Collection("GameDefsRelease"); //the final game def
 
 Meteor.users.allow({
 		
-	update: function(user){return Meteor.users.findOne(user).profile.role == 'admin' ;},
-	insert: function(user){return Meteor.users.findOne(user).profile.role == 'admin' ;},
-	remove: function(user){return Meteor.users.findOne(user).profile.role == 'admin' ;}	
+	update: adminTest,
+	insert: adminTest,
+	remove: adminTest
 
 });
 
-
 Meteor.users.deny({
 		
-	update: function(user){return Meteor.users.findOne(user).profile.role != 'admin' ;},
-	insert: function(user){return Meteor.users.findOne(user).profile.role != 'admin' ;},
-	remove: function(user){return Meteor.users.findOne(user).profile.role != 'admin' ;}	
+	update: function(user){return !adminTest();},
+	insert: function(user){return !adminTest();},
+	remove: function(user){return !adminTest();}	
 
 });
 
@@ -38,23 +35,60 @@ PlayerGameData.allow({
 
 });
 
+
+
 GameDefsRelease.allow({
 
-	update: accessTest,
-	insert: accessTest,
-	remove: accessTest
+	update: adminTest,
+	insert: adminTest,
+	remove: adminTest
 });
 
 GameMapRelease.allow({
 
-	update: accessTest,
-	insert: accessTest,
-	remove: accessTest
+	update: adminTest,
+	insert: adminTest,
+	remove: adminTest
 });
+
+DesignerGameDefs.allow({
+
+	update: adminTest,
+	insert: adminTest,
+	remove: adminTest
+});
+
+DesignerGameMaps.allow({
+
+	update: adminTest,
+	insert: adminTest,
+	remove: adminTest
+});
+
 
 function accessTest (user , doc){
 	if(Meteor.users.findOne(user).profile.role == 'admin' || 
 		user == doc.player){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+function designerTest(user , doc){
+
+	var role = Meteor.users.findOne(user).profile.role;
+	if(role == 'admin' || role == 'designer'){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+function adminTest(user , doc){
+
+	var role = Meteor.users.findOne(user).profile.role;
+	if(role == 'admin'){
 		return true;
 	}else{
 		return false;
@@ -84,12 +118,13 @@ Admins can edit and delete any level
 //NB
 //functions need to be declared as anonymous globals in meteor to be available universally
 
-createMapCell = function(level, x, y){
+createMapCell = function(level, x, y, id){
 
 	//will need to add sections for i/o elements
 
 	var cell = {
 		type: 'cell', 
+		creator: id,
 		level: level, 
 		x: x, y: y, 
 		terrain: 'none', 

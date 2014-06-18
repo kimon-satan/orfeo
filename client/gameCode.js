@@ -9,7 +9,7 @@ UI.registerHelper("isAudioReady", function(){
 Template.game.created = function(){
 
   var id = Meteor.user()._id;
-  console.log(id);
+  //console.log(id);
 
   Meteor.subscribe("PlayerGameData", id, { onReady: function(){
      Meteor.subscribe("AudioFiles",{}, {onReady: function(){
@@ -19,7 +19,7 @@ Template.game.created = function(){
 
   }});
 
-  console.log("subscribe");
+ // console.log("subscribe");
 
  
 }
@@ -133,7 +133,7 @@ function loadAudioFiles(){
 
   var files = AudioFiles.find({dt: 'file'}).fetch();
 
-  console.log(files);
+  //console.log(files);
 
   audio.loadSounds( files , function(){
 

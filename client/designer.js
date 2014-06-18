@@ -17,8 +17,9 @@ Template.levelDesigner.events({
 	'click .designerCell':function(e){
 
 		var loc = e.currentTarget.id.split("-");
-		var cell = GameMapRelease.findOne({type: 'cell', level:'init', x: parseInt(loc[0]), y: parseInt(loc[1])});
-		GameMapRelease.update(cell._id ,{$set:{terrain: Session.get("currentTerrain")}});
+		var cell = DesignerGameMaps.findOne({type: 'cell', level:'init', x: parseInt(loc[0]), y: parseInt(loc[1])});
+		console.log(cell);
+		DesignerGameMaps.update(cell._id ,{$set:{terrain: Session.get("currentTerrain")}});
 		updateTerrainKey();
 	}
 
@@ -27,17 +28,17 @@ Template.levelDesigner.events({
 Template.levelDesigner.currentTerrain = function(){return Session.get("currentTerrain");}
 Template.levelDesigner.terrainsUsed = function(){return Session.get("terrainKey");};
 
-Template.terrainMap.mapRow = function(){return GameMapRelease.find({type: 'cell', level:'init', x: 0}).fetch();}
-Template.terrainMap.mapCol = function(y){return GameMapRelease.find({type: 'cell', level:'init', y: y}).fetch();}
+Template.terrainMap.mapRow = function(){return DesignerGameMaps.find({type: 'cell', level:'init', x: 0},{sort: ["y", "asc"]}).fetch();}
+Template.terrainMap.mapCol = function(y){return DesignerGameMaps.find({type: 'cell', level:'init', y: y},{sort: ["x", "asc"]}).fetch();}
 
 
 /*------------------------------------TERRAIN MAKER---------------------------------------------*/
 
-UI.registerHelper('terrains', function(){return GameDefsRelease.find({type: "terrain"}).fetch()});
+UI.registerHelper('terrains', function(){return DesignerGameDefs.find({type: "terrain"}).fetch()});
 
 Template.terrainMaker.created = function(){
 
-  var ct = GameDefsRelease.findOne({type: "terrain"});
+  var ct = DesignerGameDefs.findOne({type: "terrain"});
 
   Session.set("currentTerrain", ct);
 
@@ -75,7 +76,7 @@ Template.terrainMaker.events({
 		$('.terrainRow').removeClass('selected');
 		$('.terrainRow > td' ).removeClass('selected');
 
-		if(GameDefsRelease.findOne({type: "terrain", name: ct.name})){
+		if(DesignerGameDefs.findOne({type: "terrain", name: ct.name})){
 			$('#addTerrain').addClass("disable");
 			$('#addTerrain').attr('disabled','disabled');
 
@@ -98,7 +99,7 @@ Template.terrainMaker.events({
 		ct.creator = Meteor.user()._id;
 		delete ct['_id'];
 
-		GameDefsRelease.insert(ct, function(err){
+		DesignerGameDefs.insert(ct, function(err){
 				if(err){alert(err.reason)}else{
 					$('#' + ct.name + ' > td').addClass('selected');
   					$('#' + ct.name).addClass('selected');
@@ -116,7 +117,7 @@ Template.terrainMaker.events({
 
 		if(confirm("are you sure you want to delete " + Session.get("currentTerrain").name + "... " )){	
 			//do this by searching for name first
-			GameDefsRelease.remove(Session.get("currentTerrain")._id, function(err){if(err){alert(err.reason)}});
+			DesignerGameDefs.remove(Session.get("currentTerrain")._id, function(err){if(err){alert(err.reason)}});
 		}
 			
 		e.preventDefault();
@@ -124,10 +125,10 @@ Template.terrainMaker.events({
 
 	'click #updateTerrain':function(e){
 
-		var td = GameDefsRelease.findOne(Session.get("currentTerrain")._id); //check theres a terrain
+		var td = DesignerGameDefs.findOne(Session.get("currentTerrain")._id); //check theres a terrain
 
 		if(td){
-			GameDefsRelease.update(td._id, {$set: { 
+			DesignerGameDefs.update(td._id, {$set: { 
 				color: Session.get("currentTerrain").color,
 				background: Session.get("currentTerrain").background,
 				footsteps: Session.get("currentTerrain").footsteps,
@@ -150,14 +151,19 @@ Template.terrainMaker.events({
 Template.terrainMaker.currentTerrain = function(){return Session.get("currentTerrain");}
 
 
+Template.terrainTable.creatorName = function(){
 
+	var u = Meteor.users.findOne(this.creator);
+	var un =  (u) ? u.username : this.creator;
+	return un;
 
-Template.terrainTable.creatorName = function(){return Meteor.users.findOne(this.creator).username;}
+}
+
 Template.terrainTable.events({
 
 	'click .terrainRow':function(e){
 
-		Session.set("currentTerrain", GameDefsRelease.findOne({type: 'terrain', name: e.currentTarget.id}));
+		Session.set("currentTerrain", DesignerGameDefs.findOne({type: 'terrain', name: e.currentTarget.id}));
 
 		$('.terrainRow').removeClass('selected');
 		$('.terrainRow > td' ).removeClass('selected');
@@ -303,12 +309,13 @@ Template.soundControls.events({
 function updateTerrainKey(){
 
 	var terrains = Session.get("terrainKey");
-	var cells = GameMapRelease.find({type: 'cell', level: 'init'});
+	var cells = DesignerGameMaps.find({type: 'cell', level: 'init'});
 
 	cells.forEach(function(cell){
 
+		if(cell.terrain == "none")return;
 		var found  = false;
-		var col = GameDefsRelease.findOne({type: 'terrain', name: cell.terrain}).color;
+		var col = DesignerGameDefs.findOne({type: 'terrain', name: cell.terrain}).color;
 
 		for(var i = 0; i < terrains.length; i ++){
 			if(terrains[i].name == cell.terrain){
@@ -319,7 +326,7 @@ function updateTerrainKey(){
 
 		if(!found)terrains.push({name: cell.terrain, color: col});
 
-		GameMapRelease.update(cell._id, {$set: {color: col}});
+		DesignerGameMaps.update(cell._id, {$set: {color: col}});
 
 	});
 

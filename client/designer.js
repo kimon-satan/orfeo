@@ -3,8 +3,8 @@ Template.levelDesigner.created = function(){
 	Session.set("terrainKey", []);
 	
 	Session.set("currentTerrain", "none");
-	Session.set("currentLevel", DesignerGameMaps.findOne({type: 'cell', x: 0, y: 0}));
-	updateTerrainKey();
+	Session.set("currentLevel", DesignerGameMaps.findOne({type: 'levelHeader', creator: "server"}));
+	//updateTerrainKey();
 
 	Meteor.defer(function(){
 
@@ -60,22 +60,29 @@ Template.levelDesigner.events({
 	'click .designerCell':function(e){
 
 		var loc = e.currentTarget.id.split("-");
-		
+
 		var cell = DesignerGameMaps.findOne({type: 'cell', 
 			creator: Session.get("currentLevel").creator, 
 			level: Session.get("currentLevel").level, 
 			x: parseInt(loc[0]), y: parseInt(loc[1])});
+		
 
 		DesignerGameMaps.update(cell._id ,{$set:{terrain: Session.get("currentTerrain")}});
 		updateTerrainKey();
+		
 	}
 
 
 });
 
-Template.levelDesigner.currentLevel = function(){return Session.get("currentLevel").level;}
+Template.levelDesigner.currentLevel = function(){return Session.get("currentLevel");}
 Template.levelDesigner.currentTerrain = function(){return Session.get("currentTerrain");}
-Template.levelDesigner.terrainsUsed = function(){return Session.get("terrainKey");};
+Template.levelDesigner.terrainsUsed = function(){
+
+	var k = DesignerGameMaps.findOne(Session.get("currentLevel")._id).terrainKey;
+	return DesignerGameDefs.find({type: 'terrain', name: {$in: k}, creator: Session.get("currentLevel").creator}, {fields: {color: 1, name: 1}}).fetch();
+
+}
 
 Template.terrainMap.mapRow = function(){
 	return DesignerGameMaps.find({
@@ -94,9 +101,20 @@ Template.terrainMap.mapCol = function(y){
 		{sort: ["x", "asc"]}).fetch();
 }
 
+Template.terrainMap.cellColor = function(){
+
+	var t = DesignerGameDefs.findOne({creator: Session.get("currentLevel").creator, type: 'terrain', name: this.terrain});
+	if(!t){
+		return 'FFFFFF'
+	}else{
+		return t.color;
+	}
+
+}
 
 
-Template.levelTable.levels = function(){return DesignerGameMaps.find({type: 'cell', x: 0, y: 0}).fetch()}
+
+Template.levelTable.levels = function(){return DesignerGameMaps.find({type: 'levelHeader'}).fetch()}
 Template.levelTable.creatorName = function(){return getCreatorName(this.creator)}
 
 Template.levelTable.events({
@@ -104,6 +122,7 @@ Template.levelTable.events({
 	'click .levelRow':function(e){
 
 		Session.set("currentLevel", DesignerGameMaps.findOne(e.currentTarget.id));
+		updateTerrainKey();
 
 		$('.levelRow').removeClass('selected');
 		$('.levelRow > td' ).removeClass('selected');
@@ -138,7 +157,7 @@ Template.levelTable.events({
 
 /*------------------------------------TERRAIN MAKER---------------------------------------------*/
 
-UI.registerHelper('terrains', function(){return DesignerGameDefs.find({type: "terrain"}).fetch()});
+UI.registerHelper('terrains', function(){return DesignerGameDefs.find({type: "terrain", creator: Meteor.user()._id}).fetch()});
 
 Template.terrainMaker.created = function(){
 
@@ -445,31 +464,20 @@ function getCreatorName(id){
 
 function updateTerrainKey(){
 
-	var terrains = Session.get("terrainKey");
-	var cells = DesignerGameMaps.find({type: 'cell', level: Session.get("currentLevel").level});
+	var terrains = []; 
 
-	cells.forEach(function(cell){
+	DesignerGameDefs.find({type: 'terrain', creator: Meteor.user()._id}).forEach(function(t){
 
-		if(cell.terrain == "none")return;
-		var found  = false;
-		var col = DesignerGameDefs.findOne({type: 'terrain', name: cell.terrain}).color;
+		if(DesignerGameMaps.findOne({type: 'cell', level: Session.get("currentLevel").level, creator: Meteor.user()._id, terrain: t.name})){
 
-		for(var i = 0; i < terrains.length; i ++){
-			if(terrains[i].name == cell.terrain){
-				found = true;
-				break;
-			}
+			terrains.push(t.name);
+
 		}
-
-		if(!found)terrains.push({name: cell.terrain, color: col});
-
-		DesignerGameMaps.update(cell._id, {$set: {color: col}});
 
 	});
 
-	Session.set("terrainKey", terrains);
-
-	UI.render(Template.terrainMap);
+	DesignerGameMaps.update(Session.get("currentLevel")._id, {$set:{terrainKey: terrains}});
+	//UI.render(Template.terrainMap);
 
 }
 

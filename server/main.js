@@ -48,7 +48,10 @@ Meteor.startup(function(){
 	}
 
 	//if there is no game map make an initial one
-	if(!DesignerGameMaps.findOne({type: 'cell'})){
+	if(!DesignerGameMaps.findOne({type: 'levelHeader'})){
+
+		var header = createLevelHeader('init', 5 , 5, "server");
+		DesignerGameMaps.insert(header);
 
 		for(var x = 0; x < 5; x++){
 			for(var y = 0; y < 5; y++){

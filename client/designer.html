@@ -39,16 +39,16 @@
 
               <label for="levelName">Level Name</label>
 
-              <input type="text" class="form-control" id="levelName" placeholder="eg. forest" value={{currentLevel}}>
+              <input type="text" class="form-control" id="levelName" placeholder="eg. forest" value={{currentLevel.level}}>
 
             </div>
 
 
             <div class="form-group">
-              <label for="width">Level width</label><input type="number" id="width" min="2" max="20" step="1" value="5">
+              <label for="width">Level width</label><input type="number" id="width" min="2" max="50" step="1" value={{currentLevel.width}}>
             </div>
             <div class="form-group">
-              <label for="width">Level height</label><input type="number" id="height" min="2" max="20" step="1" value="5">
+              <label for="width">Level height</label><input type="number" id="height" min="2" max="50" step="1" value={{currentLevel.height}}>
             </div>
 
             <div class="form-group">
@@ -141,7 +141,7 @@
       {{#each mapRow}}
       <tr>
         {{#each mapCol this.y}}
-        <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{this.color}}"></td>
+        <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{cellColor}}"></td>
         {{/each}}
       </tr>
       {{/each}}

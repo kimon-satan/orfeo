@@ -138,7 +138,19 @@ createMapCell = function(level, x, y, id){
 	return cell;
 }
 
+createLevelHeader = function(level, width, height, creator){
 
+	var header = {
+		type: 'levelHeader',
+		level: level,
+		creator: creator,
+		width: width,
+		height: height,
+		terrainKey: [],
+	}
+
+	return header;
+}
 
 
 

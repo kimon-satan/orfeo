@@ -148,7 +148,8 @@ Accounts.onCreateUser(function(options ,user){
 
 function checkAdmin(userId){
 
-	if(SUsers.findOne({user: userId})){
+	var user = Meteor.users.findOne(userId);
+	if(user.profile.role == "admin"){
 		return true;
 	}else{
 		return false;
@@ -158,7 +159,8 @@ function checkAdmin(userId){
 
 function checkDesigner(userId){
 
-	if(Designers.findOne({user: userId})){
+	var user = Meteor.users.findOne(userId);
+	if(user.profile.role == "admin"){
 		return true;
 	}else{
 		return false;

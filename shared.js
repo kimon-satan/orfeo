@@ -15,6 +15,15 @@ GameDefsRelease = new Meteor.Collection("GameDefsRelease"); //the final game def
 
 //access
 
+Meteor.users.allow({
+		
+	update: function(user){return Meteor.users.findOne(user).profile.role == 'admin' ;},
+	insert: function(user){return Meteor.users.findOne(user).profile.role == 'admin' ;},
+	remove: function(user){return Meteor.users.findOne(user).profile.role == 'admin' ;}	
+
+});
+
+
 Meteor.users.deny({
 		
 	update: function(user){return Meteor.users.findOne(user).profile.role != 'admin' ;},

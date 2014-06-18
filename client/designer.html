@@ -73,7 +73,7 @@
               <span class="sr-only">Toggle Dropdown</span>
             </button>
             <ul class="dropdown-menu" role="menu">
-              {{#each terrains}}
+              {{#each myTerrains}}
               <li><a class="terrainOption" id={{name}} href="#">{{name}}</a></li>
               {{/each}}
             </ul>
@@ -150,104 +150,5 @@
 </template>
 
 
-<!-- ------------------------------------------- ELEMENT DESIGNERS ----------------------------------------------- -->
 
-<template name="terrainMaker">
-
-  <h2>Terrain maker</h2>
-
-  <div class ="row">
-    <div class="col-xs-1"></div>
-    <div class="col-xs-5 well">
-      {{>terrainTable}}
-    </div>
-
-    <div class="col-xs-1"></div>
-
-    <div class="col-xs-4 well">
-      <form role="form">
-        <div class="form-group">
-          <div class="input-group">
-            <!--<label for="terrainName">Terrain Name</label>-->
-            <span class="input-group-addon">Name</span>
-            <input type="text" class="form-control" id="terrainName" placeholder="eg. forest" value={{currentTerrain.name}}>
-            <span class="input-group-addon" id="colPicker" style = "background-color: {{currentTerrain.color}}"></span>
-          </div>
-        </div>
-
-        {{>soundControls sc_type="Background"}}
-        {{>soundControls sc_type="Footsteps"}}
-        {{>soundControls sc_type="Narrator"}}
-
-        <div class="form-group">
-          <button type="submit" id="addTerrain" class="btn btn-success">Add Terrain</button>
-          <button type="submit" id="updateTerrain" class="btn btn-warning">Update Terrain</button>
-          <button type="submit" id="removeTerrain" class="btn btn-danger">Remove Terrain</button>
-        </div>
-
-      </form>
-    </div>
-  </div>
-
-</template>
-
-<template name="terrainTable">
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th>Terrain name</th>
-        <th>Creator</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      {{#each terrains}}
-      <tr id={{this.name}} class="terrainRow">
-        <td>{{name}}</td>
-        <td>{{creatorName}}</td>
-      </tr>
-      {{/each}}
-    </tbody>
-  </table>
-</template>
-
-<template name="soundControls">
-  <div class="panel panel-default">
-    <div class="panel-heading">{{sc_type}}</div>
-    <div class="panel-body">
-
-      <div class="form-group">
-        <div class="btn-group">
-          <button type="button" class="btn btn-default">{{audioParam sc_type item="folder"}}</button>
-          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-            <span class="caret"></span>
-            <span class="sr-only">Toggle Dropdown</span>
-          </button>
-
-          <ul class="dropdown-menu" role="menu">
-            {{#each audioTypes}}
-            <li><a class="typeOption {{../sc_type}}" id={{this.type}} href="#">{{this.type}}</a></li>
-            {{/each}}
-          </ul>
-        </div>
-        <div class="btn-group">
-          <button type="button" class="btn btn-default">{{audioParam sc_type item="audioFile"}}</button>
-          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-            <span class="caret"></span>
-            <span class="sr-only">Toggle Dropdown</span>
-          </button>
-          <ul class="dropdown-menu" role="menu">
-            {{#each audioFiles sc_type}}
-            <li><a class="fileOption {{../sc_type}}" id={{this.filename}} href="#">{{this.filename}}</a></li>
-            {{/each}}
-          </ul>
-        </div>
-
-        <label for="amp">Volume</label>
-        <input class ="ampBox {{sc_type}}" type="number" min="0.1" max="1" step="0.05" value={{audioParam sc_type item="amp"}}>
-      </div>
-    </div>
-  </div>
-
-</template>
 

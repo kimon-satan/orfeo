@@ -170,7 +170,7 @@ Template.loginErrors.rendered = function(){
 Template.loginErrors.loginError = function(){return Session.get("loginError");}
 
 
-function generateTempId(n){
+generateTempId  = function(n){
 
   var chars = "abcdefghijklmnnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ!@£$%^&*()-=_+";  
   var count = 0;

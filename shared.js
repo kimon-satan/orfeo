@@ -35,8 +35,6 @@ PlayerGameData.allow({
 
 });
 
-
-
 GameDefsRelease.allow({
 
 	update: adminTest,
@@ -53,16 +51,16 @@ GameMapRelease.allow({
 
 DesignerGameDefs.allow({
 
-	update: adminTest,
-	insert: adminTest,
-	remove: adminTest
+	update: designerTest,
+	insert: designerTest,
+	remove: designerTest
 });
 
 DesignerGameMaps.allow({
 
-	update: adminTest,
-	insert: adminTest,
-	remove: adminTest
+	update: designerTest,
+	insert: designerTest,
+	remove: designerTest
 });
 
 

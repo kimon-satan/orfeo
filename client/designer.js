@@ -37,10 +37,19 @@ Template.levelDesigner.events({
 
 	'click #removeLevel':function(e){
 
+		//safeties needed here
+
 		var level = Session.get("currentLevel");
 		DesignerGameMaps.find({level: level.level, creator: level.creator}).forEach(function(cell){
 			DesignerGameMaps.remove(cell._id);
 		});
+
+		Session.set("currentLevel", DesignerGameMaps.findOne({type: 'cell', x: 0, y: 0}));
+
+		$('#' + Session.get("currentLevel")._id + ' > td').addClass('selected');
+  		$('#' + Session.get("currentLevel")._id).addClass('selected');
+
+		e.preventDefault();
 		
 	},
 
@@ -51,7 +60,12 @@ Template.levelDesigner.events({
 	'click .designerCell':function(e){
 
 		var loc = e.currentTarget.id.split("-");
-		var cell = DesignerGameMaps.findOne({type: 'cell', level: Session.get("currentLevel").level, x: parseInt(loc[0]), y: parseInt(loc[1])});
+		
+		var cell = DesignerGameMaps.findOne({type: 'cell', 
+			creator: Session.get("currentLevel").creator, 
+			level: Session.get("currentLevel").level, 
+			x: parseInt(loc[0]), y: parseInt(loc[1])});
+
 		DesignerGameMaps.update(cell._id ,{$set:{terrain: Session.get("currentTerrain")}});
 		updateTerrainKey();
 	}
@@ -404,9 +418,11 @@ function makeLevelCopy(o_levelName, o_creator, n_levelName, n_creator, callBack)
 			if(!DesignerGameDefs.findOne({type: "terrain", name: elem.terrain, creator: n_creator})){
 
 				var t = DesignerGameDefs.findOne({type: "terrain", name: elem.terrain, creator: o_creator});
-				delete t["_id"];
-				t.creator = n_creator;
-				DesignerGameDefs.insert(t);
+				if(t){
+					delete t["_id"];
+					t.creator = n_creator;
+					DesignerGameDefs.insert(t);
+				}
 			}
 
 			//this will need to be done for the other elements in the cell

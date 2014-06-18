@@ -78,8 +78,11 @@ function accessTest (user , doc){
 function designerTest(user , doc){
 
 	var role = Meteor.users.findOne(user).profile.role;
-	if(role == 'admin' || role == 'designer'){
+
+	if(role == 'admin'){
 		return true;
+	}else if(role == 'designer'){
+		return (doc.creator == user);
 	}else{
 		return false;
 	}

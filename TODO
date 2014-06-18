@@ -1,13 +1,17 @@
-1. naive copying mechanism
 
-1./ level names ... move to designer collection
+1.   / resizing 
+    a level header document would be wise
 
-1./ improve colour selector for map key (perhaps a list of default colours)
+2. a bit of extra info for playtester 
+2. release init level selector, copying mechanism, changed flag using TS
+3. start points and links
 
-2./ then add in sandboxing features 
-    -- work out some basic principles for linking levels (ie. reciprical links only ?)
+4. objects and inventory
 
-3./ now add special override objects and changes to appi wrapper to accomodate panning and mulitple instantiations of the same file 
+5. now add special override objects and changes to appi wrapper to accomodate panning and mulitple instantiations of the same file 
+
+DONT FORGET
+resource load points (configure in release)
 
 BUGS
 

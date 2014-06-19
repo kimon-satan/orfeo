@@ -119,6 +119,8 @@ function makeReleaseCopy(){
 				}
 				
 				
+			}else{
+				GameMapRelease.insert(elem);
 			}
 
 			//this will need to be done for the other elements in the cell ... think about how to manage callbacks ?!

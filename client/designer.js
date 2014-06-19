@@ -141,6 +141,7 @@ Template.levelDesigner.events({
 
 		var level = Session.get("currentLevel");
 		makeLevelCopy(level.level, level.creator, level.level, Meteor.user()._id);
+		Deps.flush();
 		e.preventDefault();
 
 	},
@@ -322,23 +323,27 @@ function makeLevelCopy(o_levelName, o_creator, n_levelName, n_creator){
 				//copy over all the terrains
 				if(!n_t){
 
-					n_t = DesignerGameDefs.findOne({type: "terrain", name: elem.terrain, creator: o_creator});
-					if(n_t){
-						delete n_t["_id"];
-						n_t.creator = n_creator;
-						DesignerGameDefs.insert(n_t, function(err, id){ 
-							n_t._id = id;
+					if(o_t){
+						delete o_t["_id"];
+						o_t.creator = n_creator;
+						DesignerGameDefs.insert(o_t, function(err, id){ 
+							elem.terrain = id;	
+							DesignerGameMaps.insert(elem);
 						});
 					}
 
+				}else{
+					elem.terrain = n_t._id;	
+					DesignerGameMaps.insert(elem);
 				}
+
 				
-				elem.terrain = n_t._id;
+			}else{
+				DesignerGameMaps.insert(elem);
 			}
 
 			//this will need to be done for the other elements in the cell
-			console.log(elem);
-			DesignerGameMaps.insert(elem);
+			
 		});
 
 		return clh._id;

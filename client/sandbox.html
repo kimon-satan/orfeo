@@ -7,7 +7,12 @@
 	
 	<div class="row">
 		<div class="col-xs-4">
-			{{>sandboxLevelSelector}}
+			<div class="row">
+				{{>sandboxLevelSelector}}
+			</div>
+			<div class="row">
+				{{>sandboxControls}}
+			</div>
 		</div>
 
 		<div class="col-xs-8">
@@ -39,6 +44,26 @@
 	    </tbody>
 	  </table>
 	</div>
+</template>
+
+<template name="sandboxControls">
+
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<form class="form-inline" role="form">
+            <div class="form-group">
+            <b>current position</b>
+            <label for="ppx">x</label>
+			<input class="form-control posctrl" type="number" id="ppx" min="0" max={{levelHeight}} step="1" value={{playerPos.x}}>
+			<label for="ppy">y</label>
+			<input class="form-control posctrl" type="number" id="ppy" min="0" max={{levelWidth}} step="1" value={{playerPos.y}}>
+
+			</div>
+			</form>
+
+		</div>
+	</div>
+
 </template>
 
 

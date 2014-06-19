@@ -33,29 +33,26 @@ Template.game.isNavScreen = function(){
 };
 
 
+Template.game.destroyed = function(){
+
+    audio.killAll();
+    Session.set('isAudioInit', false);
+    Session.set('screenMode', 0);
+}
+
 Template.startSplash.events({
 
   'click #begin':function(e){
 
       Session.set("screenMode", 1);
 
-      if(checkClientIsDesigner()){
+      var playerPos = PlayerGameData.findOne({player: Meteor.user()._id, type: "pos"});
 
-        var newCell = DesignerGameMaps.findOne({
-          type: 'cell', 
-          level: Session.get("currentLevel").level, 
-          creator: Session.get("currentLevel").creator, 
-          x: 0, y: 0
-        });
+      cTerrain = getCell(playerPos.x, playerPos.y);
+      
+      audio.startLooping(cTerrain.background.audioFile, cTerrain.background.amp, 1);
+      audio.playOnce(cTerrain.narrator.audioFile, {amp: cTerrain.narrator.amp, offset: 2});
 
-        cTerrain = DesignerGameDefs.findOne(newCell.terrain);
-
-      }else{
-        var newCell = GameMapRelease.findOne({type: 'cell', level:'init', x: 0, y: 0});
-        cTerrain = GameDefsRelease.findOne({type: 'terrain', name: newCell.terrain});
-      }
-      audio.startLooping(cTerrain.background.audioFile, 1, 1);
-      audio.playOnce(cTerrain.narrator.audioFile, {amp: 0.75, offset: 2});
       e.preventDefault();
   }
 
@@ -85,25 +82,15 @@ Template.navScreen.events({
 
         PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
             
-       var newCell = GameMapRelease.findOne({type: 'cell', level:'init', x: playerPos.x, y: playerPos.y});
-       var newTerrain = GameDefsRelease.findOne({type: 'terrain', name: newCell.terrain});
+        nTerrain = getCell(playerPos.x , playerPos.y);
 
-        audio.playOnce(cTerrain.footsteps.audioFile, {amp: 1}, function(){
+        audio.playOnce(cTerrain.footsteps.audioFile, {amp: cTerrain.footsteps.amp}, function(){
 
           $(event.target).removeClass('active');
           $('.step').not('#' + id).removeClass('disable');
 
-           if(newTerrain.name!= cTerrain.name){
-
-              console.log("new terrain");
-              audio.stopLooping(cTerrain.background.audioFile, 1);
-              cTerrain = newTerrain;
-              audio.playOnce(cTerrain.narrator.audioFile, {amp: 0.75, offset: 2});
-              audio.startLooping(cTerrain.background.audioFile, 1, 1);
-
-            }else{
-              cTerrain = newTerrain;
-            }
+           updateGameCellAudio(cTerrain, nTerrain);
+           cTerrain = nTerrain;
 
         }.bind(this));
 
@@ -144,7 +131,7 @@ function startAudio (){
 
 }
 
- function loadAudioFiles(){
+function loadAudioFiles(){
 
   var files = AudioFiles.find({dt: 'file'}).fetch();
 
@@ -157,5 +144,41 @@ function startAudio (){
 
   });
 
+}
+
+updateGameCellAudio = function(cTerrain , nTerrain){
+
+  if(nTerrain.name!= cTerrain.name){
+
+    audio.stopLooping(cTerrain.background.audioFile, 1);
+    audio.playOnce(nTerrain.narrator.audioFile, {amp: nTerrain.narrator.amp, offset: 2});
+    audio.startLooping(nTerrain.background.audioFile, nTerrain.background.amp, 1);
+
+  }
+
+
+}
+
+getCell = function(x,y){
+
+  if(checkClientIsDesigner()){
+
+    var newCell = DesignerGameMaps.findOne({
+      type: 'cell', 
+      level: Session.get("currentLevel").level, 
+      creator: Session.get("currentLevel").creator, 
+      x: parseInt(x), y: parseInt(y)
+
+    });
+
+    var nTerrain = DesignerGameDefs.findOne(newCell.terrain);
+
+  }else{
+
+    var newCell = GameMapRelease.findOne({type: 'cell', level:'init', x: x, y: y});
+    var nTerrain = GameDefsRelease.findOne({type: 'terrain', name: newCell.terrain}); //this will change soon
+  }
+
+  return nTerrain; //eventually return cell
 }
 

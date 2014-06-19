@@ -22,10 +22,6 @@ UI.registerHelper('levels', function(){return DesignerGameMaps.find({type: 'leve
 UI.registerHelper('creatorName', function(){return getCreatorName(this.creator)});
 
 
-//audio helpers
-
-
-
 
 //NB
 //functions need to be declared as anonymous globals in meteor to be available universally

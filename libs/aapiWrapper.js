@@ -189,6 +189,7 @@ aapiWrapper.prototype.play = function(sample, fadeIn, fadeOut, offset){
       sample.gainNode.gain.linearRampToValueAtTime(0, ct);
       sample.gainNode.gain.linearRampToValueAtTime(sample.amp, ct + fadeIn);
     }else{
+      sample.gainNode.gain.value = sample.amp;
       sample.crossFadeNode.gain.setValueCurveAtTime(sample.crossfades.xIn, ct, 1);
     }
 

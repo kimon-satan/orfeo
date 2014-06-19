@@ -23,9 +23,9 @@ Meteor.users.allow({
 
 Meteor.users.deny({
 		
-	update: function(user){return !adminTest();},
-	insert: function(user){return !adminTest();},
-	remove: function(user){return !adminTest();}	
+	update: function(user){return !adminTest(user);},
+	insert: function(user){return !adminTest(user);},
+	remove: function(user){return !adminTest(user);}	
 
 });
 
@@ -86,9 +86,10 @@ function designerTest(user , doc){
 	}
 }
 
-function adminTest(user , doc){
+function adminTest(user){
 
 	var role = Meteor.users.findOne(user).profile.role;
+	
 	if(role == 'admin'){
 		return true;
 	}else{
@@ -97,22 +98,6 @@ function adminTest(user , doc){
 }
 
 
-
-//there will also be sandbox collections not implemented yet
-
-/* Workflow ....
-
-
-Edit a sandbox ... admin can select any sandbox and integrate into the release version 
-NB. Connecting of levels still needs to be worked out but this is a job for admin only
-
-Any designer can make a copy of any level/release or sandbox and start working on it
-
-Designers can only edit/delete levels which they have copied or created
-Admins can edit and delete any level
-
-
-*/
 
 createMapCell = function(level, x, y, id){
 

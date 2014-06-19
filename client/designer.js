@@ -3,6 +3,7 @@ var isReduceWarning = false;
 Template.levelDesigner.created = function(){
 	
 	Session.set("currentTerrain", DesignerGameDefs.findOne({creator: Meteor.user()._id}));
+	selectALevel(); //prevents crash on boot
 
 	Meteor.defer(selectALevel);
 
@@ -273,6 +274,13 @@ Template.levelTable.events({
 			$('#' + ct._id + ' > td').addClass('subSelected');
 			$('#' + ct._id).addClass('subSelected');
 		}
+	},
+
+	'mouseleave .levelRow':function(e){
+
+		$('.levelRow').removeClass('subSelected');
+		$('.levelRow > td' ).removeClass('subSelected');
+
 	}
 
 

@@ -236,8 +236,8 @@ Template.terrainMap.cellColor = function(){
 
 
 
-Template.levelTable.levels = function(){return DesignerGameMaps.find({type: 'levelHeader'}).fetch()}
-Template.levelTable.creatorName = function(){return getCreatorName(this.creator)}
+
+
 
 Template.levelTable.events({
 
@@ -363,31 +363,9 @@ function updateTerrainKey(){
 
 }
 
-function selectALevel(){
-
-	isReduceWarning = false;
-
-	Session.set("currentLevel",  DesignerGameMaps.findOne({type: 'levelHeader', creator: Meteor.user()._id}));
-
-	if(!Session.get("currentLevel")){
-		Session.set("currentLevel", DesignerGameMaps.findOne({type: 'levelHeader', creator: "server"}));
-	}
-
-	$('#' + Session.get("currentLevel")._id + ' > td').addClass('selected');
-  	$('#' + Session.get("currentLevel")._id).addClass('selected');
-
-  	if(checkClientIsOwner(Meteor.user()._id, Session.get("currentLevel"))){
-		enableAdjustables();
-	}else{
-		disableAdjustables();
-	}
 
 
-}
 
-function updateCurrentLevel(){
-	Session.set("currentLevel", DesignerGameMaps.findOne(Session.get("currentLevel")._id));
-}
 
 
 

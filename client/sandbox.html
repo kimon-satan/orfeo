@@ -1,0 +1,45 @@
+<template name="sandbox">
+	
+	<div class="row">
+		<br/>
+		<br/>
+	</div>
+	
+	<div class="row">
+		<div class="col-xs-4">
+			{{>sandboxLevelSelector}}
+		</div>
+
+		<div class="col-xs-8">
+			{{>game}}
+		</div>
+	</div>
+
+
+</template>
+
+
+<template name="sandboxLevelSelector">
+  <div class="tableOverflow">
+	  <table class="table table-bordered table-condensed">
+	    <thead>
+	      <tr>
+	        <th>Level name</th>
+	        <th>Creator</th>
+	      </tr>
+	    </thead>
+
+	    <tbody>
+	      {{#each levels}}
+	      <tr id={{this._id}} class="levelRow">
+	        <td>{{this.level}}</td>
+	        <td>{{creatorName}}</td>
+	      </tr>
+	      {{/each}}
+	    </tbody>
+	  </table>
+	</div>
+</template>
+
+
+

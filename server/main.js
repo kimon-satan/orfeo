@@ -71,6 +71,7 @@ Meteor.startup(function(){
 
 Meteor.publish('AllPlayers', function(userId){
 	if(checkAdmin(userId)){
+		this.ready();
 		return Meteor.users.find({}); 
 	}
 });
@@ -83,6 +84,7 @@ Meteor.publish('MyAccount', function(userId){
 
 Meteor.publish('Designers', function(userId){
 	if(checkDesigner(userId)){
+		this.ready();
 		return Meteor.users.find({'profile.role': {$in: ['designer', 'admin']}}); 
 	}
 });
@@ -109,12 +111,14 @@ Meteor.publish('GameDefsRelease', function(){
 
 Meteor.publish("DesignerGameMaps", function(userId){
 	if(checkDesigner(userId)){
+		this.ready();
 		return DesignerGameMaps.find({}); 
 	}
 });
 
 Meteor.publish("DesignerGameDefs", function(userId){
 	if(checkDesigner(userId)){
+		this.ready();
 		return DesignerGameDefs.find({}); 
 	}
 });

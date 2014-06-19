@@ -2,9 +2,9 @@
 
 	<ul id="suNav" class="nav nav-pills nav-justified">
 
-	  	<li class="active" id="playGame"><a href="#" class="suOption" >Play Test</a></li>
+	  	<li class="active" id="designElements"><a href="#" class="suOption" >Element Designer</a></li>
 	  	<li id="designLevel"><a href="#" class="suOption" >Level Designer</a></li>
-	  	<li id="designElements"><a href="#" class="suOption" >Element Designer</a></li>
+	  	<li id="playGame"><a href="#" class="suOption" >Play Test</a></li>
 
 		{{#if isAdmin}}
 		<li id="designRelease"><a href="#" class="suOption" >Configure Release</a></li>
@@ -14,7 +14,7 @@
 	  	{{/if}}
 
 		{{#if isPlay}}
-			{{>game}}
+			{{>sandbox}}
 		{{/if}}
 
 		{{#if isDesignLevel}}

@@ -1,24 +1,8 @@
-UI.registerHelper("isAdmin", function(){
 
-  if(Meteor.user())return (Meteor.user().profile.role == 'admin');
-
-});
-
-UI.registerHelper("isDesigner", function(){
-
-  if(Meteor.user())return (Meteor.user().profile.role == 'designer');
-
-});
-
-UI.registerHelper("isSu", function(){
-
-  if(Meteor.user())return (Meteor.user().profile.role == 'admin' || Meteor.user().profile.role == 'designer');
-
-});
 
 Template.su.created = function(){
 
-	Session.set("suMode", "playGame");	
+	Session.set("suMode", "designElements");	
 
 }
 
@@ -33,7 +17,7 @@ Template.su.events({
 		var id = e.currentTarget.id;
 		$('#suNav > li').removeClass("active");
 		$(e.currentTarget).addClass("active");
-		if(id == 'playGame'){
+		/*if(id == 'playGame'){
 
 			//FIXME this is causing double playback
 			//always start at 0
@@ -44,7 +28,7 @@ Template.su.events({
       		audio.startLooping(cTerrain.background.audioFile, 1, 1);
       		audio.playOnce(cTerrain.narrator.audioFile, {amp: 0.75, offset: 2});
 		}
-		if(id != 'playGame' && Session.get("suMode") == 'playGame')audio.killAll();
+		if(id != 'playGame' && Session.get("suMode") == 'playGame')audio.killAll();*/
 		Session.set("suMode", id);
 
 		e.preventDefault();

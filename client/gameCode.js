@@ -38,8 +38,22 @@ Template.startSplash.events({
   'click #begin':function(e){
 
       Session.set("screenMode", 1);
-      var newCell = GameMapRelease.findOne({type: 'cell', level:'init', x: 0, y: 0});
-      cTerrain = GameDefsRelease.findOne({type: 'terrain', name: newCell.terrain});
+
+      if(checkClientIsDesigner()){
+
+        var newCell = DesignerGameMaps.findOne({
+          type: 'cell', 
+          level: Session.get("currentLevel").level, 
+          creator: Session.get("currentLevel").creator, 
+          x: 0, y: 0
+        });
+
+        cTerrain = DesignerGameDefs.findOne(newCell.terrain);
+
+      }else{
+        var newCell = GameMapRelease.findOne({type: 'cell', level:'init', x: 0, y: 0});
+        cTerrain = GameDefsRelease.findOne({type: 'terrain', name: newCell.terrain});
+      }
       audio.startLooping(cTerrain.background.audioFile, 1, 1);
       audio.playOnce(cTerrain.narrator.audioFile, {amp: 0.75, offset: 2});
       e.preventDefault();
@@ -114,7 +128,8 @@ Template.navScreen.events({
 
 });
 
-function startAudio(){
+
+function startAudio (){
  
   audio = new aapiWrapper();
 
@@ -129,7 +144,7 @@ function startAudio(){
 
 }
 
-function loadAudioFiles(){
+ function loadAudioFiles(){
 
   var files = AudioFiles.find({dt: 'file'}).fetch();
 
@@ -143,3 +158,4 @@ function loadAudioFiles(){
   });
 
 }
+

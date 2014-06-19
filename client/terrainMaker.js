@@ -4,13 +4,25 @@
 
 Template.terrainMaker.created = function(){
 
-  var ct = DesignerGameDefs.findOne({type: "terrain", creator: "server"});
-
-  Session.set("currentTerrain", ct);
-
   Meteor.defer(function(){
 
-  	selectTerrain(ct._id);
+  	Deps.autorun(function(){
+
+		if(Session.equals("isDDefsReady", true)){
+	  	
+		  	 var ct = DesignerGameDefs.findOne({type: "terrain", creator: "server"});
+		  	 if(ct)Session.set("currentTerrain", ct);
+		  	 
+		}
+
+	});
+
+  	 Deps.autorun(function(){
+  	 	if(Session.get("currentTerrain")){
+  	 		selectTerrain(Session.get("currentTerrain")._id);
+  	 	}
+  	 });
+  	
 
   });
 
@@ -97,7 +109,11 @@ Template.terrainMaker.events({
 
 
 
-Template.terrainMaker.currentTerrain = function(){return DesignerGameDefs.findOne(Session.get("currentTerrain")._id);}
+Template.terrainMaker.currentTerrain = function(){
+	if(Session.get("currentTerrain")){
+		return DesignerGameDefs.findOne(Session.get("currentTerrain")._id);
+	}
+}
 Template.terrainTable.creatorName = function(){return getCreatorName(this.creator)}
 
 
@@ -138,7 +154,9 @@ Template.terrainTable.events({
 
 function selectTerrain(id){
 
-	Session.set("currentTerrain", DesignerGameDefs.findOne(id));
+	var ct = DesignerGameDefs.findOne(id);
+	if(typeof ct  === "undefined")return;
+	Session.set("currentTerrain", ct);
 
 	$('.terrainRow').removeClass('selected');
 	$('.terrainRow > td' ).removeClass('selected');
@@ -163,18 +181,21 @@ function selectTerrain(id){
 
 Template.soundControls.audioFiles = function(type){  
 
+	if(!Session.get("currentTerrain"))return;
+	var ct = DesignerGameDefs.findOne(Session.get("currentTerrain")._id);
+	if(typeof ct === "undefined")return;
 	var folder;
 
 	switch(type){
 
 		case "Background":
-		folder =  DesignerGameDefs.findOne(Session.get("currentTerrain")._id).background.folder;
+		folder =  ct.background.folder;
 		break;
 		case "Footsteps":
-		folder = DesignerGameDefs.findOne(Session.get("currentTerrain")._id).footsteps.folder;
+		folder = ct.footsteps.folder;
 		break;
 		case "Narrator":
-		folder =  DesignerGameDefs.findOne(Session.get("currentTerrain")._id).narrator.folder;
+		folder =  ct.narrator.folder;
 		break;
 
 	}
@@ -187,18 +208,21 @@ Template.soundControls.audioTypes = function(){return AudioFiles.find({dt: 'type
 
 Template.soundControls.audioParam = function(type, item){
 
+	if(!Session.get("currentTerrain"))return;
+	var ct = DesignerGameDefs.findOne(Session.get("currentTerrain")._id);
+	if(typeof ct === "undefined")return;
 
 
 	switch(type){
 
 		case "Background":
-		return DesignerGameDefs.findOne(Session.get("currentTerrain")._id).background[item.hash.item];
+		return ct.background[item.hash.item];
 		break;
 		case "Footsteps":
-		return DesignerGameDefs.findOne(Session.get("currentTerrain")._id).footsteps[item.hash.item];
+		return ct.footsteps[item.hash.item];
 		break;
 		case "Narrator":
-		return DesignerGameDefs.findOne(Session.get("currentTerrain")._id).narrator[item.hash.item];
+		return ct.narrator[item.hash.item];
 		break;
 
 	}

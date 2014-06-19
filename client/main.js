@@ -33,9 +33,12 @@ Deps.autorun(function(){
 
       Meteor.subscribe("Designers", id);
       Meteor.subscribe("DesignerGameMaps", id);
-      Meteor.subscribe("DesignerGameDefs", id);
+      Meteor.subscribe("DesignerGameDefs", id, function(){
+
+        Session.set("isDDefsReady" , true);
+
+      });
      
-      //subcriptions to sandbox collections to go here
 
     }else{
 

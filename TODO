@@ -1,6 +1,7 @@
 
 1.   / resizing 
-finish off level designer UI and redo terrain pointers as ids
+finish off level designer UI 
+redo terrain pointers as ids (just revise dependencies)
 
 2. a bit of extra info for playtester 
 2. release init level selector, copying mechanism, changed flag using TS

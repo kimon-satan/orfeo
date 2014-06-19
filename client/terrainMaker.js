@@ -1,7 +1,6 @@
 /*------------------------------------TERRAIN MAKER---------------------------------------------*/
 
-UI.registerHelper('myTerrains', function(){return DesignerGameDefs.find({type: "terrain", creator: Meteor.user()._id}).fetch()});
-UI.registerHelper('terrains', function(){return DesignerGameDefs.find({type: "terrain"}).fetch()});
+
 
 Template.terrainMaker.created = function(){
 
@@ -98,41 +97,13 @@ Template.terrainMaker.events({
 
 
 
-
 Template.terrainMaker.currentTerrain = function(){return DesignerGameDefs.findOne(Session.get("currentTerrain")._id);}
 Template.terrainTable.creatorName = function(){return getCreatorName(this.creator)}
 
-function selectTerrain(id){
-
-	Session.set("currentTerrain", DesignerGameDefs.findOne(id));
-
-	$('.terrainRow').removeClass('selected');
-	$('.terrainRow > td' ).removeClass('selected');
-	$('#' + id + ' > td').removeClass('subSelected');
-	$('#' + id ).removeClass('subSelected');
-	$('#' + id + ' > td').addClass('selected');
-	$('#' + id).addClass('selected');
-
-	if(checkClientIsOwner(Meteor.user()._id, Session.get("currentTerrain"))){
-		enableAdjustables();
-	}else{
-		disableAdjustables();
-	}
-
-}
 
 
-function checkForDependencies(doc){
 
-	var depend = DesignerGameMaps.findOne({creator: doc.creator, type: 'cell', terrain: doc.name});
-	
-	if(!depend){
-		return false;
-	}else{
-		return depend.level;
-	}
 
-}
 
 Template.terrainTable.events({
 
@@ -163,18 +134,28 @@ Template.terrainTable.events({
 
 });
 
-function disableAdjustables(){
+//helper functions
 
-	$('.adjustable').addClass('disable').attr('disabled', 'disabled');
+function selectTerrain(id){
 
+	Session.set("currentTerrain", DesignerGameDefs.findOne(id));
+
+	$('.terrainRow').removeClass('selected');
+	$('.terrainRow > td' ).removeClass('selected');
+	$('#' + id + ' > td').removeClass('subSelected');
+	$('#' + id ).removeClass('subSelected');
+	$('#' + id + ' > td').addClass('selected');
+	$('#' + id).addClass('selected');
+
+	if(checkClientIsOwner(Meteor.user()._id, Session.get("currentTerrain"))){
+		enableAdjustables();
+	}else{
+		disableAdjustables();
+	}
 
 }
 
-function enableAdjustables(){
 
-	$('.adjustable').removeClass('disable').removeAttr('disabled');
-
-}
 
 
 /*----------------------------------------SOUND CONTROL -------------------------------*/

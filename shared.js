@@ -114,11 +114,6 @@ Admins can edit and delete any level
 
 */
 
-
-
-//NB
-//functions need to be declared as anonymous globals in meteor to be available universally
-
 createMapCell = function(level, x, y, id){
 
 	//will need to add sections for i/o elements
@@ -152,26 +147,8 @@ createLevelHeader = function(level, width, height, creator){
 	return header;
 }
 
-getCreatorName = function(id){
-
-	var u = Meteor.users.findOne(id);
-	var un =  (u) ? u.username : id;
-	return un;
-}
 
 
-checkClientIsOwner = function(user , doc){
-
-	var role = Meteor.users.findOne(user).profile.role;
-
-	if(role == 'admin'){
-		return true;
-	}else if(role == 'designer'){
-		return (doc.creator == user);
-	}else{
-		return false;
-	}
-}
 
 
 

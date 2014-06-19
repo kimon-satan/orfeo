@@ -26,11 +26,17 @@ Meteor.startup(function(){
 	}
 
 	//if there is no game map make an initial one
-	if(!GameMapRelease.findOne({type: 'cell'})){
+	if(!DesignerGameMaps.findOne({type: 'levelHeader'})){
+
+		var header = createLevelHeader('init', 5 , 5, "server");
+		var h_id;
+		DesignerGameMaps.insert(header,function(id){
+			h_id = id;
+		});
 
 		for(var x = 0; x < 5; x++){
 			for(var y = 0; y < 5; y++){
-				GameMapRelease.insert(createMapCell('init',x,y, "server"));
+				DesignerGameMaps.insert(createMapCell('init',x,y, "server", h_id));
 			}
 		}
 
@@ -47,19 +53,7 @@ Meteor.startup(function(){
 
 	}
 
-	//if there is no game map make an initial one
-	if(!DesignerGameMaps.findOne({type: 'levelHeader'})){
-
-		var header = createLevelHeader('init', 5 , 5, "server");
-		DesignerGameMaps.insert(header);
-
-		for(var x = 0; x < 5; x++){
-			for(var y = 0; y < 5; y++){
-				DesignerGameMaps.insert(createMapCell('init',x,y, "server"));
-			}
-		}
-
-	}
+	
 
 
 });
@@ -143,41 +137,30 @@ Meteor.methods({
 	},
 
 
-	makeSu: function(userId){
-
-
-
-	},
-
-	removeSu: function(userId){
-
-
-
-	},
-
-	makeDesigner: function(userId){
-
-
-
-	},
-
-	removeDesigner: function(userId){
-
-
-
-	},
-
 
 	initPlayer: function(userId){
 
-		console.log("init" + userId);
+		
+		var initLevel = GameMapRelease.findOne({type: "levelHeader", isInit: true});
 		PlayerGameData.remove({player: userId});
 		PlayerGameData.insert({player: userId, type: "pos", x: 0, y: 0});
-		PlayerGameData.insert({player: userId, level: 0});
+		PlayerGameData.insert({player: userId, type: "level", id: initLevel._id });
 
+
+	},
+
+	initAllPlayers: function(userId){
+
+		if(checkAdmin(userId)){
+
+			Meteor.users.find({}).forEach(function(player){
+
+				Meteor.call('initPlayer', player._id);
+
+			});
+			
+		}
 	}
-
-
 
 
 

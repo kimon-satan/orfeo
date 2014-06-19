@@ -6,22 +6,20 @@ Template.terrainMaker.created = function(){
 
   Meteor.defer(function(){
 
-  	Deps.autorun(function(){
-
-		if(Session.equals("isDDefsReady", true)){
+  	 Meteor.subscribe("AudioFiles",{}, {onReady: function(){
 	  	
-		  	 var ct = DesignerGameDefs.findOne({type: "terrain", creator: "server"});
-		  	 if(ct)Session.set("currentTerrain", ct);
+	  	var ct = DesignerGameDefs.findOne({type: "terrain", creator: "server"});
+	  	if(ct)Session.set("currentTerrain", ct);
 		  	 
-		}
-
-	});
-
-  	 Deps.autorun(function(){
   	 	if(Session.get("currentTerrain")){
   	 		selectTerrain(Session.get("currentTerrain")._id);
   	 	}
-  	 });
+
+		$('#colPicker').colorpicker();
+
+  	 }});
+
+  	 
   	
 
   });

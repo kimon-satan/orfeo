@@ -165,8 +165,7 @@ getCell = function(x,y){
 
     var newCell = DesignerGameMaps.findOne({
       type: 'cell', 
-      level: Session.get("currentLevel").level, 
-      creator: Session.get("currentLevel").creator, 
+      levelId: Session.get("currentLevel")._id, 
       x: parseInt(x), y: parseInt(y)
 
     });
@@ -175,8 +174,9 @@ getCell = function(x,y){
 
   }else{
 
-    var newCell = GameMapRelease.findOne({type: 'cell', level:'init', x: x, y: y});
-    var nTerrain = GameDefsRelease.findOne({type: 'terrain', name: newCell.terrain}); //this will change soon
+    var level = PlayerGameData.findOne({player: Meteor.user()._id, type: "level"});    
+    var newCell = GameMapRelease.findOne({type: 'cell', levelId: level.id , x: x, y: y});
+    var nTerrain = GameDefsRelease.findOne(newCell.terrain); 
   }
 
   return nTerrain; //eventually return cell

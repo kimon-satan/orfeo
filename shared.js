@@ -99,7 +99,7 @@ function adminTest(user){
 
 
 
-createMapCell = function(level, x, y, id){
+createMapCell = function(level, x, y, id, h_id){
 
 	//will need to add sections for i/o elements
 
@@ -112,7 +112,8 @@ createMapCell = function(level, x, y, id){
 		objects:[], 
 		n_override: "none", 
 		n_additions: [],
-		audibleTraces: []
+		audibleTraces: [],
+		levelId: h_id
 	};
 
 	return cell;

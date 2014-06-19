@@ -303,43 +303,47 @@ function makeLevelCopy(o_levelName, o_creator, n_levelName, n_creator){
 	clh.creator = n_creator;
 	clh.level = n_levelName;
 	DesignerGameMaps.insert(clh, function(err, id){
-		clh._id = id;
-	});
-
-	DesignerGameMaps.find({type: 'cell', level: o_levelName, creator: o_creator}).forEach(function(elem){
-
-
-		elem.level = n_levelName;
-		elem.creator = n_creator;
-		delete elem["_id"];
 		
-		if(elem.terrain != "none"){
-			var o_t = DesignerGameDefs.findOne(elem.terrain);
-			var n_t = DesignerGameDefs.findOne({type: "terrain", name: o_t.name, creator: n_creator});
+		clh._id = id;
+	
 
-			//copy over all the terrains
-			if(!n_t){
+		DesignerGameMaps.find({type: 'cell', level: o_levelName, creator: o_creator}).forEach(function(elem){
 
-				n_t = DesignerGameDefs.findOne({type: "terrain", name: elem.terrain, creator: o_creator});
-				if(n_t){
-					delete n_t["_id"];
-					n_t.creator = n_creator;
-					DesignerGameDefs.insert(n_t, function(err, id){ 
-						n_t._id = id;
-					});
-				}
 
-			}
+			elem.level = n_levelName;
+			elem.creator = n_creator;
+			elem.levelId = clh._id;
+			delete elem["_id"];
 			
-			elem.terrain = n_t._id;
-		}
+			if(elem.terrain != "none"){
+				var o_t = DesignerGameDefs.findOne(elem.terrain);
+				var n_t = DesignerGameDefs.findOne({type: "terrain", name: o_t.name, creator: n_creator});
 
-		//this will need to be done for the other elements in the cell
+				//copy over all the terrains
+				if(!n_t){
 
-		DesignerGameMaps.insert(elem);
+					n_t = DesignerGameDefs.findOne({type: "terrain", name: elem.terrain, creator: o_creator});
+					if(n_t){
+						delete n_t["_id"];
+						n_t.creator = n_creator;
+						DesignerGameDefs.insert(n_t, function(err, id){ 
+							n_t._id = id;
+						});
+					}
+
+				}
+				
+				elem.terrain = n_t._id;
+			}
+
+			//this will need to be done for the other elements in the cell
+			console.log(elem);
+			DesignerGameMaps.insert(elem);
+		});
+
+		return clh._id;
+
 	});
-
-	return clh._id;
 
 }
 

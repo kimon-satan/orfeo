@@ -1,0 +1,57 @@
+<template name ="designRelease">
+
+
+
+	<div class ="row"><br/><br/></div>
+
+	<div class ="row">
+		<div class="col-xs-4 scrollableColumn">
+
+			<div class="panel panel-default">
+				<div class="panel-body">
+					{{>configReleaseTable}}
+				</div>
+			</div>
+		</div>
+
+		<div class="col-xs-4">
+			<form role="form">
+				<div class="form-group">
+
+					<label for="initLevel">Initial Level</label>
+
+					<input type="text" class="form-control" id="initLevel" value='{{initialLevel.level}}' >
+				</div>
+			</form>
+		</div>
+	</div>
+
+
+</template>
+
+<template name="configReleaseTable">
+
+  <table class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th>Level name</th>
+        <th>Creator</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {{#each levels}}
+      <tr id={{this._id}} class="levelRow">
+        <td>{{this.level}}</td>
+        <td>{{creatorName}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+
+  <div class="form-group">
+    <button type="submit" id="setInit" class="btn btn-warning">Set as initial level</button>
+  </div>
+
+</template>

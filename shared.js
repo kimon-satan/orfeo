@@ -122,7 +122,7 @@ createMapCell = function(level, x, y, id){
 		type: 'cell', 
 		creator: id,
 		level: level, 
-		x: x, y: y, 
+		x: parseInt(x), y: parseInt(y), 
 		terrain: 'none', 
 		objects:[], 
 		n_override: "none", 

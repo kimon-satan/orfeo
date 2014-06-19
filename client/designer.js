@@ -1,3 +1,5 @@
+var isReduceWarning = false;
+
 Template.levelDesigner.created = function(){
 	
 	Session.set("currentTerrain", DesignerGameDefs.findOne({creator: Meteor.user()._id}));
@@ -8,6 +10,97 @@ Template.levelDesigner.created = function(){
 }
 
 Template.levelDesigner.events({
+
+	'click #levelWidth':function(e){
+
+		var w = $('#levelWidth').val();
+		updateCurrentLevel();
+		var cl = Session.get("currentLevel");
+
+		if(w > cl.width){
+
+			for(var x = cl.width; x < w; x++){
+				for(var y = 0; y < cl.height; y++){
+					var cell = createMapCell(cl.level, x, y, cl.creator);
+					DesignerGameMaps.insert(cell);
+				}
+			}
+
+			DesignerGameMaps.update(cl._id, {$set:{width: parseInt(w)}});
+
+			isReduceWarning = false;
+
+		}else{
+
+			if(!isReduceWarning){
+				isReduceWarning = confirm("Data may be lost. Do you wish to continue ?");
+			}
+
+			if(isReduceWarning){
+
+				DesignerGameMaps.find({type: 'cell', level: cl.level, creator: cl.creator, x: {$gte: parseInt(w)}}).forEach(function(cell){
+
+					DesignerGameMaps.remove(cell._id);
+
+				});
+				DesignerGameMaps.update(cl._id, {$set:{width: parseInt(w)}});
+
+			}else{
+				$('#levelWidth').val(cl.width);
+			}
+
+		}
+
+		e.preventDefault();
+	},
+
+	'click #levelHeight':function(e){
+
+		var h = $('#levelHeight').val();
+		Session.set("currentLevel", DesignerGameMaps.findOne(Session.get("currentLevel")._id));
+		var cl = Session.get("currentLevel");
+
+		if(h > cl.height){
+
+
+			for(var y = cl.height; y < h; y++){
+
+				for(var x = 0; x < cl.width; x++){
+					var cell = createMapCell(cl.level, x, y, cl.creator);
+					DesignerGameMaps.insert(cell);
+					
+				}
+			}
+
+			DesignerGameMaps.update(cl._id, {$set:{height: parseInt(h)}});
+
+			isReduceWarning = false;
+
+		}else{
+
+			if(!isReduceWarning){
+				isReduceWarning = confirm("Data may be lost. Do you wish to continue ?");
+			}
+
+			if(isReduceWarning){
+
+				DesignerGameMaps.find({type: 'cell', level: cl.level, creator: cl.creator, y: {$gte: parseInt(h)}}).forEach(function(cell){
+
+					DesignerGameMaps.remove(cell._id);
+
+				});
+
+				DesignerGameMaps.update(cl._id, {$set:{height: parseInt(h)}});
+
+			}else{
+				$('#levelHeight').val(cl.height);
+			}
+
+		}
+
+		e.preventDefault();
+	},
+
 
 	'blur #levelName':function(e){
 
@@ -35,11 +128,15 @@ Template.levelDesigner.events({
 
 	'click .terrainOption':function(e){
 
+		isReduceWarning = false;
+
 		Session.set("currentTerrain", DesignerGameDefs.findOne({name: e.currentTarget.id, creator: Meteor.user()._id }));
 		e.preventDefault();
 	},
 
 	'click #copyLevel':function(e){
+
+		isReduceWarning = false;
 
 		var level = Session.get("currentLevel");
 		makeLevelCopy(level.level, level.creator, level.level, Meteor.user()._id);
@@ -61,6 +158,8 @@ Template.levelDesigner.events({
 
   		}
 
+  		isReduceWarning = false;
+
 		e.preventDefault();
 		
 	},
@@ -68,9 +167,12 @@ Template.levelDesigner.events({
 
 	'click .designerCell':function(e){
 
-		if(checkClientIsOwner(Meteor.user()._id, Session.get("currentLevel"))){
-			var loc = e.currentTarget.id.split("-");
+		isReduceWarning = false;
+		updateCurrentLevel();
 
+		if(checkClientIsOwner(Meteor.user()._id, Session.get("currentLevel"))){
+
+			var loc = e.currentTarget.id.split("-");
 			var cell = DesignerGameMaps.findOne({type: 'cell', 
 				creator: Session.get("currentLevel").creator, 
 				level: Session.get("currentLevel").level, 
@@ -141,6 +243,8 @@ Template.levelTable.events({
 	'click .levelRow':function(e){
 
 		Session.set("currentLevel", DesignerGameMaps.findOne({type: 'levelHeader', _id: e.currentTarget.id}));
+
+		isReduceWarning = false;
 
 		$('.levelRow').removeClass('selected');
 		$('.levelRow > td' ).removeClass('selected');
@@ -253,6 +357,8 @@ function updateTerrainKey(){
 
 function selectALevel(){
 
+	isReduceWarning = false;
+
 	Session.set("currentLevel",  DesignerGameMaps.findOne({type: 'levelHeader', creator: Meteor.user()._id}));
 
 	if(!Session.get("currentLevel")){
@@ -269,6 +375,10 @@ function selectALevel(){
 	}
 
 
+}
+
+function updateCurrentLevel(){
+	Session.set("currentLevel", DesignerGameMaps.findOne(Session.get("currentLevel")._id));
 }
 
 

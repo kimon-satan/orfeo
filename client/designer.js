@@ -10,7 +10,37 @@ Template.levelDesigner.created = function(){
 
 }
 
-Template.levelDesigner.events({
+
+
+Template.terrainMap.events({
+
+
+	'click .designerCell':function(e){
+
+		isReduceWarning = false;
+		updateCurrentLevel();
+
+		if(checkClientIsOwner(Meteor.user()._id, Session.get("currentLevel"))){
+
+			var loc = e.currentTarget.id.split("-");
+			var cell = DesignerGameMaps.findOne({type: 'cell', 
+				creator: Session.get("currentLevel").creator, 
+				level: Session.get("currentLevel").level, 
+				x: parseInt(loc[0]), y: parseInt(loc[1])});
+			
+
+			DesignerGameMaps.update(cell._id ,{$set:{terrain: Session.get("currentTerrain")._id}});
+			updateTerrainKey();
+		}else{
+			alert("You are not the creator of this level. \nMake a copy which you can edit");
+		}
+		
+	}
+
+
+});
+
+Template.mainSettings.events({
 
 	'click #levelWidth':function(e){
 
@@ -125,7 +155,11 @@ Template.levelDesigner.events({
 		
 
 		e.preventDefault();
-	},
+	}
+
+});
+
+Template.addFeatures.events({
 
 	'click .terrainOption':function(e){
 
@@ -133,68 +167,13 @@ Template.levelDesigner.events({
 
 		Session.set("currentTerrain", DesignerGameDefs.findOne({name: e.currentTarget.id, creator: Meteor.user()._id }));
 		e.preventDefault();
-	},
-
-	'click #copyLevel':function(e){
-
-		isReduceWarning = false;
-
-		var level = Session.get("currentLevel");
-		makeLevelCopy(level.level, level.creator, level.level, Meteor.user()._id);
-		Deps.flush();
-		e.preventDefault();
-
-	},
-
-	'click #removeLevel':function(e){
-
-		//safeties needed here
-		if(confirm("are you sure you want to delete " + Session.get("currentLevel").level + "... " )){	
-
-			var level = Session.get("currentLevel");
-			DesignerGameMaps.find({level: level.level, creator: level.creator}).forEach(function(cell){
-				DesignerGameMaps.remove(cell._id);
-			});
-
-			selectALevel();
-
-  		}
-
-  		isReduceWarning = false;
-
-		e.preventDefault();
-		
-	},
-
-
-	'click .designerCell':function(e){
-
-		isReduceWarning = false;
-		updateCurrentLevel();
-
-		if(checkClientIsOwner(Meteor.user()._id, Session.get("currentLevel"))){
-
-			var loc = e.currentTarget.id.split("-");
-			var cell = DesignerGameMaps.findOne({type: 'cell', 
-				creator: Session.get("currentLevel").creator, 
-				level: Session.get("currentLevel").level, 
-				x: parseInt(loc[0]), y: parseInt(loc[1])});
-			
-
-			DesignerGameMaps.update(cell._id ,{$set:{terrain: Session.get("currentTerrain")._id}});
-			updateTerrainKey();
-		}else{
-			alert("You are not the creator of this level. \nMake a copy which you can edit");
-		}
-		
 	}
-
 
 });
 
-Template.levelDesigner.currentLevel = function(){return DesignerGameMaps.findOne(Session.get("currentLevel")._id)}
-Template.levelDesigner.currentTerrain = function(){return Session.get("currentTerrain")}
-Template.levelDesigner.terrainsUsed = function(){
+Template.mainSettings.currentLevel = function(){return DesignerGameMaps.findOne(Session.get("currentLevel")._id)}
+Template.addFeatures.currentTerrain = function(){return Session.get("currentTerrain")}
+Template.mapKey.terrainsUsed = function(){
 
 	var k = DesignerGameMaps.findOne(Session.get("currentLevel")._id).terrainKey;
 	return DesignerGameDefs.find({ _id: {$in: k} }, {fields: {color: 1, name: 1}}).fetch();
@@ -242,6 +221,37 @@ Template.terrainMap.cellColor = function(){
 
 Template.levelTable.events({
 
+	'click #copyLevel':function(e){
+
+		isReduceWarning = false;
+
+		var level = Session.get("currentLevel");
+		makeLevelCopy(level.level, level.creator, level.level, Meteor.user()._id);
+		Deps.flush();
+		e.preventDefault();
+
+	},
+
+	'click #removeLevel':function(e){
+
+		//safeties needed here
+		if(confirm("are you sure you want to delete " + Session.get("currentLevel").level + "... " )){	
+
+			var level = Session.get("currentLevel");
+			DesignerGameMaps.find({level: level.level, creator: level.creator}).forEach(function(cell){
+				DesignerGameMaps.remove(cell._id);
+			});
+
+			selectALevel();
+
+  		}
+
+  		isReduceWarning = false;
+
+		e.preventDefault();
+		
+	},
+
 	'click .levelRow':function(e){
 
 		Session.set("currentLevel", DesignerGameMaps.findOne({type: 'levelHeader', _id: e.currentTarget.id}));
@@ -286,6 +296,7 @@ Template.levelTable.events({
 
 
 });
+
 
 
 

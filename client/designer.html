@@ -21,104 +21,13 @@
   <div class ="row">
     <div class="col-xs-4 scrollableColumn">
 
+      {{>levelTable}}
 
-      <div class="panel panel-default">
-        <div class="panel-body">
-          {{>levelTable}}
-        </div>
-      </div>
+      {{>mapKey}}
 
-      <div class="panel panel-default">
-        <div class="panel-body">
+      {{>mainSettings}}
 
-          <form role="form" class= "form-inline">
-            <div class="form-group">
-
-              <label for="levelName">Level Name</label>
-
-              <input type="text" class="form-control adjustable" id="levelName" placeholder="eg. forest" value={{currentLevel.level}}>
-
-            </div>
-
-            <br/> <br/>
-            <div class="form-group">
-              <label for="levelWidth">Level width</label><input type="number" class="adjustable" id="levelWidth" min="2" max="50" step="1" value={{currentLevel.width}}>
-       
-              <label for="levelHeight">Level height</label><input type="number" class="adjustable" id="levelHeight" min="2" max="50" step="1" value={{currentLevel.height}}>
-            </div>
-            <br/> <br/>
-             <label>Entry Point</label>
-            <div class="btn-group">
-
-            <button type="button" class="btn btn-default">0</button>
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-              <span class="caret"></span>
-              <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <ul class="dropdown-menu" role="menu">
-              {{#each myTerrains}}
-              <li><a class="terrainOption" id={{name}} href="#">{{name}}</a></li>
-              {{/each}}
-            </ul>
-
-            <div class="form-group">
-              <label for="entryPosX">pos x</label><input type="number" class="adjustable" id="entryPosX" min="1" max="5" step="1" value={{currentLevel.width}}>
-            </div>
-            <div class="form-group">
-              <label for="entryPosY">pos y</label><input type="number" class="adjustable" id="entryPosY" min="1" max="5" step="1" value={{currentLevel.height}}>
-            </div>
-
-          </div>
-
-   
-          </form>
-
-        </div>
-      </div>
-
-      <div class="panel panel-default">
-        <div class="panel-body">
-
-          <label>Terrain type</label>
-          <div class="btn-group">
-
-            <button type="button" class="btn btn-default">{{currentTerrain.name}}</button>
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-              <span class="caret"></span>
-              <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <ul class="dropdown-menu" role="menu">
-              {{#each myTerrains}}
-              <li><a class="terrainOption" id={{name}} href="#">{{name}}</a></li>
-              {{/each}}
-            </ul>
-          </div>
-
-
-
-          <div>
-            <h3>map key</h3>
-
-            <table class="table">
-              <tbody>
-
-                {{#each terrainsUsed}}
-                <tr>
-                  <td>{{name}}</td>
-
-                  <td>
-                    <div class = "keyCell" style="background-color: {{color}}">
-                    </div>
-                  </td>
-                </tr>
-                {{/each}}
-
-              </tbody>
-            </table>
-          </div>
-
-        </div>
-      </div>
+      {{>addFeatures}}
 
     </div>
 
@@ -128,34 +37,6 @@
 
   </div>
 
-</template>
-
-<template name="levelTable">
-
-  <div class="tableOverflow">
-  <table class="table table-bordered table-condensed">
-    <thead>
-      <tr>
-        <th>Level name</th>
-        <th>Creator</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      {{#each levels}}
-      <tr id={{this._id}} class="levelRow">
-        <td>{{this.level}}</td>
-        <td>{{creatorName}}</td>
-      </tr>
-      {{/each}}
-    </tbody>
-  </table>
-</div>
-
-  <div class="form-group">
-    <button type="submit" id="copyLevel" class="btn btn-success">Copy Level</button>
-    <button type="submit" id="removeLevel" class="btn btn-danger adjustable">Delete Level</button>
-  </div>
 </template>
 
 <template name="terrainMap">
@@ -170,8 +51,147 @@
       {{/each}}
     </tbody>
   </table>
+</template>
+
+
+<template name = "mapKey">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div>
+        <h3>map key</h3>
+
+        <table class="table">
+          <tbody>
+
+            {{#each terrainsUsed}}
+            <tr>
+              <td>{{name}}</td>
+
+              <td>
+                <div class = "keyCell" style="background-color: {{color}}">
+                </div>
+              </td>
+            </tr>
+            {{/each}}
+
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</template>
+
+
+<template name="levelTable">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div class="tableOverflow">
+        <table class="table table-bordered table-condensed">
+          <thead>
+            <tr>
+              <th>Level name</th>
+              <th>Creator</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {{#each levels}}
+            <tr id={{this._id}} class="levelRow">
+              <td>{{this.level}}</td>
+              <td>{{creatorName}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+
+      <div class="form-group">
+        <button type="submit" id="copyLevel" class="btn btn-success">Copy Level</button>
+        <button type="submit" id="removeLevel" class="btn btn-danger adjustable">Delete Level</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template name="mainSettings">
+  <div class="panel panel-default">
+    <div class="panel-body">
+
+      <form role="form" class= "form-inline">
+        <div class="form-group">
+
+          <label for="levelName">Level Name</label>
+
+          <input type="text" class="form-control adjustable" id="levelName" placeholder="eg. forest" value={{currentLevel.level}}>
+
+        </div>
+
+        <br/> <br/>
+
+        <div class="form-group">
+          <label for="levelWidth">Level width</label><input type="number" class="adjustable" id="levelWidth" min="2" max="50" step="1" value={{currentLevel.width}}>
+
+          <label for="levelHeight">Level height</label><input type="number" class="adjustable" id="levelHeight" min="2" max="50" step="1" value={{currentLevel.height}}>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
 
 </template>
+
+<template name="addFeatures">
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+
+      <form role="form" class= "form-inline">
+        <div class="form-group">
+          <label>Entry Point</label>
+          <div class="btn-group">
+
+            <button type="button" class="btn btn-default">0</button>
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+              <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              {{#each myTerrains}}
+              <li><a class="terrainOption" id={{name}} href="#">{{name}}</a></li>
+              {{/each}}
+            </ul>
+
+
+
+          </div>
+          <label>Terrain type</label>
+          <div class="btn-group">
+
+            <button type="button" class="btn btn-default">{{currentTerrain.name}}</button>
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+              <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              {{#each myTerrains}}
+              <li><a class="terrainOption" id={{name}} href="#">{{name}}</a></li>
+              {{/each}}
+            </ul>
+          </div>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+</template>
+
+
+
+
 
 
 

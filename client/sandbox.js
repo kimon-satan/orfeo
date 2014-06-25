@@ -12,12 +12,19 @@ Template.sandboxLevelSelector.events({
 		Session.set("currentLevel", DesignerGameMaps.findOne({type: 'levelHeader', _id: e.currentTarget.id}));
 
 		var playerPos = PlayerGameData.findOne({player: Meteor.user()._id, type: "pos"});
-		playerPos.x = 0; playerPos.y = 0;
+		var ep0 = DesignerGameMaps.findOne({type: 'entryPoint', levelId: Session.get("currentLevel")._id, index: 0});
+		playerPos.x = ep0.x; playerPos.y = ep0.y;
 		PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
 
-		nTerrain = getCell(playerPos.x , playerPos.y);
-		updateGameCellAudio(cTerrain, nTerrain);
-        cTerrain = nTerrain;
+		if(Session.get("screenMode") > 0){
+
+			//then sandboxing is in progress
+
+			nTerrain = getCell(playerPos.x , playerPos.y);
+			updateGameCellAudio(cTerrain, nTerrain);
+	        cTerrain = nTerrain;
+
+    	}
 
 		$('.levelRow').removeClass('selected');
 		$('.levelRow > td' ).removeClass('selected');

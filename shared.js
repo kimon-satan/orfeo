@@ -133,6 +133,40 @@ createLevelHeader = function(level, width, height, creator){
 	return header;
 }
 
+createEntryPoints = function(obj){
+
+	var eps = [];
+
+	for(var x = 0; x < obj.width; x++){
+
+		if(eps.length == 10)break;
+
+		for(var y = 0; y < obj.height; y++){
+
+			if(eps.length == 10)break;
+
+			(function(){
+
+				var ep = {
+					type: 'entryPoint',
+					level: obj.level,
+					creator: obj.creator,
+					levelId: obj._id,
+					x: x,
+					y: y,
+					index: eps.length
+				};
+
+				eps.push(ep);
+
+			})();
+
+		}
+	}
+
+	return eps;
+}
+
 
 
 

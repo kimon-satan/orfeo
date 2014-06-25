@@ -30,15 +30,21 @@ Meteor.startup(function(){
 
 		var header = createLevelHeader('init', 5 , 5, "server");
 		var h_id;
-		DesignerGameMaps.insert(header,function(id){
+		DesignerGameMaps.insert(header,function(err, id){
 			h_id = id;
+			header._id = h_id;
+			var eps = createEntryPoints(header);
+
+			for(var i = 0; i < eps.length; i++)DesignerGameMaps.insert(eps[i]);
+
+			for(var x = 0; x < 5; x++){
+				for(var y = 0; y < 5; y++){
+					DesignerGameMaps.insert(createMapCell('init',x,y, "server", h_id));
+				}
+			}
+
 		});
 
-		for(var x = 0; x < 5; x++){
-			for(var y = 0; y < 5; y++){
-				DesignerGameMaps.insert(createMapCell('init',x,y, "server", h_id));
-			}
-		}
 
 	}
 

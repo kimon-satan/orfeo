@@ -45,7 +45,7 @@
       {{#each mapRow}}
       <tr>
         {{#each mapCol this.y}}
-        <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{cellColor}}"></td>
+        <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{cellColor}}">{{cellText}}</td>
         {{/each}}
       </tr>
       {{/each}}
@@ -118,7 +118,7 @@
 <template name="mainSettings">
   <div class="panel panel-default">
     <div class="panel-body">
-
+    <h3>main settings</h3>
       <form role="form" class= "form-inline">
         <div class="form-group">
 
@@ -148,44 +148,87 @@
   <div class="panel panel-default">
     <div class="panel-body">
 
-      <form role="form" class= "form-inline">
+      <form role="form">
         <div class="form-group">
-          <label>Entry Point</label>
+          <h3>add features</h3>
+          <label>Feature Type</label>
           <div class="btn-group">
 
-            <button type="button" class="btn btn-default">0</button>
+            <button type="button" class="btn btn-default">{{currentFeatureType}}</button>
             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
               <span class="caret"></span>
               <span class="sr-only">Toggle Dropdown</span>
             </button>
             <ul class="dropdown-menu" role="menu">
-              {{#each myTerrains}}
-              <li><a class="terrainOption" id={{name}} href="#">{{name}}</a></li>
-              {{/each}}
-            </ul>
-
-
-
-          </div>
-          <label>Terrain type</label>
-          <div class="btn-group">
-
-            <button type="button" class="btn btn-default">{{currentTerrain.name}}</button>
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-              <span class="caret"></span>
-              <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <ul class="dropdown-menu" role="menu">
-              {{#each myTerrains}}
-              <li><a class="terrainOption" id={{name}} href="#">{{name}}</a></li>
+              {{#each features}}
+              <li><a class="featureOption" id={{this}} href="#">{{this}}</a></li>
               {{/each}}
             </ul>
           </div>
+
         </div>
+
+        {{#if isTerrain}}
+          {{>terrainSelector}}
+        {{/if}}
+
+        {{#if isEntryPoint}}
+          {{>entrySelector}}
+        {{/if}}
+          
       </form>
 
     </div>
   </div>
+
+</template>
+
+<template name="terrainSelector">
+
+  <label>Terrain type</label>
+    <div class="btn-group">
+
+      <button type="button" class="btn btn-default">{{currentTerrain.name}}</button>
+      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+        <span class="caret"></span>
+        <span class="sr-only">Toggle Dropdown</span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        {{#each myTerrains}}
+        <li><a class="terrainOption" id={{name}} href="#">{{name}}</a></li>
+        {{/each}}
+      </ul>
+    </div>
+
+</template>
+
+
+<template name="entrySelector">
+
+  <label>Entry Point</label>
+  <div class="btn-group">
+
+    <button type="button" class="btn btn-default">0</button>
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+      <span class="caret"></span>
+      <span class="sr-only">Toggle Dropdown</span>
+    </button>
+    <ul class="dropdown-menu" role="menu">
+      {{#each entryPoints}}
+      <li><a class="entryOption" id="ep_{{this}}}" href="#">{{this}}</a></li>
+      {{/each}}
+    </ul>
+  </div>
+
+</template>
+
+
+<template name="exitSelector">
+
+</template>
+
+
+<template name="boundarySelector">
 
 </template>
 

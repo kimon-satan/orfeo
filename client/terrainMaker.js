@@ -1,3 +1,35 @@
+Template.designElements.created = function(){
+
+	Meteor.defer(function(){
+
+		if(typeof Session.get("currentFeatureType") === 'undefined'){
+			Session.set("currentFeatureType", "terrain");
+		}
+
+		$("#" + Session.get("currentFeatureType")).addClass('active');
+		$("#entryPoint").addClass('disabled');
+
+	});
+
+}
+
+
+
+Template.designElements.events({
+
+	'click li.makerlink':function(e){
+
+		if(! $('#' + e.currentTarget.id).hasClass('disabled')){
+			$('li.makerlink').removeClass('active');
+			$(e.currentTarget).addClass('active');
+			Session.set("currentFeatureType", e.currentTarget.id);
+		}
+
+		e.preventDefault();
+
+	}
+})
+
 /*------------------------------------TERRAIN MAKER---------------------------------------------*/
 
 
@@ -9,10 +41,10 @@ Template.terrainMaker.created = function(){
   	 Meteor.subscribe("AudioFiles",{}, {onReady: function(){
 	  	
 	  	var ct = DesignerGameDefs.findOne({type: "terrain", creator: "server"});
-	  	if(ct)Session.set("currentTerrain", ct);
+	  	if(ct)Session.set("currentElement", ct);
 		  	 
-  	 	if(Session.get("currentTerrain")){
-  	 		selectTerrain(Session.get("currentTerrain")._id);
+  	 	if(Session.get("currentElement")){
+  	 		selectElement(Session.get("currentElement")._id);
   	 	}
 
 		$('#colPicker').colorpicker();
@@ -33,8 +65,8 @@ Template.terrainMaker.events({
 
 	'changeColor #colPicker':function(e){
 
-		if(checkClientIsOwner(Meteor.user()._id, Session.get("currentTerrain").creator)){
-			DesignerGameDefs.update(Session.get("currentTerrain")._id, {$set: {'color': e.color.toHex()}});
+		if(checkClientIsOwner(Meteor.user()._id, Session.get("currentElement").creator)){
+			DesignerGameDefs.update(Session.get("currentElement")._id, {$set: {'color': e.color.toHex()}});
 		}
 
 	},
@@ -47,11 +79,11 @@ Template.terrainMaker.events({
 		
 		if(!DesignerGameDefs.findOne({type: "terrain", name: name, creator: Meteor.user()._id })){
 			
-			DesignerGameDefs.update(Session.get("currentTerrain")._id, {$set: {name: name}});
+			DesignerGameDefs.update(Session.get("currentElement")._id, {$set: {name: name}});
 
 		}else{
 
-			$('#terrainName').val(Session.get("currentTerrain").name);
+			$('#terrainName').val(Session.get("currentElement").name);
 			alert("An element of this name already exists. Enter a new one.");
 		}
 
@@ -60,9 +92,45 @@ Template.terrainMaker.events({
 		e.preventDefault();
 	},
 
-	'click #copyTerrain':function(e){
+	
 
-		ct = Session.get("currentTerrain");
+
+
+});
+
+
+
+Template.elementTable.creatorName = function(){return getCreatorName(this.creator)}
+
+Template.elementTable.events({
+
+	'click .elementRow':function(e){
+
+		selectElement(e.currentTarget.id);
+
+	},
+
+	'mouseenter .elementRow':function(e){
+
+		$('.elementRow').removeClass('subSelected');
+		$('.elementRow > td' ).removeClass('subSelected');
+
+		if(e.currentTarget.id != Session.get("currentElement")._id){
+			$('#' + e.currentTarget.id + ' > td').addClass('subSelected');
+			$('#' + e.currentTarget.id).addClass('subSelected');
+		}
+	},
+
+	'mouseleave .elementRow':function(e){
+
+		$('.elementRow').removeClass('subSelected');
+		$('.elementRow > td' ).removeClass('subSelected');
+
+	},
+
+	'click #copyElement':function(e){
+
+		ct = Session.get("currentElement");
 		if(ct.creator == Meteor.user()._id){
 			ct.name = ct.name + "_" + generateTempId(3);
 		}else{
@@ -74,7 +142,7 @@ Template.terrainMaker.events({
 
 		DesignerGameDefs.insert(ct, function(err, id){
 				if(err){alert(err.reason)}else{
-					selectTerrain(id);
+					selectElement(id);
 				}
 			} );
 
@@ -83,87 +151,47 @@ Template.terrainMaker.events({
 		e.preventDefault();
 	},
 
-	'click #removeTerrain':function(e){
+	'click #removeElement':function(e){
 
-		if(confirm("are you sure you want to delete " + Session.get("currentTerrain").name + "... " )){	
+		if(confirm("are you sure you want to delete " + Session.get("currentElement").name + "... " )){	
 			
-			var r = checkForDependencies(DesignerGameDefs.findOne(Session.get("currentTerrain")._id));
+			var r = checkForDependencies(DesignerGameDefs.findOne(Session.get("currentElement")._id));
 		
 			if(!r){
-				DesignerGameDefs.remove(Session.get("currentTerrain")._id, function(err){if(err){alert(err.reason)}});
+				DesignerGameDefs.remove(Session.get("currentElement")._id, function(err){if(err){alert(err.reason)}});
 			}else{
 				alert("I can't delete this because of a dependency in " + r + "\nremove the terrain from this level first.")
 			}
 
-			selectTerrain(DesignerGameDefs.findOne({creator: 'server'})._id);
+			selectElement(DesignerGameDefs.findOne({creator: 'server'})._id);
 		}
 			
 		e.preventDefault();
 	}
 
 
-
 });
 
 
 
-Template.terrainMaker.currentTerrain = function(){
-	if(Session.get("currentTerrain")){
-		return DesignerGameDefs.findOne(Session.get("currentTerrain")._id);
-	}
-}
-Template.terrainTable.creatorName = function(){return getCreatorName(this.creator)}
 
-
-
-
-
-
-Template.terrainTable.events({
-
-	'click .terrainRow':function(e){
-
-		selectTerrain(e.currentTarget.id);
-
-	},
-
-	'mouseenter .terrainRow':function(e){
-
-		$('.terrainRow').removeClass('subSelected');
-		$('.terrainRow > td' ).removeClass('subSelected');
-
-		if(e.currentTarget.id != Session.get("currentTerrain")._id){
-			$('#' + e.currentTarget.id + ' > td').addClass('subSelected');
-			$('#' + e.currentTarget.id).addClass('subSelected');
-		}
-	},
-
-	'mouseleave .terrainRow':function(e){
-
-		$('.terrainRow').removeClass('subSelected');
-		$('.terrainRow > td' ).removeClass('subSelected');
-
-	}
-
-
-});
 
 //helper functions
 
-function selectTerrain(id){
+function selectElement(id){
 
-	var ct = DesignerGameDefs.findOne(id);
-	if(typeof ct  === "undefined")return;
-	Session.set("currentTerrain", ct);
+	var ce = DesignerGameDefs.findOne(id);
+	if(typeof ce  === "undefined")return;
+	Session.set("currentElement", ce);
 
-	$('.terrainRow').removeClass('selected');
-	$('.terrainRow > td' ).removeClass('selected');
+	$('.elementRow').removeClass('selected');
+	$('.elementRow > td' ).removeClass('selected');
 	$('#' + id + ' > td').removeClass('subSelected');
 	$('#' + id ).removeClass('subSelected');
 	$('#' + id + ' > td').addClass('selected');
 	$('#' + id).addClass('selected');
 
-	if(checkClientIsOwner(Meteor.user()._id, Session.get("currentTerrain"))){
+	if(checkClientIsOwner(Meteor.user()._id, Session.get("currentElement"))){
 		enableAdjustables();
 	}else{
 		disableAdjustables();
@@ -179,8 +207,8 @@ function selectTerrain(id){
 
 Template.soundControls.audioFiles = function(type){  
 
-	if(!Session.get("currentTerrain"))return;
-	var ct = DesignerGameDefs.findOne(Session.get("currentTerrain")._id);
+	if(!Session.get("currentElement"))return;
+	var ct = DesignerGameDefs.findOne(Session.get("currentElement")._id);
 	if(typeof ct === "undefined")return;
 	var folder;
 
@@ -206,8 +234,8 @@ Template.soundControls.audioTypes = function(){return AudioFiles.find({dt: 'type
 
 Template.soundControls.audioParam = function(type, item){
 
-	if(!Session.get("currentTerrain"))return;
-	var ct = DesignerGameDefs.findOne(Session.get("currentTerrain")._id);
+	if(!Session.get("currentElement"))return;
+	var ct = DesignerGameDefs.findOne(Session.get("currentElement")._id);
 	if(typeof ct === "undefined")return;
 
 
@@ -233,19 +261,19 @@ Template.soundControls.events({
 		
 
 
-		var terrainObj = Session.get("currentTerrain");
+		var terrainObj = Session.get("currentElement");
 
 		if($(e.currentTarget).hasClass('Background')){
 
-			DesignerGameDefs.update(Session.get("currentTerrain")._id, 
+			DesignerGameDefs.update(Session.get("currentElement")._id, 
 				{$set: {'background.folder': $(e.currentTarget.id).selector, 'background.audioFile':'none'}});
 
 		}else if($(e.currentTarget).hasClass('Footsteps')){
 
-			DesignerGameDefs.update(Session.get("currentTerrain")._id, 
+			DesignerGameDefs.update(Session.get("currentElement")._id, 
 				{$set: {'footsteps.folder': $(e.currentTarget.id).selector, 'footsteps.audioFile':'none'}});
 		}else{
-			DesignerGameDefs.update(Session.get("currentTerrain")._id, 
+			DesignerGameDefs.update(Session.get("currentElement")._id, 
 				{$set: {'narrator.folder': $(e.currentTarget.id).selector, 'narrator.audioFile':'none'}});
 		}
 
@@ -257,14 +285,14 @@ Template.soundControls.events({
 
 		if($(e.currentTarget).hasClass('Background')){
 
-			DesignerGameDefs.update(Session.get("currentTerrain")._id, 
+			DesignerGameDefs.update(Session.get("currentElement")._id, 
 				{$set: {'background.audioFile': $(e.currentTarget.id).selector}});
 
 		}else if($(e.currentTarget).hasClass('Footsteps')){
-			DesignerGameDefs.update(Session.get("currentTerrain")._id, 
+			DesignerGameDefs.update(Session.get("currentElement")._id, 
 				{$set: {'footsteps.audioFile': $(e.currentTarget.id).selector}});
 		}else{
-			DesignerGameDefs.update(Session.get("currentTerrain")._id, 
+			DesignerGameDefs.update(Session.get("currentElement")._id, 
 				{$set: {'narrator.audioFile': $(e.currentTarget.id).selector}});
 		}
 		
@@ -276,13 +304,13 @@ Template.soundControls.events({
 
 
 		if($(e.currentTarget).hasClass('Background')){
-			DesignerGameDefs.update(Session.get("currentTerrain")._id, 
+			DesignerGameDefs.update(Session.get("currentElement")._id, 
 				{$set: {'background.amp': parseFloat(e.currentTarget.value)}});
 		}else if($(e.currentTarget).hasClass('Footsteps')){
-			DesignerGameDefs.update(Session.get("currentTerrain")._id, 
+			DesignerGameDefs.update(Session.get("currentElement")._id, 
 				{$set: {'footsteps.amp': parseFloat(e.currentTarget.value)}});
 		}else{
-			DesignerGameDefs.update(Session.get("currentTerrain")._id, 
+			DesignerGameDefs.update(Session.get("currentElement")._id, 
 				{$set: {'narrator.amp': parseFloat(e.currentTarget.value)}});
 		}
 		

@@ -1,7 +1,10 @@
 Template.sandbox.created = function(){
 
 	selectALevel(); //prevents crash on boot
-	Meteor.defer(selectALevel);
+	Meteor.defer(function(){
+		selectALevel();
+		setPlayerPos();
+	});
 
 }
 
@@ -11,15 +14,11 @@ Template.sandboxLevelSelector.events({
 
 		Session.set("currentLevel", DesignerGameMaps.findOne({type: 'levelHeader', _id: e.currentTarget.id}));
 
-		var playerPos = PlayerGameData.findOne({player: Meteor.user()._id, type: "pos"});
-		var ep0 = DesignerGameMaps.findOne({type: 'entryPoint', levelId: Session.get("currentLevel")._id, index: 0});
-		playerPos.x = ep0.x; playerPos.y = ep0.y;
-		PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
+		playerPos = setPlayerPos();
 
 		if(Session.get("screenMode") > 0){
 
 			//then sandboxing is in progress
-
 			nTerrain = getCell(playerPos.x , playerPos.y);
 			updateGameCellAudio(cTerrain, nTerrain);
 	        cTerrain = nTerrain;
@@ -120,6 +119,17 @@ Template.sandboxControls.levelWidth = function(){
 
 Template.sandboxControls.levelHeight = function(){
 	return DesignerGameMaps.findOne(Session.get("currentLevel")._id).height - 1;
+}
+
+function setPlayerPos(){
+
+	var playerPos = PlayerGameData.findOne({player: Meteor.user()._id, type: "pos"});
+	var ep0 = DesignerGameMaps.findOne({type: 'entryPoint', levelId: Session.get("currentLevel")._id, index: 0});
+	playerPos.x = ep0.x; playerPos.y = ep0.y;
+	PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
+
+	return playerPos;
+
 }
 
 

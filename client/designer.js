@@ -339,17 +339,17 @@ Template.addFeatures.events({
 
 });
 
-Template.addFeatures.currentFeatureType = function(){return Session.get("currentFeatureType")}
+UI.registerHelper('currentFeatureType' , function(){return Session.get("currentFeatureType")});
 
-Template.addFeatures.features = function(){return ["terrain", "entryPoint", "exitPoint", "wall", "pickupable", "keyhole", "soundField"];}
+UI.registerHelper('features', function(){return ["terrain", "entryPoint", "exitPoint", "wall", "pickupable", "keyhole", "soundField"];});
 
-Template.addFeatures.isTerrain = function(){return Session.get("currentFeatureType") == "terrain"}
-Template.addFeatures.isEntryPoint = function(){return Session.get("currentFeatureType") == "entryPoint"}
-Template.addFeatures.isExitPoint = function(){return Session.get("currentFeatureType") == "exitPoint"}
-Template.addFeatures.isWall = function(){return Session.get("currentFeatureType") == "wall"}
-Template.addFeatures.isPickupable = function(){return Session.get("currentFeatureType") == "pickupable"}
-Template.addFeatures.isKeyhole = function(){return Session.get("currentFeatureType") == "keyhole"}
-Template.addFeatures.isSoundField = function(){return Session.get("currentFeatureType") == "soundField"}
+UI.registerHelper('isTerrain' , function(){return Session.get("currentFeatureType") == "terrain"});
+UI.registerHelper('isEntryPoint' , function(){return Session.get("currentFeatureType") == "entryPoint"});
+UI.registerHelper('isExitPoint' , function(){return Session.get("currentFeatureType") == "exitPoint"});
+UI.registerHelper('isWall' , function(){return Session.get("currentFeatureType") == "wall"});
+UI.registerHelper('isPickupable' , function(){return Session.get("currentFeatureType") == "pickupable"});
+UI.registerHelper('isKeyhole' , function(){return Session.get("currentFeatureType") == "keyhole"});
+UI.registerHelper('isSoundField' , function(){return Session.get("currentFeatureType") == "soundField"});
 
 /*-------------------------------------------------------terrain Selector ----------------------------------------*/
 

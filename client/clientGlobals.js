@@ -16,11 +16,34 @@ UI.registerHelper("isSu", function(){
 
 });
 
+
+UI.registerHelper('currentElement' , function(){
+	if(Session.get("currentElement")){
+		return DesignerGameDefs.findOne(Session.get("currentElement")._id);
+	}
+});
+
 UI.registerHelper('myTerrains', function(){return DesignerGameDefs.find({type: "terrain", creator: Meteor.user()._id}).fetch()});
 UI.registerHelper('terrains', function(){return DesignerGameDefs.find({type: "terrain"}).fetch()});
+
+UI.registerHelper('elements', function(eType){return DesignerGameDefs.find({type: eType}).fetch()});
+UI.registerHelper('myElements', function(eType){return DesignerGameDefs.find({type: eType,  creator: Meteor.user()._id}).fetch()});
+
 UI.registerHelper('levels', function(){return DesignerGameMaps.find({type: 'levelHeader'}).fetch()});
 UI.registerHelper('creatorName', function(){return getCreatorName(this.creator)});
 
+
+UI.registerHelper('currentFeatureType' , function(){return Session.get("currentFeatureType")});
+
+UI.registerHelper('features', function(){return ["terrain", "entryPoint", "exitPoint", "wall", "pickupable", "keyhole", "soundField"];});
+
+UI.registerHelper('isTerrain' , function(){return Session.get("currentFeatureType") == "terrain"});
+UI.registerHelper('isEntryPoint' , function(){return Session.get("currentFeatureType") == "entryPoint"});
+UI.registerHelper('isExitPoint' , function(){return Session.get("currentFeatureType") == "exitPoint"});
+UI.registerHelper('isWall' , function(){return Session.get("currentFeatureType") == "wall"});
+UI.registerHelper('isPickupable' , function(){return Session.get("currentFeatureType") == "pickupable"});
+UI.registerHelper('isKeyhole' , function(){return Session.get("currentFeatureType") == "keyhole"});
+UI.registerHelper('isSoundField' , function(){return Session.get("currentFeatureType") == "soundField"});
 
 
 //NB
@@ -62,6 +85,8 @@ checkClientIsDesigner = function(){
 
 checkForDependencies = function (doc){
 
+
+	//this needs to work for other elements too
 	var depend = DesignerGameMaps.findOne({creator: doc.creator, type: 'cell', terrain: doc._id});
 	
 	if(!depend){

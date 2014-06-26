@@ -1,13 +1,36 @@
+<template name ="designElements">
+
+
+  <ul class="pagination">
+    <li><a href="#">&laquo;</a></li>
+    {{#each features}}
+      <li class="makerlink" id={{this}}><a href="#">{{this}}</a></li>
+    {{/each}}
+    <li><a href="#">&raquo;</a></li>
+  </ul>
+
+  {{#if isTerrain}}
+    {{>terrainMaker}}
+  {{/if}}
+
+  {{#if isEntryPoint}}
+    <h2>edit these from the level designer</h2>
+  {{/if}}
+
+  {{#if isExitPoint}}
+    {{>exitPointMaker}}
+  {{/if}}
+
+</template>
+
 <!-- ------------------------------------------- ELEMENT DESIGNERS ----------------------------------------------- -->
 
 <template name="terrainMaker">
 
-  <h2>Terrain maker</h2>
-
   <div class ="row">
     <div class="col-xs-1"></div>
     <div class="col-xs-5 well scrollableColumn" style="height: 500px">
-      {{>terrainTable}}
+      {{>elementTable e_disp="Terrain" e_index="terrain"}}
     </div>
 
     <div class="col-xs-1"></div>
@@ -18,8 +41,8 @@
           <div class="input-group">
             <!--<label for="terrainName">Terrain Name</label>-->
             <span class="input-group-addon">Name</span>
-            <input type="text" class="form-control adjustable" id="terrainName" placeholder="eg. forest" value={{currentTerrain.name}}>
-            <span class="input-group-addon adjustable" id="colPicker" style = "background-color: {{currentTerrain.color}}"></span>
+            <input type="text" class="form-control adjustable" id="terrainName" placeholder="eg. forest" value={{currentElement.name}}>
+            <span class="input-group-addon adjustable" id="colPicker" style = "background-color: {{currentElement.color}}"></span>
           </div>
         </div>
 
@@ -27,28 +50,26 @@
         {{>soundControls sc_type="Footsteps"}}
         {{>soundControls sc_type="Narrator"}}
 
-
-
       </form>
     </div>
   </div>
 
-   <h2>Next Item</h2>
-
 </template>
 
-<template name="terrainTable">
+<template name="elementTable">
+
+
   <table class="table table-bordered">
     <thead>
       <tr>
-        <th>Terrain name</th>
+        <th>{{e_disp}} name</th>
         <th>Creator</th>
       </tr>
     </thead>
 
     <tbody>
-      {{#each terrains}}
-      <tr id={{_id}} class="terrainRow">
+      {{#each elements e_index}}
+      <tr id={{_id}} class="elementRow">
         <td>{{name}}</td>
         <td>{{creatorName}}</td>
       </tr>
@@ -57,10 +78,11 @@
   </table>
 
           <div class="form-group">
-          <button type="submit" id="copyTerrain" class="btn btn-success">Copy Terrain</button>
-          <button type="submit" id="removeTerrain" class="btn btn-danger adjustable">Delete Terrain</button>
+          <button type="submit" id="copyElement" class="btn btn-success">Copy {{e_disp}}</button>
+          <button type="submit" id="removeElement" class="btn btn-danger adjustable">Delete {{e_disp}}</button>
         </div>
 </template>
+
 
 <template name="soundControls">
   <div class="panel panel-default">
@@ -98,6 +120,21 @@
         <input class ="ampBox {{sc_type}} adjustable" type="number" min="0.1" max="1" step="0.05" value={{audioParam sc_type item="amp"}}>
       </div>
     </div>
+  </div>
+
+</template>
+
+
+<template name="exitPointMaker">
+
+  <div class ="row">
+    <div class="col-xs-1"></div>
+
+    <div class="col-xs-5 well scrollableColumn" style="height: 500px">
+      {{>elementTable e_disp = "ExitPoint" e_index = "exitPoint"}}
+    </div>
+
+
   </div>
 
 </template>

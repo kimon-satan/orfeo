@@ -1,10 +1,8 @@
-1. start points and links
+1. exitPoints
 
-make terrain pointer record and remove from cell
-
-Think about data structure and indexing here . Which will be the easiest to copy and search ? Seems like entry points should go into individual cells
-
-Actually a consistent approach is really needed ... either everything is stored in the cell which makes lookups more convoluted or switch cells to being just place holders for where the user can go and then add a pointer record for everything else. Entry points can be the same but need safeties to prevent repeatability.
+    - build designer
+    - implement in sandbox
+    - release copy over all elements
 
 
 2. release changed flag using TS

@@ -30,7 +30,7 @@ Template.terrainMap.events({
 
 				//in this case there can be only one pointer to each type
 				//this is a bit convoluted but it keeps the data structure consistent
-				var elemPointer = DesignerGameMaps.findOne({elemId: Session.get("currentElement")._id});
+				var elemPointer = DesignerGameMaps.findOne({elemId: Session.get("currentElement")._id, levelId: Session.get("currentLevel")._id});
 				DesignerGameMaps.update(elemPointer._id, {$set: {x: parseInt(loc[0]), y: parseInt(loc[1])}});
 
 
@@ -80,30 +80,25 @@ Template.terrainMap.events({
 
 Template.terrainMap.mapRow = function(){
 
-	cl = DesignerGameMaps.findOne(Session.get("currentLevel")._id);
-
 	return DesignerGameMaps.find({
 	type: 'cell', 
-	creator: cl.creator,
-	level: cl.level,
+	levelId: Session.get("currentLevel")._id,
 	 x: 0},
 	 {sort: ["y", "asc"]}).fetch();
 }
 
 Template.terrainMap.mapCol = function(y){
 
-	cl = DesignerGameMaps.findOne(Session.get("currentLevel")._id);
-
 	return DesignerGameMaps.find({
 		type: 'cell', 
-		creator: cl.creator, 
-		level: cl.level, y: y},
+		levelId: Session.get("currentLevel")._id, 
+		y: y},
 		{sort: ["x", "asc"]}).fetch();
 }
 
 Template.terrainMap.cellColor = function(){
 
-	var ep = getElementPointer({type: 'terrain', x: parseInt(this.x), y: parseInt(this.y)});
+	/*var ep = getElementPointer({type: 'terrain', x: parseInt(this.x), y: parseInt(this.y)});
 	var t; 
 	if(ep.length > 0){
 		t = getElement(ep[0]);
@@ -113,13 +108,14 @@ Template.terrainMap.cellColor = function(){
 		return 'FFFFFF';
 	}else{
 		return t.color;
-	}
+	}*/
+
 
 }
 
 Template.terrainMap.cellText = function(){
 
-	var ep = getElementPointer({type: 'entryPoint', x: parseInt(this.x), y: parseInt(this.y)});
+	/*var ep = getElementPointer({type: 'entryPoint', x: parseInt(this.x), y: parseInt(this.y)});
 	
 	var t; 
 
@@ -131,7 +127,7 @@ Template.terrainMap.cellText = function(){
 		return t.name;
 	}else{
 		return "";
-	}
+	}*/
 
 
 }
@@ -378,6 +374,7 @@ Template.addFeatures.events({
 
 		isReduceWarning = false;
 		Session.set("currentFeatureType", e.currentTarget.id);
+		Session.set("currentElement", null);
 		e.preventDefault();
 	}
 

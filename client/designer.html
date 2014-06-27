@@ -41,7 +41,7 @@
       {{#each mapRow}}
       <tr>
         {{#each mapCol this.y}}
-        <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{cellColor}}">{{cellText}}</td>
+        <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{this.color}}">{{this.text}}</td>
         {{/each}}
       </tr>
       {{/each}}

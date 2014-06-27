@@ -25,6 +25,15 @@ Meteor.startup(function(){
 		})();
 	}
 
+	if(!DesignerGameDefs.findOne({type: 'entryPoint'})){
+		for(var x = 0; x < 10; x++){
+			DesignerGameDefs.insert({
+				type: 'entryPoint', creator: "server", name: x
+			});
+		}
+
+	}
+
 	//if there is no game map make an initial one
 	if(!DesignerGameMaps.findOne({type: 'levelHeader'})){
 
@@ -39,7 +48,9 @@ Meteor.startup(function(){
 
 			for(var x = 0; x < 5; x++){
 				for(var y = 0; y < 5; y++){
-					DesignerGameMaps.insert(createMapCell('init',x,y, "server", h_id));
+					DesignerGameMaps.insert({
+						type: 'cell' ,level: 'init', levelId: h_id, creator: "server", x: x, y: y
+					});
 				}
 			}
 
@@ -47,6 +58,8 @@ Meteor.startup(function(){
 
 
 	}
+
+
 
 	//populate DesignerGameDefs with default objects
 	if(!DesignerGameDefs.findOne({type: 'terrain'})){

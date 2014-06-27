@@ -89,17 +89,17 @@ function makeReleaseCopy(){
 		clh._id = id;
 	
 
-		DesignerGameMaps.find({type: 'cell', level: clh.level, creator: clh.creator}).forEach(function(elem){
+		DesignerGameMaps.find({level: clh.level, creator: clh.creator}).forEach(function(elem){
 
 
 			elem.designId = elem._id;
 			elem.levelId = clh._id;
 			delete elem["_id"];
 			
-			if(elem.terrain != "none"){
-				var o_t = DesignerGameDefs.findOne(elem.terrain);
-				var n_t = (o_t) ? GameDefsRelease.findOne({type: "terrain", name: o_t.name, creator: o_t.creator}) : true;
-				elem.terrain = (n_t)? n_t._id : false;
+			if(elem.type != "cell"){
+				var o_t = DesignerGameDefs.findOne(elem.elemId);
+				var n_t = (o_t) ? GameDefsRelease.findOne({type: elem.type, name: o_t.name, creator: o_t.creator}) : true;
+				elem.elemId = (n_t)? n_t._id : false;
 
 				//copy over all the terrains
 				if(!n_t){
@@ -108,7 +108,7 @@ function makeReleaseCopy(){
 						o_t.designId = o_t._id;
 						delete o_t["_id"];
 						GameDefsRelease.insert(o_t, function(err, id){ 
-							elem.terrain = id;
+							elem.elemId = id;
 							GameMapRelease.insert(elem);
 						});
 					}
@@ -127,18 +127,7 @@ function makeReleaseCopy(){
 
 			
 		});
-
-		//copy over the entry points
-
-		DesignerGameMaps.find({type: 'entryPoint', levelId: clh.designId}).forEach(function(elem){
-
-			elem.levelId = clh._id;
-			elem.designlId = elem._id;
-			delete elem["_id"];
-
-			DesignerGameMaps.insert(elem);
-
-		});
+		
 
 		return clh._id;
 

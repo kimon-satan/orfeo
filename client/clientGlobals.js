@@ -85,9 +85,7 @@ checkClientIsDesigner = function(){
 
 checkForDependencies = function (doc){
 
-
-	//this needs to work for other elements too
-	var depend = DesignerGameMaps.findOne({creator: doc.creator, type: 'cell', terrain: doc._id});
+	var depend = DesignerGameMaps.findOne({elemId: doc._id});
 	
 	if(!depend){
 		return false;
@@ -152,4 +150,42 @@ selectALevel = function(){
 	}
 
 
+}
+
+getElementPointer = function(options){
+  var ne;
+
+  if(checkClientIsDesigner()){
+
+    ne = DesignerGameMaps.find({
+      type: options.type, 
+      levelId: Session.get("currentLevel")._id, 
+      x: parseInt(options.x), y: parseInt(options.y)
+    }).fetch();
+
+  }else{
+
+    var level = PlayerGameData.findOne({player: Meteor.user()._id, type: "level"});    
+     ne = GameMapRelease.find({type: options.type, 
+                                  levelId: level.id , 
+                                  x: parseInt(options.x), 
+                                  y: parseInt(options.y)}).fetch();
+
+  }
+
+  return ne;
+
+}
+
+getElement = function(elementPointer){
+
+  var element;
+
+  if(checkClientIsDesigner()){
+    element = DesignerGameDefs.findOne(elementPointer.elemId);
+  }else{
+    element = GameDefsRelease.findOne(elementPointer.elemId);
+  }
+
+  return element;
 }

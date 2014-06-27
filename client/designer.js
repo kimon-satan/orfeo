@@ -2,7 +2,8 @@ var isReduceWarning = false;
 
 Template.levelDesigner.created = function(){
 	
-	Session.set("currentElement", DesignerGameDefs.findOne({creator: Meteor.user()._id}));
+	Session.set("currentFeatureType", "terrain");
+	Session.set("currentElement", DesignerGameDefs.findOne({creator: Meteor.user()._id, type: 'terrain'}));
 	selectALevel(); //prevents crash on boot
 
 	Meteor.defer(selectALevel);
@@ -26,30 +27,46 @@ Template.terrainMap.events({
 
 			if(Session.get("currentFeatureType") == "entryPoint"){
 
-				var elem = DesignerGameMaps.findOne({
-					type: Session.get("currentFeatureType"), 
+
+				//in this case there can be only one pointer to each type
+				//this is a bit convoluted but it keeps the data structure consistent
+				var elemPointer = DesignerGameMaps.findOne({elemId: Session.get("currentElement")._id});
+				DesignerGameMaps.update(elemPointer._id, {$set: {x: parseInt(loc[0]), y: parseInt(loc[1])}});
+
+
+			}else{
+
+				//remove any pointers of the same type
+				var oldPointers = DesignerGameMaps.find({
+
+					type: Session.get("currentElement").type,
 					levelId: Session.get("currentLevel")._id, 
-					index: Session.get("currentElement")
+					x: parseInt(loc[0]), y: parseInt(loc[1])
+
+				}).forEach(function(ep){
+
+					DesignerGameMaps.remove(ep._id);
+
 				});
 
-				DesignerGameMaps.update(elem._id, {$set: {x: parseInt(loc[0]), y: parseInt(loc[1])}
 
-				});
+				var ep = {
+					type: Session.get("currentElement").type,
+					level: Session.get("currentLevel").level,
+					creator: Session.get("currentLevel").creator,
+					levelId: Session.get("currentLevel")._id,
+					elemId: Session.get("currentElement")._id,
+					x: parseInt(loc[0]),
+					y: parseInt(loc[1])
+				};
 
-
-			}else if(Session.get("currentFeatureType") == "terrain"){
-
-				var cell = DesignerGameMaps.findOne({type: 'cell', 
-					creator: Session.get("currentLevel").creator, 
-					level: Session.get("currentLevel").level, 
-					x: parseInt(loc[0]), y: parseInt(loc[1])});
-				
-
-				DesignerGameMaps.update(cell._id ,{$set:{terrain: Session.get("currentElement")._id}});
+				DesignerGameMaps.insert(ep);
 				updateTerrainKey();
 				
 
 			}
+
+			//there might need to be a further version which allows for overlaps
 
 		}else{
 				alert("You are not the creator of this level. \nMake a copy which you can edit");
@@ -86,7 +103,12 @@ Template.terrainMap.mapCol = function(y){
 
 Template.terrainMap.cellColor = function(){
 
-	var t = DesignerGameDefs.findOne(this.terrain);
+	var ep = getElementPointer({type: 'terrain', x: parseInt(this.x), y: parseInt(this.y)});
+	var t; 
+	if(ep.length > 0){
+		t = getElement(ep[0]);
+	}
+
 	if(!t){
 		return 'FFFFFF';
 	}else{
@@ -97,9 +119,16 @@ Template.terrainMap.cellColor = function(){
 
 Template.terrainMap.cellText = function(){
 
-	var t = DesignerGameMaps.findOne({x: this.x, y: this.y , type: "entryPoint", levelId: this.levelId});
+	var ep = getElementPointer({type: 'entryPoint', x: parseInt(this.x), y: parseInt(this.y)});
+	
+	var t; 
+
+	if(ep.length > 0){
+		t = getElement(ep[0]);
+	}
+	
 	if(t){
-		return t.index;
+		return t.name;
 	}else{
 		return "";
 	}
@@ -212,7 +241,15 @@ Template.mainSettings.events({
 
 			for(var x = cl.width; x < w; x++){
 				for(var y = 0; y < cl.height; y++){
-					var cell = createMapCell(cl.level, x, y, cl.creator);
+					
+					var cell = {
+						type: 'cell',
+						level: cl.level, 
+						levelId: cl._id, 
+						creator: cl.creator, 
+						x: x, y: y
+					};
+
 					DesignerGameMaps.insert(cell);
 				}
 			}
@@ -229,7 +266,7 @@ Template.mainSettings.events({
 
 			if(isReduceWarning){
 
-				DesignerGameMaps.find({type: 'cell', level: cl.level, creator: cl.creator, x: {$gte: parseInt(w)}}).forEach(function(cell){
+				DesignerGameMaps.find({levelId: cl.levelId, x: {$gte: parseInt(w)}}).forEach(function(cell){
 
 					DesignerGameMaps.remove(cell._id);
 
@@ -257,7 +294,14 @@ Template.mainSettings.events({
 			for(var y = cl.height; y < h; y++){
 
 				for(var x = 0; x < cl.width; x++){
-					var cell = createMapCell(cl.level, x, y, cl.creator);
+					var cell = {
+						type: 'cell',
+						level: cl.level, 
+						levelId: cl._id, 
+						creator: cl.creator, 
+						x: x, y: y
+					};
+
 					DesignerGameMaps.insert(cell);
 					
 				}
@@ -275,7 +319,7 @@ Template.mainSettings.events({
 
 			if(isReduceWarning){
 
-				DesignerGameMaps.find({type: 'cell', level: cl.level, creator: cl.creator, y: {$gte: parseInt(h)}}).forEach(function(cell){
+				DesignerGameMaps.find({levelId: cl.levelId, y: {$gte: parseInt(h)}}).forEach(function(cell){
 
 					DesignerGameMaps.remove(cell._id);
 
@@ -339,17 +383,7 @@ Template.addFeatures.events({
 
 });
 
-UI.registerHelper('currentFeatureType' , function(){return Session.get("currentFeatureType")});
 
-UI.registerHelper('features', function(){return ["terrain", "entryPoint", "exitPoint", "wall", "pickupable", "keyhole", "soundField"];});
-
-UI.registerHelper('isTerrain' , function(){return Session.get("currentFeatureType") == "terrain"});
-UI.registerHelper('isEntryPoint' , function(){return Session.get("currentFeatureType") == "entryPoint"});
-UI.registerHelper('isExitPoint' , function(){return Session.get("currentFeatureType") == "exitPoint"});
-UI.registerHelper('isWall' , function(){return Session.get("currentFeatureType") == "wall"});
-UI.registerHelper('isPickupable' , function(){return Session.get("currentFeatureType") == "pickupable"});
-UI.registerHelper('isKeyhole' , function(){return Session.get("currentFeatureType") == "keyhole"});
-UI.registerHelper('isSoundField' , function(){return Session.get("currentFeatureType") == "soundField"});
 
 /*-------------------------------------------------------terrain Selector ----------------------------------------*/
 
@@ -377,7 +411,9 @@ Template.entrySelector.events({
 
 		isReduceWarning = false;
 		var idx = e.currentTarget.id.split("_");
-		Session.set("currentElement", parseInt(idx[1]));
+
+		var ep = DesignerGameDefs.findOne({type: 'entryPoint', name: parseInt(idx[1]), creator: Meteor.user()._id});
+		Session.set("currentElement", ep);
 		e.preventDefault();
 	}
 
@@ -406,7 +442,7 @@ function makeLevelCopy(o_levelName, o_creator, n_levelName, n_creator){
 		clh._id = id;
 	
 
-		DesignerGameMaps.find({type: 'cell', levelId: o_id}).forEach(function(elem){
+		DesignerGameMaps.find({levelId: o_id}).forEach(function(elem){
 
 
 			elem.level = n_levelName;
@@ -414,9 +450,10 @@ function makeLevelCopy(o_levelName, o_creator, n_levelName, n_creator){
 			elem.levelId = clh._id;
 			delete elem["_id"];
 			
-			if(elem.terrain != "none"){
-				var o_t = DesignerGameDefs.findOne(elem.terrain);
-				var n_t = DesignerGameDefs.findOne({type: "terrain", name: o_t.name, creator: n_creator});
+			if(elem.type != "cell"){ //make new resources for everything except cells
+
+				var o_t = DesignerGameDefs.findOne(elem.elemId);
+				var n_t = DesignerGameDefs.findOne({type: elem.type, name: o_t.name, creator: n_creator});
 
 				//copy over all the terrains
 				if(!n_t){
@@ -425,13 +462,13 @@ function makeLevelCopy(o_levelName, o_creator, n_levelName, n_creator){
 						delete o_t["_id"];
 						o_t.creator = n_creator;
 						DesignerGameDefs.insert(o_t, function(err, id){ 
-							elem.terrain = id;	
+							elem.elemId = id;	
 							DesignerGameMaps.insert(elem);
 						});
 					}
 
 				}else{
-					elem.terrain = n_t._id;	
+					elem.elemId = n_t._id;	
 					DesignerGameMaps.insert(elem);
 				}
 
@@ -440,21 +477,7 @@ function makeLevelCopy(o_levelName, o_creator, n_levelName, n_creator){
 				DesignerGameMaps.insert(elem);
 			}
 
-			//this will need to be done for the other elements in the cell
 			
-		});
-
-		//copy over the entry points
-
-		DesignerGameMaps.find({type: 'entryPoint', levelId: o_id}).forEach(function(elem){
-
-			elem.levelId = clh._id;
-			elem.creator = n_creator;
-			elem.level = n_levelName;
-			delete elem["_id"];
-
-			DesignerGameMaps.insert(elem);
-
 		});
 
 		return clh._id;
@@ -471,7 +494,7 @@ function updateTerrainKey(){
 
 	DesignerGameDefs.find({type: 'terrain', creator: Meteor.user()._id}).forEach(function(t){
 
-		if(DesignerGameMaps.findOne({type: 'cell', level: Session.get("currentLevel").level, creator: Meteor.user()._id, terrain: t._id})){
+		if(DesignerGameMaps.findOne({type: 'terrain', level: Session.get("currentLevel").level, creator: Meteor.user()._id, elemId: t._id})){
 
 			terrains.push(t._id);
 

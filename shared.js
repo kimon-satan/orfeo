@@ -99,6 +99,9 @@ function adminTest(user){
 
 
 
+
+
+
 createMapCell = function(level, x, y, id, h_id){
 
 	//will need to add sections for i/o elements
@@ -108,11 +111,6 @@ createMapCell = function(level, x, y, id, h_id){
 		creator: id,
 		level: level, 
 		x: parseInt(x), y: parseInt(y), 
-		terrain: 'none', 
-		objects:[], 
-		n_override: "none", 
-		n_additions: [],
-		audibleTraces: [],
 		levelId: h_id
 	};
 
@@ -137,9 +135,12 @@ createEntryPoints = function(obj){
 
 	var eps = [];
 
+	var epsIds = DesignerGameDefs.find({creator: obj.creator, type: 'entryPoint'},{sort: ["name"]}).fetch();
+	var count = 0;
+
 	for(var x = 0; x < obj.width; x++){
 
-		if(eps.length == 10)break;
+		if(count == 10)break;
 
 		for(var y = 0; y < obj.height; y++){
 
@@ -152,12 +153,13 @@ createEntryPoints = function(obj){
 					level: obj.level,
 					creator: obj.creator,
 					levelId: obj._id,
+					elemId: epsIds[count]._id,
 					x: x,
 					y: y,
-					index: eps.length
 				};
 
 				eps.push(ep);
+				count += 1;
 
 			})();
 

@@ -128,17 +128,6 @@ function makeReleaseCopy(){
 			
 		});
 
-		//copy over the entry points
-
-		DesignerGameMaps.find({type: 'entryPoint', levelId: clh.designId}).forEach(function(elem){
-
-			elem.levelId = clh._id;
-			elem.designlId = elem._id;
-			delete elem["_id"];
-
-			DesignerGameMaps.insert(elem);
-
-		});
 
 		return clh._id;
 

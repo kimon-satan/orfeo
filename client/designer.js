@@ -26,15 +26,19 @@ Template.terrainMap.events({
 
 			if(Session.get("currentFeatureType") == "entryPoint"){
 
-				var elem = DesignerGameMaps.findOne({
-					type: Session.get("currentFeatureType"), 
+				//clear the old cell
+				var cell = DesignerGameMaps.findOne({type: 'cell', levelId: Session.get("currentLevel")._id, 
+								entryPoint: Session.get("currentElement")});
+
+				DesignerGameMaps.update(cell._id, {$set: {entryPoint: 'none'}});
+
+				cell = DesignerGameMaps.findOne({type: 'cell', 
 					levelId: Session.get("currentLevel")._id, 
-					index: Session.get("currentElement")
-				});
+					x: parseInt(loc[0]), y: parseInt(loc[1])});
 
-				DesignerGameMaps.update(elem._id, {$set: {x: parseInt(loc[0]), y: parseInt(loc[1])}
+				//set the new one
+				DesignerGameMaps.update(cell._id ,{$set:{entryPoint: Session.get("currentElement")}});
 
-				});
 
 
 			}else if(Session.get("currentFeatureType") == "terrain"){
@@ -97,9 +101,8 @@ Template.terrainMap.cellColor = function(){
 
 Template.terrainMap.cellText = function(){
 
-	var t = DesignerGameMaps.findOne({x: this.x, y: this.y , type: "entryPoint", levelId: this.levelId});
-	if(t){
-		return t.index;
+	if(this.entryPoint != 'none'){
+		return this.entryPoint;
 	}else{
 		return "";
 	}
@@ -212,7 +215,7 @@ Template.mainSettings.events({
 
 			for(var x = cl.width; x < w; x++){
 				for(var y = 0; y < cl.height; y++){
-					var cell = createMapCell(cl.level, x, y, cl.creator);
+					var cell = createMapCell(cl, x, y);
 					DesignerGameMaps.insert(cell);
 				}
 			}
@@ -257,7 +260,7 @@ Template.mainSettings.events({
 			for(var y = cl.height; y < h; y++){
 
 				for(var x = 0; x < cl.width; x++){
-					var cell = createMapCell(cl.level, x, y, cl.creator);
+					var cell = createMapCell(cl, x, y);
 					DesignerGameMaps.insert(cell);
 					
 				}
@@ -442,19 +445,6 @@ function makeLevelCopy(o_levelName, o_creator, n_levelName, n_creator){
 
 			//this will need to be done for the other elements in the cell
 			
-		});
-
-		//copy over the entry points
-
-		DesignerGameMaps.find({type: 'entryPoint', levelId: o_id}).forEach(function(elem){
-
-			elem.levelId = clh._id;
-			elem.creator = n_creator;
-			elem.level = n_levelName;
-			delete elem["_id"];
-
-			DesignerGameMaps.insert(elem);
-
 		});
 
 		return clh._id;

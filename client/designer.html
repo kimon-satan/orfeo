@@ -25,6 +25,8 @@
 
       {{>addFeatures}}
 
+      <br/><br/><br/><br/><br/><br/><br/><br/><br/>
+
     </div>
 
     <div class="col-xs-8">
@@ -41,7 +43,10 @@
       {{#each mapRow}}
       <tr>
         {{#each mapCol this.y}}
-        <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{cellColor}}">{{cellText}}</td>
+        <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{elementColor this.terrain}}">          
+          {{#if hasEntryPoint}}<div class="designerCellInside">{{this.entryPoint}}</div>{{/if}}
+          {{#if hasExitPoint}}<div id="starCell" style = "background-color: {{elementColor this.exitPoint}}" class="designerCellInside"></div>{{/if}}
+        </td>
         {{/each}}
       </tr>
       {{/each}}
@@ -171,6 +176,11 @@
         {{#if isEntryPoint}}
           {{>entrySelector}}
         {{/if}}
+
+        {{#if isExitPoint}}
+          {{>exitSelector}}
+        {{/if}}
+          
           
       </form>
 
@@ -184,7 +194,7 @@
   <label>Terrain type</label>
     <div class="btn-group">
 
-      <button type="button" class="btn btn-default">{{currentTerrain.name}}</button>
+      <button type="button" class="btn btn-default">{{currentElement.name}}</button>
       <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
         <span class="caret"></span>
         <span class="sr-only">Toggle Dropdown</span>
@@ -204,7 +214,7 @@
   <label>Entry Point</label>
   <div class="btn-group">
 
-    <button type="button" class="btn btn-default">0</button>
+    <button type="button" class="btn btn-default">{{currentEntryPoint}}</button>
     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
       <span class="caret"></span>
       <span class="sr-only">Toggle Dropdown</span>
@@ -220,6 +230,21 @@
 
 
 <template name="exitSelector">
+
+  <label>Exit Point</label>
+  <div class="btn-group">
+
+    <button type="button" class="btn btn-default">{{currentElement.name}}</button>
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+      <span class="caret"></span>
+      <span class="sr-only">Toggle Dropdown</span>
+    </button>
+    <ul class="dropdown-menu" role="menu">
+      {{#each exitPoints}}
+      <li><a class="exitOption" id="{{this._id}}" href="#">{{this.name}}</a></li>
+      {{/each}}
+    </ul>
+  </div>
 
 </template>
 

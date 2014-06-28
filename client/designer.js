@@ -2,7 +2,7 @@ var isReduceWarning = false;
 
 Template.levelDesigner.created = function(){
 	
-	Session.set("currentElement", DesignerGameDefs.findOne({creator: Meteor.user()._id}));
+	Session.set("currentElement", DesignerGameDefs.findOne({type: Session.get("currentFeatureType"), creator: Meteor.user()._id}));
 	selectALevel(); //prevents crash on boot
 
 	Meteor.defer(selectALevel);
@@ -41,19 +41,26 @@ Template.terrainMap.events({
 
 
 
-			}else if(Session.get("currentFeatureType") == "terrain"){
+			}else{
 
 				var cell = DesignerGameMaps.findOne({type: 'cell', 
-					creator: Session.get("currentLevel").creator, 
-					level: Session.get("currentLevel").level, 
+					levelId: Session.get("currentLevel")._id, 
 					x: parseInt(loc[0]), y: parseInt(loc[1])});
-				
 
-				DesignerGameMaps.update(cell._id ,{$set:{terrain: Session.get("currentElement")._id}});
+				if(Session.get("currentFeatureType") == "terrain"){
+
+					DesignerGameMaps.update(cell._id ,{$set:{terrain: Session.get("currentElement")._id}});
+
+				}else if(Session.get("currentFeatureType") == "exitPoint"){
+
+					DesignerGameMaps.update(cell._id ,{$set:{exitPoint: Session.get("currentElement")._id}});
+				}
+
 				updateTerrainKey();
 				
-
 			}
+
+			
 
 		}else{
 				alert("You are not the creator of this level. \nMake a copy which you can edit");
@@ -88,27 +95,21 @@ Template.terrainMap.mapCol = function(y){
 		{sort: ["x", "asc"]}).fetch();
 }
 
-Template.terrainMap.cellColor = function(){
 
-	var t = DesignerGameDefs.findOne(this.terrain);
+Template.terrainMap.hasEntryPoint = function(){return (this.entryPoint != 'none');}
+Template.terrainMap.hasExitPoint = function(){return (this.exitPoint != 'none');}
+
+Template.terrainMap.elementColor = function(e){
+
+	var t = DesignerGameDefs.findOne(e);
 	if(!t){
-		return 'FFFFFF';
+		return;
 	}else{
 		return t.color;
 	}
 
 }
 
-Template.terrainMap.cellText = function(){
-
-	if(this.entryPoint != 'none'){
-		return this.entryPoint;
-	}else{
-		return "";
-	}
-
-
-}
 
 
 /*-----------------------------------------levelTable --------------------------------------------------*/
@@ -342,19 +343,14 @@ Template.addFeatures.events({
 
 });
 
-UI.registerHelper('currentFeatureType' , function(){return Session.get("currentFeatureType")});
-
-UI.registerHelper('features', function(){return ["terrain", "entryPoint", "exitPoint", "wall", "pickupable", "keyhole", "soundField"];});
-
-UI.registerHelper('isTerrain' , function(){return Session.get("currentFeatureType") == "terrain"});
-UI.registerHelper('isEntryPoint' , function(){return Session.get("currentFeatureType") == "entryPoint"});
-UI.registerHelper('isExitPoint' , function(){return Session.get("currentFeatureType") == "exitPoint"});
-UI.registerHelper('isWall' , function(){return Session.get("currentFeatureType") == "wall"});
-UI.registerHelper('isPickupable' , function(){return Session.get("currentFeatureType") == "pickupable"});
-UI.registerHelper('isKeyhole' , function(){return Session.get("currentFeatureType") == "keyhole"});
-UI.registerHelper('isSoundField' , function(){return Session.get("currentFeatureType") == "soundField"});
 
 /*-------------------------------------------------------terrain Selector ----------------------------------------*/
+
+Template.terrainSelector.created = function(){
+
+	var ce = DesignerGameDefs.findOne({type: 'terrain', creator: Meteor.user()._id});
+	Session.set("currentElement", ce);
+}
 
 Template.terrainSelector.events({
 
@@ -369,10 +365,13 @@ Template.terrainSelector.events({
 });
 
 
-Template.terrainSelector.currentTerrain = function(){return Session.get("currentElement")}
-
 /*-------------------------------------------------------entry Selector ----------------------------------------*/
 
+Template.entrySelector.created = function(){
+	Session.set("currentElement", 0);
+}
+
+Template.entrySelector.currentEntryPoint = function(){return Session.get("currentElement");}
 Template.entrySelector.entryPoints = function(){return [0,1,2,3,4,5,6,7,8,9]}
 Template.entrySelector.events({
 
@@ -387,7 +386,28 @@ Template.entrySelector.events({
 });
 
 
-/*--------------------------------------------------------------------------------------------------------------*/
+/*----------------------------------------------------exit Selector-------------------------------------------------------*/
+
+Template.exitSelector.created = function(){
+
+	ce = DesignerGameDefs.findOne({type: 'exitPoint', creator: Meteor.user()._id});
+	Session.set("currentElement", ce);
+}
+
+Template.exitSelector.exitPoints = function(){return DesignerGameDefs.find({type: 'exitPoint', creator: Meteor.user()._id}).fetch()}
+Template.exitSelector.events({
+
+	'click .exitOption':function(e){
+
+		isReduceWarning = false;
+		ce = DesignerGameDefs.findOne(e.currentTarget.id);
+		Session.set("currentElement", ce);
+		e.preventDefault();
+	}
+
+});
+
+
 
 /*-------------------------------HELPER FUNCTIONS------------------------------------*/
 

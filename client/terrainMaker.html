@@ -148,7 +148,7 @@
 
           <tbody>
             {{#each levels}}
-            <tr id={{this._id}} class="levelRow">
+            <tr id={{this._id}} class="levelRow adjustable">
               <td>{{this.level}}</td>
               <td>{{creatorName}}</td>
             </tr>
@@ -165,7 +165,7 @@
         </div>
         <div class="form-group">
           <label for="exitTo">Exit to level </label>
-          <input type="text" class="adjustable" id="exitTo" value="{{exitTo}}">
+          <input type="text" id="exitTo" disabled="true" value="{{exitTo}}">
         </div>
         <div class="form-group">
           <label for="entryIndex">Enter at index </label>

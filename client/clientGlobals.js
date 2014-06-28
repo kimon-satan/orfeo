@@ -18,8 +18,11 @@ UI.registerHelper("isSu", function(){
 
 
 UI.registerHelper('currentElement' , function(){
+
+
 	if(Session.get("currentElement")){
-		return DesignerGameDefs.findOne(Session.get("currentElement")._id);
+		var ce = DesignerGameDefs.findOne(Session.get("currentElement")._id);
+		if(ce)return ce;
 	}
 });
 

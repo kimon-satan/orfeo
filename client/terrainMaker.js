@@ -321,3 +321,85 @@ Template.soundControls.events({
 
 
 });
+
+
+Template.exitPointMaker.created = function(){
+
+
+}
+
+Template.exitPointMaker.exitTo = function(){
+	var header = DesignerGameMaps.findOne(Session.get("currentElement").exitTo);
+
+	if(header){
+		return header.level;
+	}
+}
+
+Template.exitPointMaker.events({
+
+	
+	'click .levelRow':function(e){
+
+
+		console.log(e.currentTarget.id);
+		var ce = Session.get("currentElement");
+		var cl = DesignerGameMaps.findOne(e.currentTarget.id);
+		Session.set("currentLevel", cl);
+		ce.exitTo = e.currentTarget.id;
+		DesignerGameDefs.update(Session.get("currentElement")._id,{$set: {exitTo: ce.exitTo}});
+		Session.set("currentElement", ce);
+
+		$('.levelRow').removeClass('selected');
+		$('.levelRow > td' ).removeClass('selected');
+		$('#' + e.currentTarget.id + ' > td').removeClass('subSelected');
+		$('#' + e.currentTarget.id).removeClass('subSelected');
+		$('#' + e.currentTarget.id + ' > td').addClass('selected');
+		$('#' + e.currentTarget.id).addClass('selected');
+
+
+	},
+
+	'mouseenter .levelRow':function(e){
+
+		var ct = DesignerGameMaps.findOne(e.currentTarget.id);
+
+		$('.levelRow').removeClass('subSelected');
+		$('.levelRow > td' ).removeClass('subSelected');
+
+		if(ct._id != Session.get("currentLevel")._id){
+			$('#' + ct._id + ' > td').addClass('subSelected');
+			$('#' + ct._id).addClass('subSelected');
+		}
+	},
+
+	'mouseleave .levelRow':function(e){
+
+		$('.levelRow').removeClass('subSelected');
+		$('.levelRow > td' ).removeClass('subSelected');
+
+	},
+
+	'blur #exitName':function(e){
+
+
+
+		var name = $('#exitName').val();
+		
+		if(!DesignerGameDefs.findOne({type: "exitPoint", name: name, creator: Meteor.user()._id })){
+			
+			DesignerGameDefs.update(Session.get("currentElement")._id, {$set: {name: name}});
+
+		}else{
+
+			$('#exitName').val(Session.get("currentElement").name);
+			alert("An element of this name already exists. Enter a new one.");
+		}
+
+		
+
+		e.preventDefault();
+	},
+
+
+});

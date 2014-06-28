@@ -134,7 +134,49 @@
       {{>elementTable e_disp = "ExitPoint" e_index = "exitPoint"}}
     </div>
 
+    <div class="col-xs-1"></div>
 
+    <div class="col-xs-4 well">
+      <div class="tableOverflow">
+        <table class="table table-bordered table-condensed">
+          <thead>
+            <tr>
+              <th>Level name</th>
+              <th>Creator</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {{#each levels}}
+            <tr id={{this._id}} class="levelRow">
+              <td>{{this.level}}</td>
+              <td>{{creatorName}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+ 
+
+      <form role="form">
+        <div class="form-group">
+          <label for="name">Name </label>
+          <input type="text" class="adjustable" id="exitName" value="{{currentElement.name}}">
+        </div>
+        <div class="form-group">
+          <label for="exitTo">Exit to level </label>
+          <input type="text" class="adjustable" id="exitTo" value="{{exitTo}}">
+        </div>
+        <div class="form-group">
+          <label for="entryIndex">Enter at index </label>
+          <input type="number" id="entryIndex" class="adjustable" min="0" max="9" value="{{currentElement.entryIndex}}">
+        </div>
+      </form>
+   </div>
   </div>
+
+
+
+
 
 </template>

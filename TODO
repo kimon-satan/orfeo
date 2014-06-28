@@ -1,12 +1,6 @@
 1. start points and links
 
-Think about data structure and indexing here . Which will be the easiest to copy and search ? Seems like entry points should go into individual cells
-
-{index: 1-x , x: , y: }
-
-then allow 10 possible entry points for each level (not actually created until user sets them).
-
-entry point 0 is set to 0,0 by default
+exit points
 
 2. release changed flag using TS
 

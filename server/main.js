@@ -55,11 +55,18 @@ Meteor.startup(function(){
 	//populate DesignerGameDefs with default objects
 	if(!DesignerGameDefs.findOne({type: 'terrain'})){
 		
-
 		var daudio = {folder: "none", audioFile: "none", amp: 0.5};
 		var terrain = {name: "default", type: "terrain", creator: "server", background: daudio, footsteps: daudio, narrator: daudio};
 
 		DesignerGameDefs.insert(terrain);
+	}
+
+	if(!DesignerGameDefs.findOne({type: 'exitPoint'})){
+
+		var header = DesignerGameMaps.findOne({type: 'levelHeader', creator: "server"});
+		var exitPoint = {name: "default", type: "exitPoint", creator: "server", exitTo: header._id, entryIndex: 0};
+
+		DesignerGameDefs.insert(exitPoint);
 
 	}
 

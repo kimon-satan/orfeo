@@ -19,11 +19,12 @@
 
       {{>levelTable}}
 
-      {{>mapKey}}
-
       {{>mainSettings}}
 
       {{>addFeatures}}
+
+      {{>mapKey}}
+      
 
       <br/><br/><br/><br/><br/><br/><br/><br/><br/>
 
@@ -64,14 +65,19 @@
         <table class="table">
           <tbody>
 
-            {{#each terrainsUsed}}
+            {{#each elementsUsed}}
             <tr>
               <td>{{name}}</td>
+              <td>{{type}}</td>
 
-              <td>
-                <div class = "keyCell" style="background-color: {{color}}">
-                </div>
-              </td>
+              {{#if elemTerrain}}
+              <td><div class = "keyCell" style="background-color: {{color}}"></div></td>
+              {{/if}}
+
+              {{#if elemExitPoint}}
+              <td><div id="starCell" class = "keyCell" style="background-color: {{color}}"></div></td>
+              {{/if}}
+
             </tr>
             {{/each}}
 
@@ -245,6 +251,12 @@
       {{/each}}
     </ul>
   </div>
+
+
+    <label for="removeBox">Remove items</label>
+      <input id= "removeBox" type="checkbox">
+
+
 
 </template>
 

@@ -33,7 +33,48 @@ Template.designElements.events({
 
 /*------------------------------------TERRAIN MAKER---------------------------------------------*/
 
+Template.nameColorPicker.created = function(){
 
+	Meteor.defer(function(){
+		$('#colPicker').colorpicker();
+	});
+
+}
+
+Template.nameColorPicker.events({
+
+	'changeColor #colPicker':function(e){
+
+		if(checkClientIsOwner(Meteor.user()._id, Session.get("currentElement").creator)){
+			DesignerGameDefs.update(Session.get("currentElement")._id, {$set: {'color': e.color.toHex()}});
+		}
+
+	},
+
+	'blur #elementName':function(e){
+
+		var name = $('#elementName').val();
+		var ce = Session.get("currentElement");
+		
+		if(!DesignerGameDefs.findOne({type: Session.get("currentFeatureType"), name: name, 
+									creator: ce.creator})){
+			
+			DesignerGameDefs.update(ce._id, {$set: {name: name}});
+			ce.name = name;
+			Session.set("currentElement", ce);
+
+		}else{
+
+			$('#elementName').val(Session.get("currentElement").name);
+			alert("An element of this name already exists. Enter a new one.");
+		}
+
+		
+
+		e.preventDefault();
+	}
+
+});
 
 Template.terrainMaker.created = function(){
 
@@ -48,54 +89,16 @@ Template.terrainMaker.created = function(){
   	 		selectElement(Session.get("currentElement")._id);
   	 	}
 
-		$('#colPicker').colorpicker();
-
   	 }});
   	
 
   });
 
-
 }
 
 
 
-Template.terrainMaker.events({
 
-	'changeColor #colPicker':function(e){
-
-		if(checkClientIsOwner(Meteor.user()._id, Session.get("currentElement").creator)){
-			DesignerGameDefs.update(Session.get("currentElement")._id, {$set: {'color': e.color.toHex()}});
-		}
-
-	},
-
-	'blur #terrainName':function(e){
-
-
-
-		var name = $('#terrainName').val();
-		
-		if(!DesignerGameDefs.findOne({type: "terrain", name: name, creator: Meteor.user()._id })){
-			
-			DesignerGameDefs.update(Session.get("currentElement")._id, {$set: {name: name}});
-
-		}else{
-
-			$('#terrainName').val(Session.get("currentElement").name);
-			alert("An element of this name already exists. Enter a new one.");
-		}
-
-		
-
-		e.preventDefault();
-	},
-
-	
-
-
-
-});
 
 
 
@@ -396,24 +399,7 @@ Template.exitPointMaker.events({
 
 	},
 
-	'blur #exitName':function(e){
 
-		var name = $('#exitName').val();
-		
-		if(!DesignerGameDefs.findOne({type: "exitPoint", name: name, creator: Meteor.user()._id })){
-			
-			DesignerGameDefs.update(Session.get("currentElement")._id, {$set: {name: name}});
-
-		}else{
-
-			$('#exitName').val(Session.get("currentElement").name);
-			alert("An element of this name already exists. Enter a new one.");
-		}
-
-		
-
-		e.preventDefault();
-	},
 
 	'click #entryIndex':function(e){
  
@@ -440,12 +426,7 @@ Template.exitPointMaker.events({
 function selectExitLevel(){
 
 	var l_id = Session.get("currentElement").exitTo;
-
-	$('.levelRow').removeClass('selected');
-	$('.levelRow > td' ).removeClass('selected');
-	$('#' + l_id + ' > td').removeClass('subSelected');
-	$('#' + l_id).removeClass('subSelected');
-	$('#' + l_id + ' > td').addClass('selected');
-	$('#' + l_id).addClass('selected');
+	Session.set("currentLevel" , DesignerGameMaps.findOne(l_id));
+	updateCurrentLevel();
 
 }

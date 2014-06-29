@@ -131,7 +131,7 @@ createLevelHeader = function(level, width, height, creator){
 		creator: creator,
 		width: width,
 		height: height,
-		terrainKey: [],
+		mapKey: [],
 	}
 
 	return header;

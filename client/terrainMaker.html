@@ -23,37 +23,14 @@
 
 </template>
 
-<!-- ------------------------------------------- ELEMENT DESIGNERS ----------------------------------------------- -->
-
-<template name="terrainMaker">
-
-  <div class ="row">
-    <div class="col-xs-1"></div>
-    <div class="col-xs-5 well scrollableColumn" style="height: 500px">
-      {{>elementTable e_disp="Terrain" e_index="terrain"}}
+<template name="nameColorPicker">
+    <div class="form-group">
+      <div class="input-group">
+        <span class="input-group-addon">Name</span>
+        <input type="text" class="form-control adjustable" id="elementName" placeholder="eg. forest" value={{currentElement.name}}>
+        <span class="input-group-addon adjustable" id="colPicker" style = "background-color: {{currentElement.color}}"></span>
+      </div>
     </div>
-
-    <div class="col-xs-1"></div>
-
-    <div class="col-xs-4 well">
-      <form role="form">
-        <div class="form-group">
-          <div class="input-group">
-            <!--<label for="terrainName">Terrain Name</label>-->
-            <span class="input-group-addon">Name</span>
-            <input type="text" class="form-control adjustable" id="terrainName" placeholder="eg. forest" value={{currentElement.name}}>
-            <span class="input-group-addon adjustable" id="colPicker" style = "background-color: {{currentElement.color}}"></span>
-          </div>
-        </div>
-
-        {{>soundControls sc_type="Background"}}
-        {{>soundControls sc_type="Footsteps"}}
-        {{>soundControls sc_type="Narrator"}}
-
-      </form>
-    </div>
-  </div>
-
 </template>
 
 <template name="elementTable">
@@ -82,6 +59,36 @@
           <button type="submit" id="removeElement" class="btn btn-danger adjustable">Delete {{e_disp}}</button>
         </div>
 </template>
+
+<!-- ------------------------------------------- ELEMENT DESIGNERS ----------------------------------------------- -->
+
+<template name="terrainMaker">
+
+  <div class ="row">
+    <div class="col-xs-1"></div>
+    <div class="col-xs-5 well scrollableColumn" style="height: 500px">
+      {{>elementTable e_disp="Terrain" e_index="terrain"}}
+    </div>
+
+    <div class="col-xs-1"></div>
+
+    <div class="col-xs-4 well">
+      <form role="form">
+      
+        {{>nameColorPicker}}
+        {{>soundControls sc_type="Background"}}
+        {{>soundControls sc_type="Footsteps"}}
+        {{>soundControls sc_type="Narrator"}}
+
+      </form>
+    </div>
+  </div>
+
+</template>
+
+
+
+
 
 
 <template name="soundControls">
@@ -137,6 +144,9 @@
     <div class="col-xs-1"></div>
 
     <div class="col-xs-4 well">
+      
+      {{>nameColorPicker}}
+
       <div class="tableOverflow">
         <table class="table table-bordered table-condensed">
           <thead>
@@ -159,10 +169,6 @@
  
 
       <form role="form">
-        <div class="form-group">
-          <label for="name">Name </label>
-          <input type="text" class="adjustable" id="exitName" value="{{currentElement.name}}">
-        </div>
         <div class="form-group">
           <label for="exitTo">Exit to level </label>
           <input type="text" id="exitTo" disabled="true" value="{{exitTo}}">

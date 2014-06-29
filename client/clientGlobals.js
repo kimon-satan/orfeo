@@ -124,18 +124,25 @@ getRandomColor = function() {
 }
 
 updateCurrentLevel = function (){
+
 	if(Session.get("currentLevel")){
 		Session.set("currentLevel", DesignerGameMaps.findOne(Session.get("currentLevel")._id));
+
+		var id = Session.get("currentLevel")._id;
+
+		$('.levelRow').removeClass('selected');
+		$('.levelRow > td' ).removeClass('selected');
+		$('#' + id + ' > td').removeClass('subSelected');
+		$('#' + id).removeClass('subSelected');
+		$('#' + id + ' > td').addClass('selected');
+		$('#' + id).addClass('selected');
 	}
+
 }
 
 selectALevel = function(){
 
-	updateCurrentLevel();
-
 	if(!Session.get("currentLevel")){
-
-
 
 		Session.set("currentLevel",  DesignerGameMaps.findOne({type: 'levelHeader', creator: Meteor.user()._id}));
 
@@ -145,14 +152,12 @@ selectALevel = function(){
 
 	}	
 
-	$('#' + Session.get("currentLevel")._id + ' > td').addClass('selected');
-  	$('#' + Session.get("currentLevel")._id).addClass('selected');
+	updateCurrentLevel();
 
   	if(checkClientIsOwner(Meteor.user()._id, Session.get("currentLevel"))){
 		enableAdjustables();
 	}else{
 		disableAdjustables();
 	}
-
 
 }

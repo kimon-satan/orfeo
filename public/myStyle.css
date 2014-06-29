@@ -86,7 +86,7 @@
 }
 
 .designerCellInside{
-	
+	display:inline-block;
 	position: absolute;
 	top: 10px;
 	left: 10px;
@@ -96,19 +96,19 @@
 }
 
 #starCell{
-	display:inline-block;
+	
 	background:url(images/star.png); 
-	background-color: red;
 	z-index: 100;
 }
 
 .keyCell{
 
-	width: 30px;
-	height: 30px;
+	width: 20px;
+	height: 20px;
 	border: 1px solid black;
 
 }
+
 
 .scrollableColumn{
 

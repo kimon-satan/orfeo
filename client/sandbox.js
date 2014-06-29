@@ -19,7 +19,8 @@ Template.sandboxLevelSelector.events({
 		if(Session.get("screenMode") > 0){
 
 			//then sandboxing is in progress
-			nTerrain = getCell(playerPos.x , playerPos.y);
+			var cell = getCell(playerPos.x , playerPos.y);
+			nTerrain = getElement(cell.terrain);
 			updateGameCellAudio(cTerrain, nTerrain);
 	        cTerrain = nTerrain;
 
@@ -131,5 +132,6 @@ function setPlayerPos(){
 	return playerPos;
 
 }
+
 
 

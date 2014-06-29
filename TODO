@@ -1,6 +1,6 @@
-1. start points and links
+1.leave release copying for the time being until more designer elements finalised
 
-exit points
+2. wall element
 
 2. release changed flag using TS
 
@@ -12,4 +12,6 @@ DONT FORGET
 resource load points (configure in release)
 
 BUGS
+
+prevent multiple button presses before audio is finished playing
 

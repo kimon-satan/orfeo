@@ -3,11 +3,18 @@ var isRemoveItems = false;
 
 Template.levelDesigner.created = function(){
 	
+	updateCurrentLevel();
+	selectALevel();
+	
 
-	Session.set("currentElement", DesignerGameDefs.findOne({type: Session.get("currentFeatureType"), creator: Meteor.user()._id}));
-	selectALevel(); //prevents crash on boot
+	Meteor.defer(function(){
+		updateCurrentLevel();
+		selectALevel();
+		if(!Session.get("currentFeatureType"))Session.set("currentFeatureType", "terrain");
+		Session.set("currentElement", DesignerGameDefs.findOne({type: Session.get("currentFeatureType"), 
+									creator: Meteor.user()._id}));
 
-	Meteor.defer(selectALevel);
+	});
 
 
 }
@@ -167,11 +174,15 @@ Template.levelTable.events({
 		if(confirm("are you sure you want to delete " + Session.get("currentLevel").level + "... " )){	
 
 			var level = Session.get("currentLevel");
-			DesignerGameMaps.find({level: level.level, creator: level.creator}).forEach(function(cell){
+			
+			DesignerGameMaps.find({levelId: level._id}).forEach(function(cell){
 				DesignerGameMaps.remove(cell._id);
 			});
 
-			selectALevel();
+			DesignerGameMaps.remove(Session.get("currentLevel")._id, function(){
+				Session.set("currentLevel", "");
+				selectALevel();
+			});
 
   		}
 

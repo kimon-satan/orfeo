@@ -80,13 +80,15 @@ Template.nameColorPicker.events({
 
 });
 
-Template.terrainMaker.created = function(){
 
-  Meteor.defer(function(){
 
-  	 
+
+Template.elementTable.created = function(){
+
+	 Meteor.defer(function(){
+
 	  	
-	  	var ct = DesignerGameDefs.findOne({type: "terrain", creator: "server"});
+	  	var ct = DesignerGameDefs.findOne({type: Session.get("currentFeatureType"), creator: "server"});
 	  	if(ct)Session.set("currentElement", ct);
 		  	 
   	 	if(Session.get("currentElement")){
@@ -94,15 +96,9 @@ Template.terrainMaker.created = function(){
   	 	}
 
   
-  	
 
   });
-
 }
-
-
-
-
 
 
 
@@ -161,15 +157,16 @@ Template.elementTable.events({
 
 		if(confirm("are you sure you want to delete " + Session.get("currentElement").name + "... " )){	
 			
-			var r = checkForDependencies(DesignerGameDefs.findOne(Session.get("currentElement")._id));
+			var r = checkForDependencies(DesignerGameDefs.findOne(Session.get("currentElement")));
 		
 			if(!r){
 				DesignerGameDefs.remove(Session.get("currentElement")._id, function(err){if(err){alert(err.reason)}});
+				selectElement(DesignerGameDefs.findOne({creator: 'server', type: Session.get("currentFeatureType")})._id);
 			}else{
-				alert("I can't delete this because of a dependency in " + r + "\nremove the terrain from this level first.")
+				alert("I can't delete this because of a dependency in " + r + "\nremove the "  + Session.get("currentElement").type + " from this level first.")
 			}
 
-			selectElement(DesignerGameDefs.findOne({creator: 'server'})._id);
+			
 		}
 			
 		e.preventDefault();
@@ -354,21 +351,7 @@ Template.soundControls.events({
 });
 
 
-Template.exitPointMaker.created = function(){
 
-	Meteor.defer(function(){
-
-		var ct = DesignerGameDefs.findOne({type: "exitPoint", creator: "server"});
-	  	if(ct)Session.set("currentElement", ct);
-		  	 
-  	 	if(Session.get("currentElement")){
-  	 		selectElement(Session.get("currentElement")._id);
-  	 	}
-
-  	});
-
-
-}
 
 Template.exitPointMaker.exitTo = function(){
 	var header = DesignerGameMaps.findOne(Session.get("currentElement").exitTo);
@@ -457,18 +440,3 @@ function selectExitLevel(){
 }
 
 
-Template.wallMaker.created = function(){
-
-	Meteor.defer(function(){
-
-		var ct = DesignerGameDefs.findOne({type: "wall", creator: "server"});
-	  	if(ct)Session.set("currentElement", ct);
-		  	 
-  	 	if(Session.get("currentElement")){
-  	 		selectElement(Session.get("currentElement")._id);
-  	 	}
-
-  	});
-
-
-}

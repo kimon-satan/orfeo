@@ -86,7 +86,9 @@ checkClientIsDesigner = function(){
 
 checkForDependencies = function (doc){
 
-	var depend = DesignerGameMaps.findOne({elemId: doc._id});
+	var search = {type: 'cell', creator: doc.creator};
+	search[doc.type] =  doc._id;
+	var depend = DesignerGameMaps.findOne(search);
 	
 	if(!depend){
 		return false;

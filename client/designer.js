@@ -452,63 +452,61 @@ Template.selector.events({
 function makeLevelCopy(o_levelName, o_creator, n_levelName, n_creator){
 
 
-	if(DesignerGameMaps.findOne({level: n_levelName, creator: n_creator})){
+	if(DesignerGameMaps.findOne({type: 'levelHeader', level: n_levelName, creator: n_creator})){
 		n_levelName = n_levelName + "_" + generateTempId(5);
 	}
 
 	var clh = DesignerGameMaps.findOne(Session.get("currentLevel")._id);
-	var o_id = clh._id;
-	delete clh["_id"];
-	clh.creator = n_creator;
-	clh.level = n_levelName;
+	var nlh = DesignerGameMaps.findOne(Session.get("currentLevel")._id);
+	var mapTypes = [];
 
-	DesignerGameMaps.insert(clh, function(err, id){
-		
-		clh._id = id;
-	
+	//add the new depenencies and convert the mapKey
 
-		DesignerGameMaps.find({levelId: o_id}).forEach(function(elem){
+	for(var i = 0; i < nlh.mapKey.length; i ++){
+
+		var o_t = DesignerGameDefs.findOne(clh.mapKey[i]);
+		var n_t = DesignerGameDefs.findOne({type: o_t.type, name: o_t.name, creator: n_creator});
+
+		mapTypes.push(o_t.type);
+
+		if(!n_t){
+			delete o_t["_id"];
+			o_t.creator = n_creator;
+			nlh.mapKey[i] = DesignerGameDefs.insert(o_t);
+		}else{
+			nlh.mapKey[i] = n_t._id;
+		}
+
+	}
+
+	nlh.creator = n_creator;
+	nlh.level = n_levelName;
+	delete nlh["_id"];
+	nlh._id = DesignerGameMaps.insert(nlh); 
 
 
-			elem.level = n_levelName;
-			elem.creator = n_creator;
-			elem.levelId = clh._id;
-			delete elem["_id"];
-			
-			if(elem.type != "cell"){ //make new resources for everything except cells
+	DesignerGameMaps.find({type: 'cell', levelId: clh._id}).forEach(function(elem){
 
-				var o_t = DesignerGameDefs.findOne(elem.elemId);
-				var n_t = DesignerGameDefs.findOne({type: elem.type, name: o_t.name, creator: n_creator});
+		elem.level = n_levelName;
+		elem.creator = n_creator;
+		elem.levelId = nlh._id;
+		delete elem["_id"];
 
-				//copy over all the terrains
-				if(!n_t){
+		for(var i = 0; i < nlh.mapKey.length; i++){
 
-					if(o_t){
-						delete o_t["_id"];
-						o_t.creator = n_creator;
-						DesignerGameDefs.insert(o_t, function(err, id){ 
-							elem.elemId = id;	
-							DesignerGameMaps.insert(elem);
-						});
-					}
+			if(elem[mapTypes[i]] == clh.mapKey[i]){
+				elem[mapTypes[i]] = nlh.mapKey[i];
 
-				}else{
-					elem.elemId = n_t._id;	
-					DesignerGameMaps.insert(elem);
-				}
-
-				
-			}else{
-				DesignerGameMaps.insert(elem);
 			}
 
+		}
+
+		DesignerGameMaps.insert(elem);
 			
-		});
-
-		return clh._id;
-
 
 	});
+
+	return nlh._id;
 
 }
 

@@ -19,11 +19,14 @@
 
       {{>levelTable}}
 
-     {{>mapKey}}
-
       {{>mainSettings}}
 
       {{>addFeatures}} 
+
+      {{>mapKey}}
+      
+
+      <br/><br/><br/><br/><br/><br/><br/><br/><br/>
 
     </div>
 
@@ -41,7 +44,12 @@
       {{#each mapRow}}
       <tr>
         {{#each mapCol this.y}}
-        <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{this.color}}">{{this.text}}</td>
+
+        <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{elementColor this.terrain}}">          
+          {{#if hasEntryPoint}}<div class="designerCellInside">{{this.entryPoint}}</div>{{/if}}
+          {{#if hasExitPoint}}<div id="starCell" style = "background-color: {{elementColor this.exitPoint}}" class="designerCellInside"></div>{{/if}}
+        </td>
+
         {{/each}}
       </tr>
       {{/each}}
@@ -59,14 +67,19 @@
         <table class="table">
           <tbody>
 
-            {{#each terrainsUsed}}
+            {{#each elementsUsed}}
             <tr>
               <td>{{name}}</td>
+              <td>{{type}}</td>
 
-              <td>
-                <div class = "keyCell" style="background-color: {{color}}">
-                </div>
-              </td>
+              {{#if elemTerrain}}
+              <td><div class = "keyCell" style="background-color: {{color}}"></div></td>
+              {{/if}}
+
+              {{#if elemExitPoint}}
+              <td><div id="starCell" class = "keyCell" style="background-color: {{color}}"></div></td>
+              {{/if}}
+
             </tr>
             {{/each}}
 
@@ -171,6 +184,11 @@
         {{#if isEntryPoint}}
           {{>entrySelector}}
         {{/if}}
+
+        {{#if isExitPoint}}
+          {{>exitSelector}}
+        {{/if}}
+          
           
       </form>
 
@@ -184,7 +202,7 @@
   <label>Terrain type</label>
     <div class="btn-group">
 
-      <button type="button" class="btn btn-default">{{currentTerrain.name}}</button>
+      <button type="button" class="btn btn-default">{{currentElement.name}}</button>
       <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
         <span class="caret"></span>
         <span class="sr-only">Toggle Dropdown</span>
@@ -204,7 +222,7 @@
   <label>Entry Point</label>
   <div class="btn-group">
 
-    <button type="button" class="btn btn-default">0</button>
+    <button type="button" class="btn btn-default">{{currentEntryPoint}}</button>
     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
       <span class="caret"></span>
       <span class="sr-only">Toggle Dropdown</span>
@@ -220,6 +238,27 @@
 
 
 <template name="exitSelector">
+
+  <label>Exit Point</label>
+  <div class="btn-group">
+
+    <button type="button" class="btn btn-default">{{currentElement.name}}</button>
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+      <span class="caret"></span>
+      <span class="sr-only">Toggle Dropdown</span>
+    </button>
+    <ul class="dropdown-menu" role="menu">
+      {{#each exitPoints}}
+      <li><a class="exitOption" id="{{this._id}}" href="#">{{this.name}}</a></li>
+      {{/each}}
+    </ul>
+  </div>
+
+
+    <label for="removeBox">Remove items</label>
+      <input id= "removeBox" type="checkbox">
+
+
 
 </template>
 

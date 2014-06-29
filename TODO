@@ -1,8 +1,6 @@
-1. exitPoints
+1.leave release copying for the time being until more designer elements finalised
 
-    - build designer
-    - implement in sandbox
-    - release copy over all elements
+2. wall element
 
 
 2. release changed flag using TS
@@ -15,4 +13,6 @@ DONT FORGET
 resource load points (configure in release)
 
 BUGS
+
+prevent multiple button presses before audio is finished playing
 

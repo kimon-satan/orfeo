@@ -18,8 +18,11 @@ UI.registerHelper("isSu", function(){
 
 
 UI.registerHelper('currentElement' , function(){
+
+
 	if(Session.get("currentElement")){
-		return DesignerGameDefs.findOne(Session.get("currentElement")._id);
+		var ce = DesignerGameDefs.findOne(Session.get("currentElement")._id);
+		if(ce)return ce;
 	}
 });
 
@@ -119,18 +122,25 @@ getRandomColor = function() {
 }
 
 updateCurrentLevel = function (){
+
 	if(Session.get("currentLevel")){
 		Session.set("currentLevel", DesignerGameMaps.findOne(Session.get("currentLevel")._id));
+
+		var id = Session.get("currentLevel")._id;
+
+		$('.levelRow').removeClass('selected');
+		$('.levelRow > td' ).removeClass('selected');
+		$('#' + id + ' > td').removeClass('subSelected');
+		$('#' + id).removeClass('subSelected');
+		$('#' + id + ' > td').addClass('selected');
+		$('#' + id).addClass('selected');
 	}
+
 }
 
 selectALevel = function(){
 
-	updateCurrentLevel();
-
 	if(!Session.get("currentLevel")){
-
-
 
 		Session.set("currentLevel",  DesignerGameMaps.findOne({type: 'levelHeader', creator: Meteor.user()._id}));
 
@@ -140,8 +150,7 @@ selectALevel = function(){
 
 	}	
 
-	$('#' + Session.get("currentLevel")._id + ' > td').addClass('selected');
-  	$('#' + Session.get("currentLevel")._id).addClass('selected');
+	updateCurrentLevel();
 
   	if(checkClientIsOwner(Meteor.user()._id, Session.get("currentLevel"))){
 		enableAdjustables();
@@ -149,43 +158,4 @@ selectALevel = function(){
 		disableAdjustables();
 	}
 
-
-}
-
-getElementPointer = function(options){
-  var ne;
-
-  if(checkClientIsDesigner()){
-
-    ne = DesignerGameMaps.find({
-      type: options.type, 
-      levelId: Session.get("currentLevel")._id, 
-      x: parseInt(options.x), y: parseInt(options.y)
-    }).fetch();
-
-  }else{
-
-    var level = PlayerGameData.findOne({player: Meteor.user()._id, type: "level"});    
-     ne = GameMapRelease.find({type: options.type, 
-                                  levelId: level.id , 
-                                  x: parseInt(options.x), 
-                                  y: parseInt(options.y)}).fetch();
-
-  }
-
-  return ne;
-
-}
-
-getElement = function(elementPointer){
-
-  var element;
-
-  if(checkClientIsDesigner()){
-    element = DesignerGameDefs.findOne(elementPointer.elemId);
-  }else{
-    element = GameDefsRelease.findOne(elementPointer.elemId);
-  }
-
-  return element;
 }

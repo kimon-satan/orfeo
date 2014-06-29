@@ -38,21 +38,24 @@ Meteor.startup(function(){
 	if(!DesignerGameMaps.findOne({type: 'levelHeader'})){
 
 		var header = createLevelHeader('init', 5 , 5, "server");
-		var h_id;
+		
 		DesignerGameMaps.insert(header,function(err, id){
-			h_id = id;
-			header._id = h_id;
-			var eps = createEntryPoints(header);
-
-			for(var i = 0; i < eps.length; i++)DesignerGameMaps.insert(eps[i]);
-
+			
+			header._id = id;
+			var count = 0;
+			
 			for(var x = 0; x < 5; x++){
 				for(var y = 0; y < 5; y++){
-					DesignerGameMaps.insert({
-						type: 'cell' ,level: 'init', levelId: h_id, creator: "server", x: x, y: y
-					});
+
+					if(count < 10){
+						DesignerGameMaps.insert(createMapCell(header ,x,y, count));
+						count += 1;
+					}else{
+						DesignerGameMaps.insert(createMapCell(header ,x,y));
+					}
 				}
 			}
+			
 
 		});
 
@@ -64,11 +67,18 @@ Meteor.startup(function(){
 	//populate DesignerGameDefs with default objects
 	if(!DesignerGameDefs.findOne({type: 'terrain'})){
 		
-
 		var daudio = {folder: "none", audioFile: "none", amp: 0.5};
 		var terrain = {name: "default", type: "terrain", creator: "server", background: daudio, footsteps: daudio, narrator: daudio};
 
 		DesignerGameDefs.insert(terrain);
+	}
+
+	if(!DesignerGameDefs.findOne({type: 'exitPoint'})){
+
+		var header = DesignerGameMaps.findOne({type: 'levelHeader', creator: "server"});
+		var exitPoint = {name: "default", type: "exitPoint", creator: "server", exitTo: header._id, entryIndex: 0};
+
+		DesignerGameDefs.insert(exitPoint);
 
 	}
 

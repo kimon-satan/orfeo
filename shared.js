@@ -100,18 +100,23 @@ function adminTest(user){
 
 
 
-
-
-createMapCell = function(level, x, y, id, h_id){
-
-	//will need to add sections for i/o elements
+createMapCell = function(levelHeader, x, y, ep){
+	
+	if(typeof ep === 'undefined' )ep = 'none';
 
 	var cell = {
 		type: 'cell', 
-		creator: id,
-		level: level, 
+		creator: levelHeader.creator,
+		level: levelHeader.level,
+		levelId: levelHeader._id ,
 		x: parseInt(x), y: parseInt(y), 
-		levelId: h_id
+		terrain: 'none',
+		entryPoint: ep,
+		exitPoint: 'none', 
+		objects:[], 
+		n_override: "none", 
+		n_additions: [],
+		audibleTraces: []
 	};
 
 	return cell;
@@ -125,49 +130,14 @@ createLevelHeader = function(level, width, height, creator){
 		creator: creator,
 		width: width,
 		height: height,
-		terrainKey: [],
+		mapKey: [],
 	}
 
 	return header;
 }
 
-createEntryPoints = function(obj){
 
-	var eps = [];
 
-	var epsIds = DesignerGameDefs.find({creator: obj.creator, type: 'entryPoint'},{sort: ["name"]}).fetch();
-	var count = 0;
-
-	for(var x = 0; x < obj.width; x++){
-
-		if(count == 10)break;
-
-		for(var y = 0; y < obj.height; y++){
-
-			if(eps.length == 10)break;
-
-			(function(){
-
-				var ep = {
-					type: 'entryPoint',
-					level: obj.level,
-					creator: obj.creator,
-					levelId: obj._id,
-					elemId: epsIds[count]._id,
-					x: x,
-					y: y,
-				};
-
-				eps.push(ep);
-				count += 1;
-
-			})();
-
-		}
-	}
-
-	return eps;
-}
 
 
 

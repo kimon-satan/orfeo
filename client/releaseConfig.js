@@ -127,7 +127,6 @@ function makeReleaseCopy(){
 
 			
 		});
-		
 
 		return clh._id;
 

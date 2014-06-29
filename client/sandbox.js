@@ -19,7 +19,8 @@ Template.sandboxLevelSelector.events({
 		if(Session.get("screenMode") > 0){
 
 			//then sandboxing is in progress
-			nTerrain = getCell(playerPos.x , playerPos.y);
+			var cell = getCell(playerPos.x , playerPos.y);
+			nTerrain = getElement(cell.terrain);
 			updateGameCellAudio(cTerrain, nTerrain);
 	        cTerrain = nTerrain;
 
@@ -124,8 +125,8 @@ Template.sandboxControls.levelHeight = function(){
 function setPlayerPos(){
 
 	var playerPos = PlayerGameData.findOne({player: Meteor.user()._id, type: "pos"});
-	var ep = DesignerGameDefs.findOne({type: 'entryPoint', name: 0, creator: Session.get("currentLevel").creator});
-	var ep0 = DesignerGameMaps.findOne({elemId: ep._id});
+	var ep0 = DesignerGameMaps.findOne({levelId: Session.get("currentLevel")._id, entryPoint: 0});
+
 	playerPos.x = ep0.x; playerPos.y = ep0.y;
 
 	PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
@@ -133,5 +134,6 @@ function setPlayerPos(){
 	return playerPos;
 
 }
+
 
 

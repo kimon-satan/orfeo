@@ -48,11 +48,8 @@ Template.startSplash.events({
 
       var playerPos = PlayerGameData.findOne({player: Meteor.user()._id, type: "pos"});
 
-      var tp = getElementPointer({type: 'terrain', x: playerPos.x, y: playerPos.y});
-      console.log(tp);
-      if(tp.length > 0){
-        cTerrain = getElement(tp[0]);
-      }
+      var cell = getCell(playerPos.x, playerPos.y);
+      cTerrain = getElement(cell.terrain);
       
       audio.startLooping(cTerrain.background.audioFile, cTerrain.background.amp, 1);
       audio.playOnce(cTerrain.narrator.audioFile, {amp: cTerrain.narrator.amp, offset: 2});
@@ -84,13 +81,25 @@ Template.navScreen.events({
 
         //TODO: routine for hitting edges
 
-        PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
+        var cell = getCell(playerPos.x, playerPos.y);
         
 
-        var tp = getElementPointer({type: 'terrain', x: playerPos.x, y: playerPos.y});
-        if(tp.length > 0){
-          nTerrain = getElement(tp[0]);
+        if(cell.exitPoint != 'none'){
+
+          var ep = getElement(cell.exitPoint);
+          var level = getLevel(ep.exitTo);
+          Session.set("currentLevel", level);
+          if(checkClientIsDesigner())updateCurrentLevel();
+          var ep_i = getEntryCell(ep.entryIndex);
+
+          playerPos.x = ep_i.x; playerPos.y = ep_i.y;
+          cell = getCell(playerPos.x, playerPos.y);
+
         }
+
+        nTerrain = getElement(cell.terrain);
+
+        PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
 
         audio.playOnce(cTerrain.footsteps.audioFile, {amp: cTerrain.footsteps.amp}, function(){
 
@@ -168,6 +177,55 @@ updateGameCellAudio = function(cTerrain , nTerrain){
 }
 
 
+getLevel = function(levelId){
 
+    if(checkClientIsDesigner()){
+      return DesignerGameMaps.findOne(levelId);
+    }else{
+      return GameMapsRelease.findOne(levelId);
+    }
+
+}
+
+getEntryCell = function(n){
+
+  if(checkClientIsDesigner()){
+    return DesignerGameMaps.findOne({levelId: Session.get("currentLevel")._id, entryPoint: n});
+  }else{
+    return GameMapRelease.findOne({levelId: Session.get("currentLevel")._id, entryPoint: n});
+  }
+
+
+}
+
+getCell = function(x,y){
+
+  if(checkClientIsDesigner()){
+
+    var newCell = DesignerGameMaps.findOne({
+      type: 'cell', 
+      levelId: Session.get("currentLevel")._id, 
+      x: parseInt(x), y: parseInt(y)
+
+    });
+
+  }else{
+
+    var level = PlayerGameData.findOne({player: Meteor.user()._id, type: "level"});    
+    var newCell = GameMapRelease.findOne({type: 'cell', levelId: level.id , x: x, y: y});
+  }
+
+  return newCell; 
+}
+
+getElement = function(id){
+
+    if(checkClientIsDesigner()){
+      return DesignerGameDefs.findOne(id);
+    }else{
+      return GameDefsRelease.findOne(id);
+    }
+
+}
 
 

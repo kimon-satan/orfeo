@@ -46,13 +46,21 @@ Template.startSplash.events({
 
       Session.set("screenMode", 1);
 
+       var level = PlayerGameData.findOne({player: Meteor.user()._id, type: "level"});
+
+      if(checkClientIsDesigner()){
+        PlayerGameData.update(level._id, {$set: {level: Session.get('currentLevel')._id}});
+      }else{
+        Session.set('currentLevel', getLevel(level.id));
+      }
+      
       var playerPos = PlayerGameData.findOne({player: Meteor.user()._id, type: "pos"});
 
       var cell = getCell(playerPos.x, playerPos.y);
       cTerrain = getElement(cell.terrain);
-      
+
       audio.startLooping(cTerrain.background.audioFile, cTerrain.background.amp, 1);
-      audio.playOnce(cTerrain.narrator.audioFile, {amp: cTerrain.narrator.amp, offset: 2});
+      audio.playOnce(cTerrain.narrator.audioFile, {amp: cTerrain.narrator.amp, offset: 2}, resetButtons);
 
       e.preventDefault();
   }
@@ -61,28 +69,49 @@ Template.startSplash.events({
 
 /*----------------------------------------------------------------------------------------------*/
 
+Template.navScreen.created = function(){
+
+  Meteor.defer(function(){
+
+      $('.step').addClass('disable');
+      $('#where').addClass('active');
+
+  });
+
+}
+
 Template.navScreen.events({
 
     'click .step': function(event){
     
-        var id = event.target.id;
         if($(event.target).hasClass('disable'))return;
-
+        if($(event.target).hasClass('active'))return;
         $(event.target).addClass('active');
 
-        $('.step').not('#' + id).addClass('disable');
+         var id = event.target.id;
+
+        $('.toggleBtn').not('#' + id).addClass('disable');
+
 
         var playerPos = PlayerGameData.findOne({player: Meteor.user()._id, type: "pos"});
 
         if(id == "north")playerPos.y = Math.max(playerPos.y - 1, 0);
-        if(id == "south")playerPos.y = Math.min(playerPos.y + 1, 5 - 1); //these need turning into variables
-        if(id == "east")playerPos.x = Math.min(playerPos.x + 1, 5- 1); //these need turning into variables
+        if(id == "south")playerPos.y = Math.min(playerPos.y + 1, Session.get('currentLevel').height - 1); //these need turning into variables
+        if(id == "east")playerPos.x = Math.min(playerPos.x + 1, Session.get('currentLevel').width - 1); //these need turning into variables
         if(id == "west")playerPos.x = Math.max(playerPos.x - 1, 0);
 
         //TODO: routine for hitting edges
 
         var cell = getCell(playerPos.x, playerPos.y);
-        
+        var wall;
+        var isRebound = false;
+
+        if(cell.wall != 'none'){
+
+          isRebound = true;
+          wall = getElement(cell.wall);
+
+        }
 
         if(cell.exitPoint != 'none'){
 
@@ -97,19 +126,27 @@ Template.navScreen.events({
 
         }
 
-        nTerrain = getElement(cell.terrain);
+        if(typeof wall !== 'undefined'){
+          
+          nTerrain = cTerrain;
+          handleWallAudio(wall, resetButtons);
+          
+        }else{
 
-        PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
+          PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
+          nTerrain = getElement(cell.terrain);
+        
+          audio.playOnce(cTerrain.footsteps.audioFile, {amp: cTerrain.footsteps.amp}, function(){
 
-        audio.playOnce(cTerrain.footsteps.audioFile, {amp: cTerrain.footsteps.amp}, function(){
+              $(event.target).removeClass('active');
+              $(event.target).addClass('disable');
 
-          $(event.target).removeClass('active');
-          $('.step').not('#' + id).removeClass('disable');
+              updateGameCellAudio(cTerrain, nTerrain, resetButtons);
+              cTerrain = nTerrain;        
 
-           updateGameCellAudio(cTerrain, nTerrain);
-           cTerrain = nTerrain;
+          });
 
-        }.bind(this));
+        }
 
         event.preventDefault();
 
@@ -117,20 +154,27 @@ Template.navScreen.events({
 
     'click #where': function(event){
 
-      console.log("where am i ?");
+      if($(event.target).hasClass('active'))return;
+      if($(event.target).hasClass('disable'))return;
       $(event.target).addClass("active");
+      $('.step').addClass('disable');
 
-        audio.playOnce(cTerrain.narrator.audioFile, {amp: cTerrain.narrator.amp}, function(){
-
-          $(event.target).removeClass('active');
-
-        }.bind(this));
+      audio.playOnce(cTerrain.narrator.audioFile, {amp: cTerrain.narrator.amp}, resetButtons);
 
       event.preventDefault();
 
     }
 
 });
+
+function resetButtons(){
+
+  $('.active').removeClass('active');
+  $('.disable').removeClass('disable');
+
+}
+
+
 
 
 function startAudio (){
@@ -148,6 +192,47 @@ function startAudio (){
 
 }
 
+updateGameCellAudio = function(cTerrain , nTerrain, callback){
+
+  if(nTerrain.name!= cTerrain.name){
+
+    $('#where').addClass('active');
+    audio.stopLooping(cTerrain.background.audioFile, 1);
+    audio.playOnce(nTerrain.narrator.audioFile, {amp: nTerrain.narrator.amp, offset: 2}, callback);
+    audio.startLooping(nTerrain.background.audioFile, nTerrain.background.amp, 1);
+
+  }else{
+
+    callback();
+
+  }
+
+}
+
+function handleWallAudio(wall, callback){
+
+    //TODO add a boolean to be triggered only when all audio is finished
+
+    if(wall.hit.audioFile != 'none'){
+
+      audio.playOnce(wall.hit.audioFile, {amp: wall.hit.amp}, function(){
+
+        if(wall.narrator.audioFile != 'none'){
+          audio.playOnce(wall.narrator.audioFile, {amp: wall.narrator.amp}, callback);  
+        }else{
+          callback();
+        }
+
+      });  
+
+    }else if(wall.narrator.audioFile != 'none'){
+
+        audio.playOnce(wall.narrator.audioFile, {amp: wall.narrator.amp}, callback);      
+    }
+
+}
+
+
 function loadAudioFiles(){
 
   var files = AudioFiles.find({dt: 'file'}).fetch();
@@ -163,18 +248,6 @@ function loadAudioFiles(){
 
 }
 
-updateGameCellAudio = function(cTerrain , nTerrain){
-
-  if(nTerrain.name!= cTerrain.name){
-
-    audio.stopLooping(cTerrain.background.audioFile, 1);
-    audio.playOnce(nTerrain.narrator.audioFile, {amp: nTerrain.narrator.amp, offset: 2});
-    audio.startLooping(nTerrain.background.audioFile, nTerrain.background.amp, 1);
-
-  }
-
-
-}
 
 
 getLevel = function(levelId){

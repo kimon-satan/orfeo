@@ -25,14 +25,6 @@ Meteor.startup(function(){
 		})();
 	}
 
-	if(!DesignerGameDefs.findOne({type: 'entryPoint'})){
-		for(var x = 0; x < 10; x++){
-			DesignerGameDefs.insert({
-				type: 'entryPoint', creator: "server", name: x
-			});
-		}
-
-	}
 
 	//if there is no game map make an initial one
 	if(!DesignerGameMaps.findOne({type: 'levelHeader'})){
@@ -79,6 +71,15 @@ Meteor.startup(function(){
 		var exitPoint = {name: "default", type: "exitPoint", creator: "server", exitTo: header._id, entryIndex: 0};
 
 		DesignerGameDefs.insert(exitPoint);
+
+	}
+
+	if(!DesignerGameDefs.findOne({type: 'wall'})){
+
+		var daudio = {folder: "none", audioFile: "none", amp: 0.5};
+		var wall = {name: "default", type: "wall", creator: "server", hit: daudio, narrator: daudio};
+
+		DesignerGameDefs.insert(wall);
 
 	}
 

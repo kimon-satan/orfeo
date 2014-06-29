@@ -21,6 +21,10 @@
     {{>exitPointMaker}}
   {{/if}}
 
+  {{#if isWall}}
+    {{>wallMaker}}
+  {{/if}}
+
 </template>
 
 <template name="nameColorPicker">
@@ -182,7 +186,30 @@
   </div>
 
 
+</template>
 
+
+<template name="wallMaker">
+
+    <div class ="row">
+    <div class="col-xs-1"></div>
+
+    <div class="col-xs-5 well scrollableColumn" style="height: 500px">
+      {{>elementTable e_disp = "Wall" e_index = "wall"}}
+    </div>
+
+    <div class="col-xs-1"></div>
+    <div class="col-xs-4 well">
+      <form role="form">
+      
+        {{>nameColorPicker}}
+        {{>soundControls sc_type="Hit"}}
+        {{>soundControls sc_type="Narrator"}}
+
+      </form>
+    </div>
+
+    </div>
 
 
 </template>

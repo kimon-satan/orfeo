@@ -2,12 +2,16 @@ Template.designElements.created = function(){
 
 	Meteor.defer(function(){
 
-		if(typeof Session.get("currentFeatureType") === 'undefined'){
-			Session.set("currentFeatureType", "terrain");
-		}
+		Meteor.subscribe("AudioFiles",{}, {onReady: function(){
 
-		$("#" + Session.get("currentFeatureType")).addClass('active');
-		$("#entryPoint").addClass('disabled');
+			if(typeof Session.get("currentFeatureType") === 'undefined'){
+				Session.set("currentFeatureType", "terrain");
+			}
+
+			$("#" + Session.get("currentFeatureType")).addClass('active');
+			$("#entryPoint").addClass('disabled');
+
+		}});
 
 	});
 
@@ -80,7 +84,7 @@ Template.terrainMaker.created = function(){
 
   Meteor.defer(function(){
 
-  	 Meteor.subscribe("AudioFiles",{}, {onReady: function(){
+  	 
 	  	
 	  	var ct = DesignerGameDefs.findOne({type: "terrain", creator: "server"});
 	  	if(ct)Session.set("currentElement", ct);
@@ -89,7 +93,7 @@ Template.terrainMaker.created = function(){
   	 		selectElement(Session.get("currentElement")._id);
   	 	}
 
-  	 }});
+  
   	
 
   });
@@ -229,6 +233,10 @@ Template.soundControls.audioFiles = function(type){
 		case "Narrator":
 		folder =  ct.narrator.folder;
 		break;
+		case "Hit":
+		folder =  ct.hit.folder;
+		break;
+
 
 	}
 
@@ -256,6 +264,10 @@ Template.soundControls.audioParam = function(type, item){
 		case "Narrator":
 		return ct.narrator[item.hash.item];
 		break;
+		case "Hit":
+		return ct.hit[item.hash.item];
+		break;
+
 
 	}
 }
@@ -278,9 +290,14 @@ Template.soundControls.events({
 
 			DesignerGameDefs.update(Session.get("currentElement")._id, 
 				{$set: {'footsteps.folder': $(e.currentTarget.id).selector, 'footsteps.audioFile':'none'}});
-		}else{
+
+		}else if($(e.currentTarget).hasClass('Narrator')){
 			DesignerGameDefs.update(Session.get("currentElement")._id, 
 				{$set: {'narrator.folder': $(e.currentTarget.id).selector, 'narrator.audioFile':'none'}});
+
+		}else if($(e.currentTarget).hasClass('Hit')){
+			DesignerGameDefs.update(Session.get("currentElement")._id, 
+				{$set: {'hit.folder': $(e.currentTarget.id).selector, 'hit.audioFile':'none'}});
 		}
 
 		e.preventDefault();
@@ -297,9 +314,14 @@ Template.soundControls.events({
 		}else if($(e.currentTarget).hasClass('Footsteps')){
 			DesignerGameDefs.update(Session.get("currentElement")._id, 
 				{$set: {'footsteps.audioFile': $(e.currentTarget.id).selector}});
-		}else{
+
+		}else if($(e.currentTarget).hasClass('Narrator')){
 			DesignerGameDefs.update(Session.get("currentElement")._id, 
 				{$set: {'narrator.audioFile': $(e.currentTarget.id).selector}});
+
+		}else if($(e.currentTarget).hasClass('Hit')){
+			DesignerGameDefs.update(Session.get("currentElement")._id, 
+				{$set: {'hit.audioFile': $(e.currentTarget.id).selector}});
 		}
 		
 
@@ -315,9 +337,12 @@ Template.soundControls.events({
 		}else if($(e.currentTarget).hasClass('Footsteps')){
 			DesignerGameDefs.update(Session.get("currentElement")._id, 
 				{$set: {'footsteps.amp': parseFloat(e.currentTarget.value)}});
-		}else{
+		}else if($(e.currentTarget).hasClass('Narrator')){
 			DesignerGameDefs.update(Session.get("currentElement")._id, 
 				{$set: {'narrator.amp': parseFloat(e.currentTarget.value)}});
+		}else if($(e.currentTarget).hasClass('Hit')){
+			DesignerGameDefs.update(Session.get("currentElement")._id, 
+				{$set: {'hit.amp': parseFloat(e.currentTarget.value)}});
 		}
 		
 
@@ -428,5 +453,22 @@ function selectExitLevel(){
 	var l_id = Session.get("currentElement").exitTo;
 	Session.set("currentLevel" , DesignerGameMaps.findOne(l_id));
 	updateCurrentLevel();
+
+}
+
+
+Template.wallMaker.created = function(){
+
+	Meteor.defer(function(){
+
+		var ct = DesignerGameDefs.findOne({type: "wall", creator: "server"});
+	  	if(ct)Session.set("currentElement", ct);
+		  	 
+  	 	if(Session.get("currentElement")){
+  	 		selectElement(Session.get("currentElement")._id);
+  	 	}
+
+  	});
+
 
 }

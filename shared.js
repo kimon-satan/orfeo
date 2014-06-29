@@ -113,6 +113,7 @@ createMapCell = function(levelHeader, x, y, ep){
 		terrain: 'none',
 		entryPoint: ep,
 		exitPoint: 'none', 
+		wall: 'none',
 		objects:[], 
 		n_override: "none", 
 		n_additions: [],

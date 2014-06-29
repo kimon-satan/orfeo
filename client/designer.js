@@ -94,6 +94,10 @@ function setMultiElement(loc){
 		case "exitPoint":
 		DesignerGameMaps.update(cell._id ,{$set:{exitPoint: id}});
 		break;
+
+		case "wall":
+		DesignerGameMaps.update(cell._id ,{$set:{wall: id}});
+		break;
 		
 	}
 
@@ -123,6 +127,7 @@ Template.terrainMap.mapCol = function(y){
 
 Template.terrainMap.hasEntryPoint = function(){return (this.entryPoint != 'none');}
 Template.terrainMap.hasExitPoint = function(){return (this.exitPoint != 'none');}
+Template.terrainMap.hasWall = function(){return (this.wall != 'none');}
 
 Template.terrainMap.elementColor = function(e){
 
@@ -370,34 +375,14 @@ Template.addFeatures.events({
 
 		isReduceWarning = false;
 		Session.set("currentFeatureType", e.currentTarget.id);
-		Session.set("currentElement", null);
+		ce = DesignerGameDefs.findOne({type: Session.get("currentFeatureType"), creator: Meteor.user()._id});
+		Session.set("currentElement", ce);
 		e.preventDefault();
 	}
 
 });
 
 
-
-/*-------------------------------------------------------terrain Selector ----------------------------------------*/
-
-Template.terrainSelector.created = function(){
-
-
-	var ce = DesignerGameDefs.findOne({type: 'terrain', creator: Meteor.user()._id});
-	Session.set("currentElement", ce);
-}
-
-Template.terrainSelector.events({
-
-	'click .terrainOption':function(e){
-
-		isReduceWarning = false;
-
-		Session.set("currentElement", DesignerGameDefs.findOne({name: e.currentTarget.id, creator: Meteor.user()._id }));
-		e.preventDefault();
-	}
-
-});
 
 
 /*-------------------------------------------------------entry Selector ----------------------------------------*/
@@ -414,27 +399,28 @@ Template.entrySelector.events({
 
 		isReduceWarning = false;
 		var idx = e.currentTarget.id.split("_");
-
-		var ep = DesignerGameDefs.findOne({type: 'entryPoint', name: parseInt(idx[1]), creator: Meteor.user()._id});
-		Session.set("currentElement", ep);
+		Session.set("currentElement", parseInt(idx[1]));
 		e.preventDefault();
 	}
 
 });
 
 
-/*----------------------------------------------------exit Selector-------------------------------------------------------*/
+/*----------------------------------------------------standard selector-------------------------------------------------------*/
 
-Template.exitSelector.created = function(){
+Template.selector.created = function(){
 
-	ce = DesignerGameDefs.findOne({type: 'exitPoint', creator: Meteor.user()._id});
-	Session.set("currentElement", ce);
+	Meteor.defer(function(){
+		ce = DesignerGameDefs.findOne({type: Session.get("currentFeatureType"), creator: Meteor.user()._id});
+		Session.set("currentElement", ce);
+	});
+
 }
 
-Template.exitSelector.exitPoints = function(){return DesignerGameDefs.find({type: 'exitPoint', creator: Meteor.user()._id}).fetch()}
-Template.exitSelector.events({
 
-	'click .exitOption':function(e){
+Template.selector.events({
+
+	'click .elemOption':function(e){
 
 		isReduceWarning = false;
 		ce = DesignerGameDefs.findOne(e.currentTarget.id);
@@ -443,7 +429,6 @@ Template.exitSelector.events({
 	},
 
 	'click #removeBox':function(e){
-
 		isRemoveItems = $('#removeBox').is(':checked');
 	}
 
@@ -544,12 +529,25 @@ function updateKey(){
 
 	});
 
+	DesignerGameDefs.find({type: 'wall', creator: Session.get('currentLevel').creator}).forEach(function(e){
+
+
+		if(DesignerGameMaps.findOne({type: 'cell', level: Session.get("currentLevel").level, creator: Session.get('currentLevel').creator, wall: e._id})){
+
+			elements.push(e._id);
+
+		}
+
+	});
+
 	DesignerGameMaps.update(Session.get("currentLevel")._id, {$set:{mapKey: elements}});
 
 }
 
 Template.mapKey.elemTerrain = function(){return this.type == 'terrain';}
 Template.mapKey.elemExitPoint = function(){return this.type == 'exitPoint';}
+Template.mapKey.elemWall = function(){return this.type == 'wall';}
+
 
 
 

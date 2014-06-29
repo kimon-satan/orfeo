@@ -26,8 +26,6 @@ UI.registerHelper('currentElement' , function(){
 	}
 });
 
-UI.registerHelper('myTerrains', function(){return DesignerGameDefs.find({type: "terrain", creator: Meteor.user()._id}).fetch()});
-UI.registerHelper('terrains', function(){return DesignerGameDefs.find({type: "terrain"}).fetch()});
 
 UI.registerHelper('elements', function(eType){return DesignerGameDefs.find({type: eType}).fetch()});
 UI.registerHelper('myElements', function(eType){return DesignerGameDefs.find({type: eType,  creator: Meteor.user()._id}).fetch()});

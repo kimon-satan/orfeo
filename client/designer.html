@@ -48,6 +48,7 @@
         <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{elementColor this.terrain}}">          
           {{#if hasEntryPoint}}<div class="designerCellInside">{{this.entryPoint}}</div>{{/if}}
           {{#if hasExitPoint}}<div id="starCell" style = "background-color: {{elementColor this.exitPoint}}" class="designerCellInside"></div>{{/if}}
+          {{#if hasWall}}<div id="crossCell" style = "background-color: {{elementColor this.wall}}" class="designerCellInside"></div>{{/if}}
         </td>
 
         {{/each}}
@@ -78,6 +79,10 @@
 
               {{#if elemExitPoint}}
               <td><div id="starCell" class = "keyCell" style="background-color: {{color}}"></div></td>
+              {{/if}}
+
+              {{#if elemWall}}
+              <td><div id="crossCell" class = "keyCell" style="background-color: {{color}}"></div></td>
               {{/if}}
 
             </tr>
@@ -177,18 +182,13 @@
 
         </div>
 
-        {{#if isTerrain}}
-          {{>terrainSelector}}
-        {{/if}}
+
 
         {{#if isEntryPoint}}
           {{>entrySelector}}
+        {{else}}
+          {{>selector}}
         {{/if}}
-
-        {{#if isExitPoint}}
-          {{>exitSelector}}
-        {{/if}}
-          
           
       </form>
 
@@ -197,24 +197,6 @@
 
 </template>
 
-<template name="terrainSelector">
-
-  <label>Terrain type</label>
-    <div class="btn-group">
-
-      <button type="button" class="btn btn-default">{{currentElement.name}}</button>
-      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-        <span class="caret"></span>
-        <span class="sr-only">Toggle Dropdown</span>
-      </button>
-      <ul class="dropdown-menu" role="menu">
-        {{#each myTerrains}}
-        <li><a class="terrainOption" id={{name}} href="#">{{name}}</a></li>
-        {{/each}}
-      </ul>
-    </div>
-
-</template>
 
 
 <template name="entrySelector">
@@ -237,9 +219,9 @@
 </template>
 
 
-<template name="exitSelector">
+<template name="selector">
 
-  <label>Exit Point</label>
+  <label>{{currentFeatureType}}</label>
   <div class="btn-group">
 
     <button type="button" class="btn btn-default">{{currentElement.name}}</button>
@@ -248,8 +230,8 @@
       <span class="sr-only">Toggle Dropdown</span>
     </button>
     <ul class="dropdown-menu" role="menu">
-      {{#each exitPoints}}
-      <li><a class="exitOption" id="{{this._id}}" href="#">{{this.name}}</a></li>
+      {{#each myElements currentFeatureType}}
+      <li><a class="elemOption" id="{{this._id}}" href="#">{{this.name}}</a></li>
       {{/each}}
     </ul>
   </div>
@@ -258,14 +240,10 @@
     <label for="removeBox">Remove items</label>
       <input id= "removeBox" type="checkbox">
 
-
-
 </template>
 
 
-<template name="boundarySelector">
 
-</template>
 
 
 

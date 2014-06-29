@@ -101,6 +101,12 @@
 	z-index: 100;
 }
 
+#crossCell{
+	
+	background:url(images/multiply.png); 
+	z-index: 200;
+}
+
 .keyCell{
 
 	width: 20px;

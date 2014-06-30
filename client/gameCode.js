@@ -118,11 +118,18 @@ Template.navScreen.events({
           var ep = getElement(cell.exitPoint);
           var level = getLevel(ep.exitTo);
           Session.set("currentLevel", level);
-          if(checkClientIsDesigner())updateCurrentLevel();
+          if(checkClientIsDesigner()){
+            updateCurrentLevel();
+          }else{
+            var cl = PlayerGameData.findOne({player: Meteor.user()._id , type: "level" });
+            PlayerGameData.update(cl._id, {$set: {id: level._id}});
+          }
           var ep_i = getEntryCell(ep.entryIndex);
 
           playerPos.x = ep_i.x; playerPos.y = ep_i.y;
           cell = getCell(playerPos.x, playerPos.y);
+
+          
 
         }
 
@@ -255,7 +262,7 @@ getLevel = function(levelId){
     if(checkClientIsDesigner()){
       return DesignerGameMaps.findOne(levelId);
     }else{
-      return GameMapsRelease.findOne(levelId);
+      return GameMapRelease.findOne(levelId);
     }
 
 }

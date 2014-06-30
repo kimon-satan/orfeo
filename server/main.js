@@ -172,8 +172,9 @@ Meteor.methods({
 
 		
 		var initLevel = GameMapRelease.findOne({type: "levelHeader", isInit: true});
+		var ep = GameMapRelease.findOne({levelId: initLevel._id, entryPoint: 0});
 		PlayerGameData.remove({player: userId});
-		PlayerGameData.insert({player: userId, type: "pos", x: 0, y: 0});
+		PlayerGameData.insert({player: userId, type: "pos", x: ep.x, y: ep.y});
 		PlayerGameData.insert({player: userId, type: "level", id: initLevel._id });
 
 

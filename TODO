@@ -1,7 +1,9 @@
-1.leave release copying for the time being until more designer elements finalised
 
-2. wall element
-
+2.prevent deletion of levels which others are dependent on
+3.pickupable objects inventory interface
+4.keyholes with variants
+5.extra narration
+6.sound fields (filled or hollow center options) 
 
 2. release changed flag using TS
 
@@ -14,5 +16,4 @@ resource load points (configure in release)
 
 BUGS
 
-prevent multiple button presses before audio is finished playing
 

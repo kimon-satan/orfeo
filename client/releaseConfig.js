@@ -21,7 +21,7 @@ Template.configReleaseTable.events({
 					GameDefsRelease.remove(item._id);
 				});
 
-				makeReleaseCopy();
+				makeReleaseCopy(Session.get('currentLevel')._id, true);
 
 				Meteor.call('initAllPlayers', Meteor.user()._id);
 
@@ -74,62 +74,40 @@ Template.configReleaseTable.events({
 
 /*-------------------------------HELPER FUNCTIONS------------------------------------*/
 
-function makeReleaseCopy(){
 
+function makeReleaseCopy(levelId, isInit){
 
-	//this just copies a single level 
-	//will need to revise once links have been introduced
-
-	var clh = DesignerGameMaps.findOne(Session.get("currentLevel")._id);
-	clh.designId = clh._id;
-	clh.isInit = true;
-	delete clh["_id"];
-
-	GameMapRelease.insert(clh, function(err, id){
-		clh._id = id;
+	var clh = DesignerGameMaps.findOne(levelId);
+	clh.isInit = isInit;
 	
+	//add the new depenencies and convert the mapKey
 
-		DesignerGameMaps.find({level: clh.level, creator: clh.creator}).forEach(function(elem){
+	for(var i = 0; i < clh.mapKey.length; i ++){
+
+		var o_t = DesignerGameDefs.findOne(clh.mapKey[i]);
+		var n_t = GameDefsRelease.findOne(clh.mapKey[i]);
+
+		if(!n_t)GameDefsRelease.insert(o_t);
+
+	}
+
+	GameMapRelease.insert(clh); 
 
 
-			elem.designId = elem._id;
-			elem.levelId = clh._id;
-			delete elem["_id"];
-			
-			if(elem.type != "cell"){
-				var o_t = DesignerGameDefs.findOne(elem.elemId);
-				var n_t = (o_t) ? GameDefsRelease.findOne({type: elem.type, name: o_t.name, creator: o_t.creator}) : true;
-				elem.elemId = (n_t)? n_t._id : false;
+	DesignerGameMaps.find({type: 'cell', levelId: clh._id}).forEach(function(elem){
 
-				//copy over all the terrains
-				if(!n_t){
+		GameMapRelease.insert(elem);
+		if(elem.exitPoint != 'none'){
 
-					if(o_t){
-						o_t.designId = o_t._id;
-						delete o_t["_id"];
-						GameDefsRelease.insert(o_t, function(err, id){ 
-							elem.elemId = id;
-							GameMapRelease.insert(elem);
-						});
-					}
+			var ep = DesignerGameDefs.findOne(elem.exitPoint);
 
-				}else{
-
-					GameMapRelease.insert(elem);
-				}
-				
-				
-			}else{
-				GameMapRelease.insert(elem);
+			if(ep.exitTo != clh._id){
+				makeReleaseCopy(ep.exitTo, false);
 			}
-
-			//this will need to be done for the other elements in the cell ... think about how to manage callbacks ?!
-
-			
-		});
-
-		return clh._id;
+		}		
 
 	});
 
+
 }
+

@@ -51,6 +51,8 @@ Meteor.startup(function(){
 
 		});
 
+		DesignerGameMaps.insert({type: 'inventory', levelId: header._id , creator: "server", pickupables: {} });
+
 
 	}
 
@@ -187,6 +189,9 @@ Meteor.methods({
 		PlayerGameData.insert({player: userId, type: "pos", x: ep.x, y: ep.y});
 		PlayerGameData.insert({player: userId, type: "level", id: initLevel._id });
 
+		var inv = {player: userId, type: "inventory", pickupables: {}};
+		inv.pickupables[initLevel._id] = GameMapRelease.findOne({type: "inventory", levelId: initLevel._id});
+		PlayerGameData.insert(inv);
 
 	},
 

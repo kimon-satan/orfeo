@@ -2,6 +2,7 @@
 audio = 0;
 cTerrain = 0;
 
+
 UI.registerHelper("isAudioReady", function(){
   return Session.get("isAudioInit") && Session.get("isLoaded");
 });
@@ -9,9 +10,13 @@ UI.registerHelper("isAudioReady", function(){
 Template.game.created = function(){
 
   var id = Meteor.user()._id;
+
   //console.log(id);
 
   Meteor.subscribe("PlayerGameData", id, { onReady: function(){
+
+   
+
      Meteor.subscribe("AudioFiles",{}, {onReady: function(){
 
       if(!Session.get("isAudioInit"))startAudio();
@@ -46,7 +51,7 @@ Template.startSplash.events({
 
       Session.set("screenMode", 1);
 
-       var level = PlayerGameData.findOne({player: Meteor.user()._id, type: "level"});
+      var level = PlayerGameData.findOne({player: Meteor.user()._id, type: "level"});
 
       if(checkClientIsDesigner()){
         PlayerGameData.update(level._id, {$set: {level: Session.get('currentLevel')._id}});
@@ -105,6 +110,7 @@ Template.navScreen.events({
         var cell = getCell(playerPos.x, playerPos.y);
         var wall;
         var isRebound = false;
+        var audioArray = [];
 
         if(cell.wall != 'none'){
 
@@ -115,23 +121,27 @@ Template.navScreen.events({
 
         if(cell.exitPoint != 'none'){
 
-          var ep = getElement(cell.exitPoint);
-          var level = getLevel(ep.exitTo);
-          Session.set("currentLevel", level);
-          if(checkClientIsDesigner()){
-            updateCurrentLevel();
-          }else{
-            var cl = PlayerGameData.findOne({player: Meteor.user()._id , type: "level" });
-            PlayerGameData.update(cl._id, {$set: {id: level._id}});
+          cell = handleExitPoint(cell.exitPoint);
+          playerPos.x = cell.x; playerPos.y = cell.y;
+
+        }
+
+        var inv = PlayerGameData.findOne({player: Meteor.user()._id, type: 'inventory'});
+        var lps = inv.pickupables[Session.get("currentLevel")._id];
+
+        if(typeof lps[playerPos.x] !== 'undefined'){
+          if(typeof lps[playerPos.x][playerPos.y] !== 'undefined'){
+
+            for(var i = 0; i < lps[playerPos.x][playerPos.y].length; i++){
+              (function(){
+
+                var pu = lps[playerPos.x][playerPos.y][i];
+                if(pu.state == 'dropped')audioArray.push(pu.narrator);
+
+              })();
+            }
+
           }
-          
-          var ep_i = getEntryCell(ep.entryIndex);
-
-          playerPos.x = ep_i.x; playerPos.y = ep_i.y;
-          cell = getCell(playerPos.x, playerPos.y);
-
-          
-
         }
 
         if(typeof wall !== 'undefined'){
@@ -149,7 +159,12 @@ Template.navScreen.events({
               $(event.target).removeClass('active');
               $(event.target).addClass('disable');
 
-              updateGameCellAudio(cTerrain, nTerrain, resetButtons);
+              updateGameCellAudio(cTerrain, nTerrain, function(){
+
+                playAudioSequence(audioArray, resetButtons);
+
+              });
+
               cTerrain = nTerrain;        
 
           });
@@ -175,6 +190,30 @@ Template.navScreen.events({
 
 });
 
+function handleExitPoint(exitPointId){
+
+  var ep = getElement(exitPointId);
+  var level = getLevel(ep.exitTo);
+  Session.set("currentLevel", level);
+
+  updatePlayerInventory(level._id);
+
+  if(checkClientIsDesigner()){
+    updateCurrentLevel();
+  }else{
+    var cl = PlayerGameData.findOne({player: Meteor.user()._id , type: "level" });
+    PlayerGameData.update(cl._id, {$set: {id: level._id}});
+  }
+  
+  var ep_i = getEntryCell(ep.entryIndex);
+
+  return getCell(ep_i.x, ep_i.y);
+
+}
+
+
+
+
 function resetButtons(){
 
   $('.active').removeClass('active');
@@ -183,19 +222,15 @@ function resetButtons(){
 }
 
 
+playAudioSequence = function(audioObjs, finalCallback){
 
-
-function startAudio (){
- 
-  audio = new aapiWrapper();
-
-  if(audio.init()){
-    Session.set("isAudioInit", true);
-    loadAudioFiles(); 
-  
-
+  if(audioObjs.length > 0){
+    var ao = audioObjs.shift();
+    audio.playOnce(ao.audioFile, {amp: ao.amp}, function(){
+      playAudioSequence(audioObjs, finalCallback);
+    });
   }else{
-    console.log("init failed");
+    finalCallback();
   }
 
 }
@@ -213,6 +248,19 @@ updateGameCellAudio = function(cTerrain , nTerrain, callback){
 
     callback();
 
+  }
+
+}
+
+function updatePlayerInventory (levelId){
+
+  //add this levels inventory to the players inventory
+  //only if it's a new level
+
+  var inv = PlayerGameData.findOne({player: Meteor.user()._id, type: 'inventory'});
+  if(typeof inv.pickupables[levelId] === 'undefined'){
+    inv.pickupables[levelId] = getInventory(levelId).pickupables; 
+    PlayerGameData.update(inv._id, {$set: {pickupables: inv.pickupables}});
   }
 
 }
@@ -240,6 +288,20 @@ function handleWallAudio(wall, callback){
 
 }
 
+function startAudio (){
+ 
+  audio = new aapiWrapper();
+
+  if(audio.init()){
+    Session.set("isAudioInit", true);
+    loadAudioFiles(); 
+  
+
+  }else{
+    console.log("init failed");
+  }
+
+}
 
 function loadAudioFiles(){
 
@@ -258,55 +320,13 @@ function loadAudioFiles(){
 
 
 
-getLevel = function(levelId){
-
-    if(checkClientIsDesigner()){
-      return DesignerGameMaps.findOne(levelId);
-    }else{
-      return GameMapRelease.findOne(levelId);
-    }
-
-}
-
-getEntryCell = function(n){
-
-  if(checkClientIsDesigner()){
-    return DesignerGameMaps.findOne({levelId: Session.get("currentLevel")._id, entryPoint: n});
-  }else{
-    return GameMapRelease.findOne({levelId: Session.get("currentLevel")._id, entryPoint: n});
-  }
 
 
-}
 
-getCell = function(x,y){
 
-  if(checkClientIsDesigner()){
 
-    var newCell = DesignerGameMaps.findOne({
-      type: 'cell', 
-      levelId: Session.get("currentLevel")._id, 
-      x: parseInt(x), y: parseInt(y)
 
-    });
 
-  }else{
 
-    var level = PlayerGameData.findOne({player: Meteor.user()._id, type: "level"});    
-    var newCell = GameMapRelease.findOne({type: 'cell', levelId: level.id , x: x, y: y});
-  }
-
-  return newCell; 
-}
-
-getElement = function(id){
-
-    if(checkClientIsDesigner()){
-      return DesignerGameDefs.findOne(id);
-    }else{
-      return GameDefsRelease.findOne(id);
-    }
-
-}
 
 

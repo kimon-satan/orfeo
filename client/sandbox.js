@@ -4,6 +4,8 @@ Template.sandbox.created = function(){
 	Meteor.defer(function(){
 		selectALevel();
 		setPlayerPos();
+		resetInventory();
+
 	});
 
 }
@@ -15,14 +17,12 @@ Template.sandboxLevelSelector.events({
 		Session.set("currentLevel", DesignerGameMaps.findOne({type: 'levelHeader', _id: e.currentTarget.id}));
 
 		playerPos = setPlayerPos();
+		resetInventory();
 
 		if(Session.get("screenMode") > 0){
 
-			//then sandboxing is in progress
-			var cell = getCell(playerPos.x , playerPos.y);
-			nTerrain = getElement(cell.terrain);
-			updateGameCellAudio(cTerrain, nTerrain);
-	        cTerrain = nTerrain;
+			Session.set("screenMode", 0);
+			audio.killAll();
 
     	}
 
@@ -132,6 +132,16 @@ function setPlayerPos(){
 	PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
 
 	return playerPos;
+
+}
+
+function resetInventory(){
+
+	var inv = PlayerGameData.findOne({player: Meteor.user()._id, type: 'inventory'});
+	if(inv)PlayerGameData.remove(inv._id);
+	inv = {player: Meteor.user()._id, type: "inventory", pickupables: {}};
+	inv.pickupables[Session.get("currentLevel")._id] = DesignerGameMaps.findOne({type: "inventory", levelId: Session.get("currentLevel")._id}).pickupables;
+	PlayerGameData.insert(inv);
 
 }
 

@@ -40,8 +40,11 @@ Template.terrainMap.events({
 			}else{
 
 				setMultiElement(loc);
-
 				
+			}
+
+			if(Session.get("currentFeatureType") == "pickupable"){
+				updateLevelInventory();
 			}
 
 
@@ -372,11 +375,11 @@ Template.mainSettings.events({
 		
 		if(!DesignerGameMaps.findOne({type: "levelHeader", level: name, creator: Meteor.user()._id })){
 
-			//NB. Remember this nameing convention for additional items !!! 
-
-			DesignerGameMaps.find({level: Session.get("currentLevel").level, creator: Session.get("currentLevel").creator}).forEach(function(item){
+			DesignerGameMaps.find({levelId: Session.get("currentLevel")._id}).forEach(function(item){
 				DesignerGameMaps.update( item._id ,{$set: {level: name}});
 			});
+
+			updateCurrentLevel();
 		
 		}else{
 
@@ -395,10 +398,6 @@ Template.mainSettings.currentLevel = function(){return DesignerGameMaps.findOne(
 
 /*------------------------------------------------------add Features --------------------------------------------*/
 
-Template.addFeatures.created = function(){
-
-	Session.set("currentFeatureType", "terrain");
-}
 
 Template.addFeatures.events({
 
@@ -526,6 +525,15 @@ function makeLevelCopy(o_levelName, o_creator, n_levelName, n_creator){
 
 	});
 
+	var inv = DesignerGameMaps.findOne({type: 'inventory', levelId: nlh._id});
+
+	inv.creator = n_creator;
+	inv.level = n_levelName;
+	inv.levelId = nlh._id;
+	delete inv["_id"];
+
+	DesignerGameMaps.insert(inv);
+
 	return nlh._id;
 
 }
@@ -555,12 +563,31 @@ function updateKey(){
 
 }
 
+function updateLevelInventory(){
+
+	var inv = DesignerGameMaps.findOne({type: 'inventory', levelId: Session.get("currentLevel")._id});
+	var pickupables = {};
+	var id = Session.get("currentLevel")._id;
+
+	DesignerGameMaps.find({type: 'cell', levelId: id, pickupable: {$not: 'none'}}).forEach(function(e){
+
+		if(typeof pickupables[e.x] === 'undefined')pickupables[e.x] = {};
+		var p = getElement(e.pickupable);
+		p.state = "dropped";
+		pickupables[e.x][e.y] = [p];
+
+	});
+
+	DesignerGameMaps.update(inv._id, {$set: {pickupables: pickupables}});
+
+}
+
+
+
 Template.mapKey.elemTerrain = function(){return this.type == 'terrain';}
 Template.mapKey.elemExitPoint = function(){return this.type == 'exitPoint';}
 Template.mapKey.elemWall = function(){return this.type == 'wall';}
 Template.mapKey.elemPickupable = function(){return this.type == 'pickupable';}
-
-
 
 
 

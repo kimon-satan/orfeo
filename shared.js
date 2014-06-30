@@ -31,7 +31,9 @@ Meteor.users.deny({
 
 PlayerGameData.allow({
 
-	update: accessTest
+	update: accessTest,
+	insert: designerTest,
+	remove: designerTest
 
 });
 

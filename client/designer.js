@@ -174,15 +174,35 @@ Template.levelTable.events({
 		if(confirm("are you sure you want to delete " + Session.get("currentLevel").level + "... " )){	
 
 			var level = Session.get("currentLevel");
-			
-			DesignerGameMaps.find({levelId: level._id}).forEach(function(cell){
-				DesignerGameMaps.remove(cell._id);
-			});
 
-			DesignerGameMaps.remove(Session.get("currentLevel")._id, function(){
-				Session.set("currentLevel", "");
-				selectALevel();
-			});
+			//insert check for dependencies and alert message
+
+			var ep = DesignerGameDefs.findOne({type: 'exitPoint', exitTo: Session.get("currentLevel")._id});
+
+			if(ep){
+
+				if(ep.creator != Meteor.user()._id){
+					alert("Sorry I can't delete this because "  + getCreatorName(ep.creator) + " has linked to this level in their exitPoint " + ep.name 
+						+ ". \nPlease ask them to remove this resource first.");
+				}else{
+					alert("Sorry I can't delete this because you have linked to this level in the exitPoint " + ep.name 
+					+ ". \nPlease delete this resource first.");
+				}
+
+			}else{
+
+				DesignerGameMaps.find({levelId: level._id}).forEach(function(cell){
+					DesignerGameMaps.remove(cell._id);
+				});
+
+				DesignerGameMaps.remove(Session.get("currentLevel")._id, function(){
+					Session.set("currentLevel", "");
+					selectALevel();
+				});
+
+			}
+			
+
 
   		}
 

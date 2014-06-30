@@ -124,6 +124,7 @@ Template.navScreen.events({
             var cl = PlayerGameData.findOne({player: Meteor.user()._id , type: "level" });
             PlayerGameData.update(cl._id, {$set: {id: level._id}});
           }
+          
           var ep_i = getEntryCell(ep.entryIndex);
 
           playerPos.x = ep_i.x; playerPos.y = ep_i.y;

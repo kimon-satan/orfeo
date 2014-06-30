@@ -373,6 +373,12 @@ Template.exitPointMaker.events({
 		DesignerGameDefs.update(Session.get("currentElement")._id,{$set: {exitTo: ce.exitTo}});
 		Session.set("currentElement", ce);
 
+		var creator = DesignerGameMaps.findOne(ce.exitTo).creator;
+		if(creator != Meteor.user()._id){
+			alert("Careful ! you are linking to one of " + getCreatorName(creator) 
+				+ "'s levels. \nHave you spoken to them about this first ? \nRemember you can always make a copy of their level." );
+		}
+
 		$('.levelRow').removeClass('selected');
 		$('.levelRow > td' ).removeClass('selected');
 		$('#' + e.currentTarget.id + ' > td').removeClass('subSelected');

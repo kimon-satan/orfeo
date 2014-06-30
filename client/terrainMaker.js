@@ -424,7 +424,7 @@ Template.exitPointMaker.events({
 		e.preventDefault();
 	},
 
-	'blur #entryIndex':function(element){
+	'blur #entryIndex':function(e){
  
 		var ce = Session.get("currentElement");
 		ce.entryIndex = Math.min(Math.max($('#entryIndex').val() , 0), 9);
@@ -444,5 +444,19 @@ function selectExitLevel(){
 	updateCurrentLevel();
 
 }
+
+/*-------------------------------------pickupableMaker --------------------------------*/
+
+Template.pickupableMaker.events({
+
+	'blur #mapSymbol':function(e){
+
+		var ce = Session.get("currentElement");
+		ce.mapSymbol = $('#mapSymbol').val();
+		DesignerGameDefs.update(ce._id,{$set: {mapSymbol: ce.mapSymbol}});
+		e.preventDefault();
+	}
+});
+
 
 

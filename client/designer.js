@@ -91,22 +91,9 @@ function setMultiElement(loc){
 
 
 	var id = (isRemoveItems) ? 'none' : Session.get("currentElement")._id;
-
-	switch(Session.get("currentFeatureType")){
-
-		case "terrain":
-		DesignerGameMaps.update(cell._id ,{$set:{terrain: id}});
-		break;
-
-		case "exitPoint":
-		DesignerGameMaps.update(cell._id ,{$set:{exitPoint: id}});
-		break;
-
-		case "wall":
-		DesignerGameMaps.update(cell._id ,{$set:{wall: id}});
-		break;
-		
-	}
+	var setObj = {};
+	setObj[Session.get("currentFeatureType")] = id;
+	DesignerGameMaps.update(cell._id ,{$set: setObj});
 
 	updateKey();
 
@@ -135,6 +122,7 @@ Template.terrainMap.mapCol = function(y){
 Template.terrainMap.hasEntryPoint = function(){return (this.entryPoint != 'none');}
 Template.terrainMap.hasExitPoint = function(){return (this.exitPoint != 'none');}
 Template.terrainMap.hasWall = function(){return (this.wall != 'none');}
+Template.terrainMap.hasPickupable = function(){return (this.pickupable != 'none');}
 
 Template.terrainMap.elementColor = function(e){
 
@@ -149,6 +137,18 @@ Template.terrainMap.elementColor = function(e){
 
 }
 
+Template.terrainMap.elementMapSymbol = function(e){
+
+	var s = DesignerGameDefs.findOne(e);
+
+	if(!s){
+		return;
+	}else{
+		return s.mapSymbol;
+	}
+
+
+}
 
 
 
@@ -262,7 +262,7 @@ Template.levelTable.events({
 Template.mapKey.elementsUsed = function(){
 
 	var k = DesignerGameMaps.findOne(Session.get("currentLevel")._id).mapKey;
-	return DesignerGameDefs.find({ _id: {$in: k} }, {fields: {color: 1, name: 1, type: 1}}).fetch();
+	return DesignerGameDefs.find({ _id: {$in: k} }, {fields: {color: 1, name: 1, type: 1, mapSymbol: 1}}).fetch();
 
 }
 
@@ -536,38 +536,20 @@ function updateKey(){
 
 
 	var elements = []; 
+	var elemTypes = ["terrain", "exitPoint", "wall", "pickupable"];
 
-	DesignerGameDefs.find({type: 'terrain', creator: Session.get('currentLevel').creator}).forEach(function(t){
+	for(var i = 0; i < elemTypes.length; i++){
 
-		if(DesignerGameMaps.findOne({type: 'cell', level: Session.get("currentLevel").level, creator: Session.get('currentLevel').creator, terrain: t._id})){
+		DesignerGameDefs.find({creator: Session.get('currentLevel').creator, type: elemTypes[i]}).forEach(function(e){
 
-			elements.push(t._id);
+			var searchObj = {type: 'cell', level: Session.get("currentLevel").level, creator: Session.get('currentLevel').creator};
+			searchObj[elemTypes[i]] = e._id;
 
-		}
+			if(DesignerGameMaps.findOne(searchObj))elements.push(e._id);
 
-	});
+		}); 
 
-	DesignerGameDefs.find({type: 'exitPoint', creator: Session.get('currentLevel').creator}).forEach(function(e){
-
-
-		if(DesignerGameMaps.findOne({type: 'cell', level: Session.get("currentLevel").level, creator: Session.get('currentLevel').creator, exitPoint: e._id})){
-
-			elements.push(e._id);
-
-		}
-
-	});
-
-	DesignerGameDefs.find({type: 'wall', creator: Session.get('currentLevel').creator}).forEach(function(e){
-
-
-		if(DesignerGameMaps.findOne({type: 'cell', level: Session.get("currentLevel").level, creator: Session.get('currentLevel').creator, wall: e._id})){
-
-			elements.push(e._id);
-
-		}
-
-	});
+	}
 
 	DesignerGameMaps.update(Session.get("currentLevel")._id, {$set:{mapKey: elements}});
 
@@ -576,6 +558,7 @@ function updateKey(){
 Template.mapKey.elemTerrain = function(){return this.type == 'terrain';}
 Template.mapKey.elemExitPoint = function(){return this.type == 'exitPoint';}
 Template.mapKey.elemWall = function(){return this.type == 'wall';}
+Template.mapKey.elemPickupable = function(){return this.type == 'pickupable';}
 
 
 

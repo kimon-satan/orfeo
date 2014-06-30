@@ -114,7 +114,7 @@ createMapCell = function(levelHeader, x, y, ep){
 		entryPoint: ep,
 		exitPoint: 'none', 
 		wall: 'none',
-		objects:[], 
+		pickupable: 'none',
 		n_override: "none", 
 		n_additions: [],
 		audibleTraces: []

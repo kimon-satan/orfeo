@@ -49,6 +49,7 @@
           {{#if hasEntryPoint}}<div class="designerCellInside">{{this.entryPoint}}</div>{{/if}}
           {{#if hasExitPoint}}<div id="starCell" style = "background-color: {{elementColor this.exitPoint}}" class="designerCellInside"></div>{{/if}}
           {{#if hasWall}}<div id="crossCell" style = "background-color: {{elementColor this.wall}}" class="designerCellInside"></div>{{/if}}
+          {{#if hasPickupable}}<div style = "color: {{elementColor this.pickupable}}" class="designerCellInside">{{elementMapSymbol this.pickupable}}</div>{{/if}}
         </td>
 
         {{/each}}
@@ -83,6 +84,10 @@
 
               {{#if elemWall}}
               <td><div id="crossCell" class = "keyCell" style="background-color: {{color}}"></div></td>
+              {{/if}}
+
+              {{#if elemPickupable}}
+              <td><div class="keyCell" style="color: {{color}}">{{mapSymbol}}</div></td>
               {{/if}}
 
             </tr>

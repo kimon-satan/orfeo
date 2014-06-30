@@ -1,6 +1,5 @@
 <template name ="designElements">
 
-
   <ul class="pagination">
     <li><a href="#">&laquo;</a></li>
     {{#each features}}
@@ -14,7 +13,7 @@
   {{/if}}
 
   {{#if isEntryPoint}}
-    <h2>edit these from the level designer</h2>
+    <h2>edit entryPoints from the level designer</h2>
   {{/if}}
 
   {{#if isExitPoint}}
@@ -23,6 +22,10 @@
 
   {{#if isWall}}
     {{>wallMaker}}
+  {{/if}}
+
+  {{#if isPickupable}}
+    {{>pickupableMaker}}
   {{/if}}
 
 </template>
@@ -211,5 +214,42 @@
 
     </div>
 
+
+</template>
+
+
+<template name="pickupableMaker">
+
+    <div class ="row">
+    <div class="col-xs-1"></div>
+
+    <div class="col-xs-5 well scrollableColumn" style="height: 500px">
+      {{>elementTable e_disp = "Pickupable" e_index = "pickupable"}}
+    </div>
+
+
+    <div class="col-xs-1"></div>
+    <div class="col-xs-4 well">
+      <form role="form">
+      
+        {{>nameColorPicker}}
+
+        <div class="form-control tbspacer">
+          <label for="dispName">Display Name</label>
+          <input class = "adjustable" type = "text" id="displayName" value={{currentElement.displayName}}> 
+        </div>
+
+         <div class="form-control tbspacer">
+          <label for="mapSymbol">Map Symbol</label>
+          <input class = "adjustable" maxLength="1" type = "text" id="mapSymbol" value={{currentElement.mapSymbol}}> 
+        </div>
+        
+        <br/><br/>
+        {{>soundControls sc_type="Narrator"}}
+
+      </form>
+    </div>
+
+    </div>
 
 </template>

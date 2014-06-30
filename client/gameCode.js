@@ -1,6 +1,9 @@
 
 audio = 0;
 cTerrain = 0;
+isAudioLock = false;
+isChat = false;
+isPickup = false;
 
 
 UI.registerHelper("isAudioReady", function(){
@@ -37,6 +40,11 @@ Template.game.isNavScreen = function(){
   return Session.get("screenMode") == 1;
 };
 
+Template.game.isInventoryScreen = function(){
+  return Session.get("screenMode") == 2;
+};
+
+
 
 Template.game.destroyed = function(){
 
@@ -64,8 +72,8 @@ Template.startSplash.events({
       var cell = getCell(playerPos.x, playerPos.y);
       cTerrain = getElement(cell.terrain);
 
-      audio.startLooping(cTerrain.background.audioFile, cTerrain.background.amp, 1);
-      audio.playOnce(cTerrain.narrator.audioFile, {amp: cTerrain.narrator.amp, offset: 2}, resetButtons);
+      isAudioLock = true;
+      updateGameCellAudio(cTerrain, 'none', resetButtons);
 
       e.preventDefault();
   }
@@ -78,8 +86,12 @@ Template.navScreen.created = function(){
 
   Meteor.defer(function(){
 
-      $('.step').addClass('disable');
-      $('#where').addClass('active');
+      if(isAudioLock){
+        $('.toggleBtn').addClass('disable');
+        $('#where').removeClass('disable').addClass('active');
+      }else{
+        resetButtons();
+      }
 
   });
 
@@ -96,6 +108,8 @@ Template.navScreen.events({
          var id = event.target.id;
 
         $('.toggleBtn').not('#' + id).addClass('disable');
+
+        isPickup = false;
 
 
         var playerPos = PlayerGameData.findOne({player: Meteor.user()._id, type: "pos"});
@@ -136,13 +150,18 @@ Template.navScreen.events({
               (function(){
 
                 var pu = lps[playerPos.x][playerPos.y][i];
-                if(pu.state == 'dropped')audioArray.push(pu.narrator);
+                if(pu.state == 'dropped'){
+                  isPickup = true;
+                  audioArray.push(pu.narrator);
+                }
 
               })();
             }
 
           }
         }
+
+        isAudioLock = true;
 
         if(typeof wall !== 'undefined'){
           
@@ -186,9 +205,50 @@ Template.navScreen.events({
 
       event.preventDefault();
 
-    }
+    },
+
+    'click #inventory':function(event){
+
+      if($(event.target).hasClass('disable'))return;
+      if($(event.target).hasClass('active'))return;
+
+      Session.set("screenMode", 2);
+
+      event.preventDefault();
+    },
+
+    'click #pickup':function(event){
+
+      if($(event.target).hasClass('disable'))return;
+      if($(event.target).hasClass('active'))return;
+
+      event.preventDefault();
+    },
+
+    'click #chat':function(event){
+
+      if($(event.target).hasClass('disable'))return;
+      if($(event.target).hasClass('active'))return;
+
+      event.preventDefault();
+    },
+
 
 });
+
+/*-----------------------------------------Inventory -------------------------------*/
+
+Template.inventoryScreen.events({
+
+  'click #compass':function(e){
+
+    Session.set("screenMode", 1);
+    e.preventDefault();
+  }
+
+});
+
+/*----------------------------------------helper functions----------------------------*/
 
 function handleExitPoint(exitPointId){
 
@@ -216,8 +276,15 @@ function handleExitPoint(exitPointId){
 
 function resetButtons(){
 
+  isAudioLock = false;
+
   $('.active').removeClass('active');
-  $('.disable').removeClass('disable');
+  $('.step.disable').removeClass('disable');
+  $('#where').removeClass('disable');
+  $('#inventory').removeClass('disable');
+
+  if(isPickup)$('#pickup').removeClass('disable');
+  if(isChat)$('#chat').removeClass('disable');
 
 }
 
@@ -225,6 +292,10 @@ function resetButtons(){
 playAudioSequence = function(audioObjs, finalCallback){
 
   if(audioObjs.length > 0){
+
+    $('#where').addClass('active');
+    $('#where').removeClass('disable');
+
     var ao = audioObjs.shift();
     audio.playOnce(ao.audioFile, {amp: ao.amp}, function(){
       playAudioSequence(audioObjs, finalCallback);
@@ -237,9 +308,19 @@ playAudioSequence = function(audioObjs, finalCallback){
 
 updateGameCellAudio = function(cTerrain , nTerrain, callback){
 
-  if(nTerrain.name!= cTerrain.name){
+  if(nTerrain == 'none'){
 
     $('#where').addClass('active');
+    $('#where').removeClass('disable');
+
+    audio.startLooping(cTerrain.background.audioFile, cTerrain.background.amp, 1);
+    audio.playOnce(cTerrain.narrator.audioFile, {amp: cTerrain.narrator.amp, offset: 2}, callback);
+
+  }else if(nTerrain.name!= cTerrain.name){
+
+    $('#where').addClass('active');
+    $('#where').removeClass('disable');
+
     audio.stopLooping(cTerrain.background.audioFile, 1);
     audio.playOnce(nTerrain.narrator.audioFile, {amp: nTerrain.narrator.amp, offset: 2}, callback);
     audio.startLooping(nTerrain.background.audioFile, nTerrain.background.amp, 1);

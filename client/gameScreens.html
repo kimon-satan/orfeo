@@ -9,6 +9,10 @@
         {{> navScreen}}
       {{/if}}
 
+      {{#if isInventoryScreen}}
+        {{> inventoryScreen}}
+      {{/if}}
+
     {{else}}
       {{>load}}
     {{/if}}
@@ -68,6 +72,41 @@
         </div>
 
       </div>
+
+      <div class ="row well">
+        <div class="col-xs-4">
+          <a href="javascript:;" id="inventory" class="toggleBtn"></a>
+        </div>
+        <div class="col-xs-4">
+          <a href="javascript:;" id="pickup" class="toggleBtn disable"></a>
+        </div>
+       <div class="col-xs-4">
+          <a href="javascript:;" id="chat" class="toggleBtn disable"></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</template>
+
+<template name="inventoryScreen">
+
+    <h1>Inventory</h1>
+
+
+  <div class="row">
+    <div class="col-md-3"></div>
+    <div class= "col-xs-12 col-md-6">
+      <div class = "row well">      
+
+        <div class="col-xs-8"></div>
+        <div class="col-xs-4">
+          <a href="javascript:;" id="compass" class="toggleBtn"></a>
+        </div>
+
+      </div>
+
+      
     </div>
   </div>
 

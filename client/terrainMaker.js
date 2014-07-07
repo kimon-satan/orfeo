@@ -455,6 +455,14 @@ Template.pickupableMaker.events({
 		ce.mapSymbol = $('#mapSymbol').val();
 		DesignerGameDefs.update(ce._id,{$set: {mapSymbol: ce.mapSymbol}});
 		e.preventDefault();
+	},
+
+	'blur #displayName':function(e){
+
+		var ce = Session.get("currentElement");
+		ce.displayName = $('#displayName').val();
+		DesignerGameDefs.update(ce._id,{$set: {displayName: ce.displayName}});
+		e.preventDefault();
 	}
 });
 

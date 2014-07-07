@@ -156,6 +156,8 @@ Template.terrainMap.elementMapSymbol = function(e){
 
 
 
+
+
 /*-----------------------------------------levelTable --------------------------------------------------*/
 
 Template.levelTable.events({
@@ -525,7 +527,7 @@ function makeLevelCopy(o_levelName, o_creator, n_levelName, n_creator){
 
 	});
 
-	var inv = DesignerGameMaps.findOne({type: 'inventory', levelId: nlh._id});
+	var inv = DesignerGameMaps.findOne({type: 'inventory', levelId: clh._id});
 
 	inv.creator = n_creator;
 	inv.level = n_levelName;
@@ -574,7 +576,7 @@ function updateLevelInventory(){
 		if(typeof pickupables[e.x] === 'undefined')pickupables[e.x] = {};
 		var p = getElement(e.pickupable);
 		p.state = "dropped";
-		pickupables[e.x][e.y] = [p];
+		pickupables[e.x][e.y] = [p._id];
 
 	});
 

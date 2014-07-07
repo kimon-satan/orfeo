@@ -82,7 +82,7 @@ function designerTest(user , doc){
 	if(role == 'admin'){
 		return true;
 	}else if(role == 'designer'){
-		return (doc.creator == user);
+		return (doc.creator == user || doc.player == user);
 	}else{
 		return false;
 	}

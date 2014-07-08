@@ -99,26 +99,27 @@
     <div class="col-md-3"></div>
     <div class= "col-xs-12 col-md-6">
 
-      <div class = "row well">
+      <div class = "row well inventoryBag">
         {{#each bagItems}}
-
-        {{/each}}
-      </div>
-
-      <div class = "row well">
-        {{#each pickupables}}
-            <div>{{displayName}}</div>
-        {{/each}}
-        
-      </div>
-      <div class = "row well">      
-
-        <div class="col-xs-8"></div>
-        <div class="col-xs-4">
-          <a href="javascript:;" id="compass" class="toggleBtn"></a>
+        <div class="text-left alert alert-success" role="alert">
+             <strong>{{displayName}}</strong>
+             <a href="#" style="float: right"><span class="glyphicon glyphicon-minus"></span></a>
         </div>
-
+        {{/each}}
       </div>
+
+    
+      {{#each pickupables}}
+      <div class="alert alert-warning" role="alert">
+           <strong>{{displayName}}</strong>
+           <a href="#" style="float: right"><span class="glyphicon glyphicon-plus"></span></a>
+      </div>
+      {{/each}}
+        
+    
+      
+      <a href="javascript:;" id="compass" class="toggleBtn"></a>
+     
 
       
     </div>

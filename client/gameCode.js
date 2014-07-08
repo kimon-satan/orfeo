@@ -214,6 +214,15 @@ Template.navScreen.events({
       if($(event.target).hasClass('disable'))return;
       if($(event.target).hasClass('active'))return;
 
+      var inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
+      var pos = PlayerGameData.findOne({player: Meteor.user()._id, type: 'pos'});
+
+      if(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y] !== 'undefined'){
+        inv.bag.push(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y]);
+        delete inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y];
+        PlayerGameData.update(inv._id, {$set: {pickupables: inv.pickupables, bag: inv.bag}});
+      }
+
       event.preventDefault();
     },
 
@@ -242,7 +251,14 @@ Template.inventoryScreen.events({
 
 Template.inventoryScreen.bagItems = function(){
 
-  return PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" }).bag;
+  var bag = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" }).bag;
+  var items = [];
+
+  for(item in bag){
+    items.push(getElement(bag[item]));
+  }
+
+  return items;
 }
 
 Template.inventoryScreen.pickupables = function(){

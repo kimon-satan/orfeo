@@ -31,6 +31,12 @@
 	background-color: gray;
 }
 
+.inventoryBag {
+
+	background-color: #996633;
+	min-height: 300px;
+}
+
 
 #inventory {background: url(images/sack_sm.png) 0 0;}
 #inventory.active {background: url(images/sack_sm.png) 0 -64px;}

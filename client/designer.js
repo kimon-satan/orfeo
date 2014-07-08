@@ -576,7 +576,7 @@ function updateLevelInventory(){
 		if(typeof pickupables[e.x] === 'undefined')pickupables[e.x] = {};
 		var p = getElement(e.pickupable);
 		p.state = "dropped";
-		pickupables[e.x][e.y] = [p._id];
+		pickupables[e.x][e.y] = p._id;
 
 	});
 

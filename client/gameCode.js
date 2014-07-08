@@ -146,17 +146,9 @@ Template.navScreen.events({
         if(typeof lps[playerPos.x] !== 'undefined'){
           if(typeof lps[playerPos.x][playerPos.y] !== 'undefined'){
 
-            for(var i = 0; i < lps[playerPos.x][playerPos.y].length; i++){
-              (function(){
-
-                var pu = lps[playerPos.x][playerPos.y][i];
-                if(pu.state == 'dropped'){
-                  isPickup = true;
-                  audioArray.push(pu.narrator);
-                }
-
-              })();
-            }
+              var pu = getElement(lps[playerPos.x][playerPos.y]);
+              isPickup = true;
+              audioArray.push(pu.narrator);
 
           }
         }
@@ -257,11 +249,17 @@ Template.inventoryScreen.pickupables = function(){
 
   var inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
   var pos = PlayerGameData.findOne({player: Meteor.user()._id, type: 'pos'});
+  var pu = [];
+
   if(inv.pickupables[Session.get("currentLevel")._id][pos.x]){
     if(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y]){
-      return inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y];
+
+      pu.push(getElement(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y]));
+      
     }
   }
+
+  return pu;
 
 }
 

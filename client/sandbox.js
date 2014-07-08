@@ -141,8 +141,7 @@ function resetInventory(){
 	if(inv)PlayerGameData.remove(inv._id);
 	var n_inv = {player: Meteor.user()._id, type: "inventory", pickupables: {}, bag: []};
 	var pus = DesignerGameMaps.findOne({type: "inventory", levelId: Session.get("currentLevel")._id}).pickupables;
-	//TODO: create iterator here & repeat in server main
-	//n_inv.pickupables[Session.get("currentLevel")._id] = 
+	n_inv.pickupables[Session.get("currentLevel")._id] = pus;
 	PlayerGameData.insert(n_inv);
 
 }

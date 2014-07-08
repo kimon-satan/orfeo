@@ -117,7 +117,7 @@ createMapCell = function(levelHeader, x, y, ep){
 		exitPoint: 'none', 
 		wall: 'none',
 		pickupable: 'none',
-		n_override: "none", 
+		keyholes: [], 
 		n_additions: [],
 		audibleTraces: []
 	};
@@ -138,6 +138,8 @@ createLevelHeader = function(level, width, height, creator){
 
 	return header;
 }
+
+
 
 
 

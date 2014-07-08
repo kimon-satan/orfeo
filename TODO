@@ -1,12 +1,9 @@
 
-3.finish off inventory interface
 4.keyholes with variants
 5.extra narration
 6.sound fields (filled or hollow center options) 
 
 2. release changed flag using TS
-
-4. objects and inventory
 
 5. now add special override objects and changes to appi wrapper to accomodate panning and mulitple instantiations of the same file 
 

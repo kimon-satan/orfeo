@@ -13,6 +13,10 @@
         {{> inventoryScreen}}
       {{/if}}
 
+      {{#if isInGameRegister}}
+        {{> inGameRegister}}
+      {{/if}}
+
 
     {{else}}
       {{>load}}

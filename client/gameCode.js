@@ -42,6 +42,9 @@ Template.game.isInventoryScreen = function(){
   return Session.get("screenMode") == 2;
 };
 
+Template.game.isInGameRegister = function(){
+  return Session.get("screenMode") == 3;
+};
 
 
 Template.game.destroyed = function(){
@@ -233,12 +236,14 @@ Template.inventoryScreen.events({
     var inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
     var pos = PlayerGameData.findOne({player: Meteor.user()._id, type: 'pos'});
 
+    if(inv.pickupables[Session.get("currentLevel")._id][pos.x] === undefined)inv.pickupables[Session.get("currentLevel")._id][pos.x] = {};
+
     if(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y] === undefined){
 
       console.log("remove: " + e.currentTarget.id);
       var i = inv.bag.indexOf(e.currentTarget.id);
       if( ~i )inv.bag.splice(i, 1);
-      
+
       inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y] = e.currentTarget.id;
       PlayerGameData.update(inv._id, {$set: {pickupables: inv.pickupables, bag: inv.bag}});
 
@@ -280,6 +285,9 @@ Template.inventoryScreen.groundFull = function(){
   
   var inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
   var pos = PlayerGameData.findOne({player: Meteor.user()._id, type: 'pos'});
+
+  if(inv.pickupables[Session.get("currentLevel")._id][pos.x] === undefined)return;
+
   return(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y] === undefined) ? '' : 'disable';
 
 }

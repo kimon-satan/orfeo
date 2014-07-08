@@ -168,17 +168,16 @@ Template.playerLoginControls.events({
 
   'click #saveGame':function(e){
 
+    audio.killAll();
+    Session.set("screenMode", 3);
     e.preventDefault();
   },
 
   'click #newGame':function(e){
 
-    if(Meteor.user().emails !== undefined){
-      //reset level position and inventory here
-    }else{
-      Meteor.logout();
-      Session.set("loginMode", 0);
-    }
+    audio.killAll();
+    Meteor.call('initPlayer', Meteor.user()._id);
+    Session.set('screenMode' , 0);    
 
     e.preventDefault();
   },
@@ -192,6 +191,53 @@ Template.playerLoginControls.events({
 
 });
 
+
+Template.inGameRegister.events({
+
+
+  'click #play':function(e){
+
+      var error = "";
+      var email = $('#inputEmail').val();
+      var uname = $('#inputUn').val();
+      var password = $('#inputPassword').val();
+      var cPass = $('#confirmPassword').val();
+
+      if(!validateEmail(email)){
+        error = "please enter a valid email";
+      }else if(uname.length < 5){
+        error = "please enter a username which is longer than 5 characters";
+      }else if(password.length < 5){
+        error = "please enter a password of at least 5 characters";
+      }else if(password != cPass){
+        error = "your password is typed incorrectly";
+      }
+
+      if(error == ""){ //might need more validation here (check what bootstrap does)
+
+        Meteor.call("registerUser", {_id: Meteor.user()._id, username: uname, email: email}, function(err, result){
+
+          if(!err){
+            //now to change the password ...
+            Accounts.changePassword('1234', password);
+            Session.set("screenMode", 0);
+          }else{
+            Session.set("loginError", err.reason);
+          }
+
+        });
+ 
+
+      }else{
+         Session.set("loginError", error);
+      }
+
+      e.preventDefault();
+
+  }
+
+
+});
 
 
 Template.loginErrors.rendered = function(){

@@ -206,6 +206,30 @@ Meteor.methods({
 			});
 			
 		}
+	},
+
+	registerUser: function(profile){
+
+		user = Meteor.users.findOne(profile._id);
+		if(!user){
+			throw new Meteor.Error(403, "user does not exist");
+			return false;
+		}
+
+		user.username = profile.username;
+		user.emails = [{address: profile.email, verified: false}];
+
+		if(Meteor.users.findOne({username: user.username})){
+			throw new Meteor.Error(403, "A user of that name already exists");
+			return false;
+		}else if(Meteor.users.findOne({emails: { $elemMatch: { address: profile.email } }})){
+			throw new Meteor.Error(403, "A user with that email already exists");
+			return false;
+		}else{
+			Meteor.users.update(profile._id, user);
+			return true;
+		}
+
 	}
 
 

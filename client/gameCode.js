@@ -4,11 +4,9 @@ cTerrain = 0;
 isAudioLock = false;
 isChat = false;
 isPickup = false;
+maxBagItems = 5;
 
 
-UI.registerHelper("isAudioReady", function(){
-  return Session.get("isAudioInit") && Session.get("isLoaded");
-});
 
 Template.game.created = function(){
 
@@ -79,6 +77,9 @@ Template.startSplash.events({
   }
 
 });
+
+
+
 
 /*----------------------------------------------------------------------------------------------*/
 
@@ -207,32 +208,10 @@ Template.navScreen.events({
       Session.set("screenMode", 2);
 
       event.preventDefault();
-    },
+    }
 
-    'click #pickup':function(event){
 
-      if($(event.target).hasClass('disable'))return;
-      if($(event.target).hasClass('active'))return;
-
-      var inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
-      var pos = PlayerGameData.findOne({player: Meteor.user()._id, type: 'pos'});
-
-      if(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y] !== 'undefined'){
-        inv.bag.push(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y]);
-        delete inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y];
-        PlayerGameData.update(inv._id, {$set: {pickupables: inv.pickupables, bag: inv.bag}});
-      }
-
-      event.preventDefault();
-    },
-
-    'click #chat':function(event){
-
-      if($(event.target).hasClass('disable'))return;
-      if($(event.target).hasClass('active'))return;
-
-      event.preventDefault();
-    },
+   
 
 
 });
@@ -245,9 +224,65 @@ Template.inventoryScreen.events({
 
     Session.set("screenMode", 1);
     e.preventDefault();
+  },
+
+  'click .dropBagItem':function(e){
+
+    if($(e.target).hasClass('disable'))return;
+
+    var inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
+    var pos = PlayerGameData.findOne({player: Meteor.user()._id, type: 'pos'});
+
+    if(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y] === undefined){
+
+      console.log("remove: " + e.currentTarget.id);
+      var i = inv.bag.indexOf(e.currentTarget.id);
+      if( ~i )inv.bag.splice(i, 1);
+      
+      inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y] = e.currentTarget.id;
+      PlayerGameData.update(inv._id, {$set: {pickupables: inv.pickupables, bag: inv.bag}});
+
+    }else{
+      console.log("square full");
+      console.log(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y]);
+    }
+
+
+    e.preventDefault();
+  },
+
+  'click .addPickupable':function(e){
+
+    if($(e.target).hasClass('disable'))return;
+
+     var inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
+     var pos = PlayerGameData.findOne({player: Meteor.user()._id, type: 'pos'});
+
+     if(inv.bag.length > maxBagItems)return;
+
+      if(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y] !== undefined){
+        inv.bag.push(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y]);
+        delete inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y];
+        PlayerGameData.update(inv._id, {$set: {pickupables: inv.pickupables, bag: inv.bag}});
+      }
+
+    e.preventDefault();
   }
 
 });
+
+Template.inventoryScreen.bagFull = function(){
+  var inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
+  return (inv.bag.length >= maxBagItems) ? 'disable' : "";
+}
+
+Template.inventoryScreen.groundFull = function(){
+  
+  var inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
+  var pos = PlayerGameData.findOne({player: Meteor.user()._id, type: 'pos'});
+  return(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y] === undefined) ? '' : 'disable';
+
+}
 
 Template.inventoryScreen.bagItems = function(){
 
@@ -255,7 +290,7 @@ Template.inventoryScreen.bagItems = function(){
   var items = [];
 
   for(item in bag){
-    items.push(getElement(bag[item]));
+      items.push(getElement(bag[item]));
   }
 
   return items;
@@ -314,8 +349,9 @@ function resetButtons(){
   $('#where').removeClass('disable');
   $('#inventory').removeClass('disable');
 
-  if(isPickup)$('#pickup').removeClass('disable');
-  if(isChat)$('#chat').removeClass('disable');
+  if(isPickup)Session.set('screenMode', 2);
+  isPickup = false;
+
 
 }
 

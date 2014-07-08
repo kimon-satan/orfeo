@@ -45,7 +45,11 @@ UI.registerHelper('isWall' , function(){return Session.get("currentFeatureType")
 UI.registerHelper('isPickupable' , function(){return Session.get("currentFeatureType") == "pickupable"});
 UI.registerHelper('isKeyhole' , function(){return Session.get("currentFeatureType") == "keyhole"});
 UI.registerHelper('isSoundField' , function(){return Session.get("currentFeatureType") == "soundField"});
+UI.registerHelper('isRegistered' , function(){return Meteor.user().emails !== undefined});
 
+UI.registerHelper("isAudioReady", function(){
+  return Session.get("isAudioInit") && Session.get("isLoaded");
+});
 
 //NB
 //functions need to be declared as anonymous globals in meteor to be available universally
@@ -218,6 +222,24 @@ getInventory = function(levelId){
     }else{
       return GameMapRelease.findOne({type: 'inventory', levelId: levelId});
     }
+}
+
+generateTempId  = function(n){
+
+  var chars = "abcdefghijklmnnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ!@£$%^&*()-=_+";  
+  var count = 0;
+  var str = "";
+  var idx;
+
+  while(count < n){
+
+    idx = Math.random() * (chars.length - 1);
+    str += chars[parseInt(idx)];
+    count++;
+  }
+
+  return str;
+
 }
 
 

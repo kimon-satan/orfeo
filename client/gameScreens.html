@@ -33,6 +33,9 @@
   <div class="tbspacer"><a href="javascript:;" id="begin" class="btn btn-success btn-lg">Enter</a></div>
 </template>
 
+
+
+
 <template name="navScreen">
   
   <div>
@@ -44,6 +47,11 @@
   <div class="row">
     <div class="col-md-3"></div>
     <div class= "col-xs-12 col-md-6">
+
+      {{#unless isSu}}
+        {{>playerLoginControls}}
+      {{/unless}}
+
       <div class = "row">      
 
 
@@ -74,17 +82,12 @@
 
       </div>
 
-      <div class ="row well">
-        <div class="col-xs-4">
-          <a href="javascript:;" id="inventory" class="toggleBtn"></a>
-        </div>
-        <div class="col-xs-4">
-          <a href="javascript:;" id="pickup" class="toggleBtn disable"></a>
-        </div>
-       <div class="col-xs-4">
-          <a href="javascript:;" id="chat" class="toggleBtn disable"></a>
-        </div>
+    <div class ="row">
+      <div class="col-xs-12">
+        <a href="javascript:;" id="inventory" class="toggleBtn"></a>
       </div>
+    </div>
+    
     </div>
   </div>
 
@@ -103,7 +106,7 @@
         {{#each bagItems}}
         <div class="text-left alert alert-success" role="alert">
              <strong>{{displayName}}</strong>
-             <a href="#" style="float: right"><span class="glyphicon glyphicon-minus"></span></a>
+             <a class="dropBagItem" href="#" style="float: right" id={{_id}}><span class="glyphicon glyphicon-minus {{groundFull}}"></span></a>
         </div>
         {{/each}}
       </div>
@@ -112,7 +115,7 @@
       {{#each pickupables}}
       <div class="alert alert-warning" role="alert">
            <strong>{{displayName}}</strong>
-           <a href="#" style="float: right"><span class="glyphicon glyphicon-plus"></span></a>
+           <a href="#" style="float: right" class="addPickupable"><span class="glyphicon glyphicon-plus {{bagFull}}"></span></a>
       </div>
       {{/each}}
         

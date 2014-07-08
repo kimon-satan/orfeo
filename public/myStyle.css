@@ -79,11 +79,11 @@
 	#inventory {background: url(images/sack.png) 0 0;}
 	#inventory.active {background: url(images/sack.png) 0 -128px;}
 
-	#pickup {background: url(images/pickup.png) 0 0;}
+	/*#pickup {background: url(images/pickup.png) 0 0;}
 	#pickup.active {background: url(images/pickup.png) 0 -128px;}
 
 	#chat {background: url(images/chat.png) 0 0;}
-	#chat.active {background: url(images/chat.png) 0 -128px;}
+	#chat.active {background: url(images/chat.png) 0 -128px;}*/
 
 	#compass {background: url(images/compass.png) 0 0;}
 	#compass.active {background: url(images/compass.png) 0 -128px;}

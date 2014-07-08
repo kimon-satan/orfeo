@@ -162,6 +162,36 @@ Template.register.events({
 
 });
 
+/*----------------------------------------------------------------------------------------------*/
+
+Template.playerLoginControls.events({
+
+  'click #saveGame':function(e){
+
+    e.preventDefault();
+  },
+
+  'click #newGame':function(e){
+
+    if(Meteor.user().emails !== undefined){
+      //reset level position and inventory here
+    }else{
+      Meteor.logout();
+      Session.set("loginMode", 0);
+    }
+
+    e.preventDefault();
+  },
+
+  'click #logoutPlayer':function(e){
+
+    Meteor.logout();
+    Session.set("loginMode", 0);
+    e.preventDefault();
+  }
+
+});
+
 
 
 Template.loginErrors.rendered = function(){
@@ -173,23 +203,7 @@ Template.loginErrors.rendered = function(){
 Template.loginErrors.loginError = function(){return Session.get("loginError");}
 
 
-generateTempId  = function(n){
 
-  var chars = "abcdefghijklmnnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ!@£$%^&*()-=_+";  
-  var count = 0;
-  var str = "";
-  var idx;
-
-  while(count < n){
-
-    idx = Math.random() * (chars.length - 1);
-    str += chars[parseInt(idx)];
-    count++;
-  }
-
-  return str;
-
-}
 
 function validateEmail(email) { 
     var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;

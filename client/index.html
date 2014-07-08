@@ -115,6 +115,55 @@
 
 </template>
 
+
+<template name="playerLoginControls">
+      <div class = "row">
+        <div  style="float: right">
+          {{#if isRegistered}}
+            <div class="tbspacer"><a href="#" id="logoutPlayer" class="btn btn-default btn-sm">Logout</a></div>
+            {{else}}
+            <div class="tbspacer"><a href="#" id="saveGame" class="btn btn-default btn-sm">Save Game</a></div>
+          {{/if}}
+          <div class="tbspacer"><a href="#" id="newGame" class="btn btn-default btn-sm">Restart Game</a></div>
+        </div>
+        
+      </div>
+</template>
+
+<template name="updateRegister">
+
+  <form role="form">
+
+    <div class="form-group">
+      <label for="inputEmail">Email address</label>
+      <input type="email" class="form-control" id="inputEmail" placeholder="Enter email">
+    </div>
+
+    <div class="form-group">
+      <label for="inputUn">username</label>
+      <input type="text" class="form-control" id="inputUn" placeholder="Enter your name">
+    </div>
+
+    <div class="form-group">
+      <label for="inputPassword">Password</label>
+      <input type="password" class="form-control" id="inputPassword" placeholder="Password">
+    </div>
+
+    <div class="form-group">
+      <label for="confirmPassword">Confirm Password</label>
+      <input type="password" class="form-control" id="confirmPassword" placeholder="Password">
+    </div>
+
+    {{>loginErrors}}
+    
+
+    <div class="tbspacer"><a href="javascript:;" id="play" class="btn btn-success btn-lg">Start Playing</a></div>
+
+
+  </form>
+
+</template>
+
 <!--
 <template name="resetPassword">
   <h2>Please reset your password</h2>

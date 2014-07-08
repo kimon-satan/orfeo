@@ -8,6 +8,12 @@ Template.su.created = function(){
 
 Template.su.events({
 
+	'click #logout':function(e){
+		Meteor.logout();
+		Session.set("loginMode", 0);
+		e.preventDefault();
+	},
+
 	'click .suOption':function(e){
 		e.preventDefault();
 	},

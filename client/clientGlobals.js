@@ -27,8 +27,29 @@ UI.registerHelper('currentElement' , function(){
 });
 
 
-UI.registerHelper('elements', function(eType){return DesignerGameDefs.find({type: eType}).fetch()});
-UI.registerHelper('myElements', function(eType){return DesignerGameDefs.find({type: eType,  creator: Meteor.user()._id}).fetch()});
+
+UI.registerHelper('elements', function(eType, addNone){
+
+	var elems = DesignerGameDefs.find({type: eType}).fetch();
+
+	if(addNone == 'true'){
+		elems.unshift({name: 'none', _id: 'none'});
+	}
+	
+	return elems;
+
+});
+
+UI.registerHelper('myElements', function(eType, addNone){
+
+	var elems = DesignerGameDefs.find({type: eType,  creator: Meteor.user()._id}).fetch();
+
+	if(addNone == 'true'){
+		elems.unshift({name: 'none', _id: 'none'});
+	}
+	
+	return elems;
+});
 
 UI.registerHelper('levels', function(){return DesignerGameMaps.find({type: 'levelHeader'}).fetch()});
 UI.registerHelper('creatorName', function(){return getCreatorName(this.creator)});

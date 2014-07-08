@@ -173,7 +173,56 @@ Template.elementTable.events({
 	}
 
 
+
+
+
 });
+
+Template.elementPointerTable.events({
+
+	'click .elementPointerRow':function(e){
+
+		var cep = DesignerGameDefs.findOne(e.currentTarget.id);
+		if(typeof cep  === "undefined")return;
+		var ce = Session.get("currentElement");
+		ce.keyPickupable = cep._id;
+		Session.set("currentElement", ce);
+		selectElementPointer(e.currentTarget.id);
+		DesignerGameDefs.update(ce._id, {$set: {keyPickupable: ce.keyPickupable}});
+
+	},
+
+	'mouseenter .elementPointerRow':function(e){
+
+		$('.elementPointerRow').removeClass('subSelected');
+		$('.elementPointerRow > td' ).removeClass('subSelected');
+
+		if(e.currentTarget.id != Session.get("currentElement")._id){
+			$('#' + e.currentTarget.id + ' > td').addClass('subSelected');
+			$('#' + e.currentTarget.id).addClass('subSelected');
+		}
+	},
+
+	'mouseleave .elementPointerRow':function(e){
+
+		$('.elementPointerRow').removeClass('subSelected');
+		$('.elementPointerRow > td' ).removeClass('subSelected');
+
+	}
+
+
+});
+
+function selectElementPointer(id){
+
+	$('.elementPointerRow').removeClass('selected');
+	$('.elementPointerRow > td' ).removeClass('selected');
+	$('#' + id + ' > td').removeClass('subSelected');
+	$('#' + id ).removeClass('subSelected');
+	$('#' + id + ' > td').addClass('selected');
+	$('#' + id).addClass('selected');
+
+}
 
 
 
@@ -204,6 +253,10 @@ function selectElement(id){
 		selectExitLevel();
 	}
 
+	if(Session.get("currentFeatureType") == "keyhole"){
+		selectElementPointer(Session.get("currentElement").keyPickupable);
+	}
+
 }
 
 
@@ -217,56 +270,26 @@ Template.soundControls.audioFiles = function(type){
 	if(!Session.get("currentElement"))return;
 	var ct = DesignerGameDefs.findOne(Session.get("currentElement")._id);
 	if(typeof ct === "undefined")return;
-	var folder;
+	var folder = ct[type].folder;
+	var files = AudioFiles.find({dt: 'file', parent: folder}).fetch();
+	files.unshift({filename: 'none'});
 
-	switch(type){
-
-		case "Background":
-		folder =  ct.background.folder;
-		break;
-		case "Footsteps":
-		folder = ct.footsteps.folder;
-		break;
-		case "Narrator":
-		folder =  ct.narrator.folder;
-		break;
-		case "Hit":
-		folder =  ct.hit.folder;
-		break;
-
-
-	}
-
-  	return AudioFiles.find({dt: 'file', parent: folder}).fetch();
+  	return files;
  
 }
 
-Template.soundControls.audioTypes = function(){return AudioFiles.find({dt: 'type'}).fetch();}
+Template.soundControls.audioTypes = function(){
+	var types = AudioFiles.find({dt: 'type'}).fetch();
+	types.unshift({type: 'none'});
+	return types;
+}
 
 Template.soundControls.audioParam = function(type, item){
 
 	if(!Session.get("currentElement"))return;
 	var ct = DesignerGameDefs.findOne(Session.get("currentElement")._id);
-	if(typeof ct === "undefined" || ct.background === "undefined")return;
-
-
-	switch(type){
-
-		case "Background":
-		return ct.background[item.hash.item];
-		break;
-		case "Footsteps":
-		return ct.footsteps[item.hash.item];
-		break;
-		case "Narrator":
-		return ct.narrator[item.hash.item];
-		break;
-		case "Hit":
-		return ct.hit[item.hash.item];
-		break;
-
-
-	}
+	if(typeof ct === "undefined" || ct[type] === "undefined")return;
+	return ct[type][item.hash.item];
 }
 
 Template.soundControls.events({
@@ -274,75 +297,37 @@ Template.soundControls.events({
 
 	'click .typeOption':function(e){
 		
-
-
 		var terrainObj = Session.get("currentElement");
+		
+		var classList = e.currentTarget.className.split(/\s+/);
+		var folder = classList[1] + '.folder';
+		var audioFile = classList[1] + '.audioFile';
+		var setObj = {};
+		setObj[folder] = $(e.currentTarget.id).selector;
+		setObj[audioFile] = 'none';
 
-		if($(e.currentTarget).hasClass('Background')){
-
-			DesignerGameDefs.update(Session.get("currentElement")._id, 
-				{$set: {'background.folder': $(e.currentTarget.id).selector, 'background.audioFile':'none'}});
-
-		}else if($(e.currentTarget).hasClass('Footsteps')){
-
-			DesignerGameDefs.update(Session.get("currentElement")._id, 
-				{$set: {'footsteps.folder': $(e.currentTarget.id).selector, 'footsteps.audioFile':'none'}});
-
-		}else if($(e.currentTarget).hasClass('Narrator')){
-			DesignerGameDefs.update(Session.get("currentElement")._id, 
-				{$set: {'narrator.folder': $(e.currentTarget.id).selector, 'narrator.audioFile':'none'}});
-
-		}else if($(e.currentTarget).hasClass('Hit')){
-			DesignerGameDefs.update(Session.get("currentElement")._id, 
-				{$set: {'hit.folder': $(e.currentTarget.id).selector, 'hit.audioFile':'none'}});
-		}
+		DesignerGameDefs.update(Session.get("currentElement")._id, {$set: setObj});
 
 		e.preventDefault();
 	},
 
 	'click .fileOption':function(e){
 
-
-		if($(e.currentTarget).hasClass('Background')){
-
-			DesignerGameDefs.update(Session.get("currentElement")._id, 
-				{$set: {'background.audioFile': $(e.currentTarget.id).selector}});
-
-		}else if($(e.currentTarget).hasClass('Footsteps')){
-			DesignerGameDefs.update(Session.get("currentElement")._id, 
-				{$set: {'footsteps.audioFile': $(e.currentTarget.id).selector}});
-
-		}else if($(e.currentTarget).hasClass('Narrator')){
-			DesignerGameDefs.update(Session.get("currentElement")._id, 
-				{$set: {'narrator.audioFile': $(e.currentTarget.id).selector}});
-
-		}else if($(e.currentTarget).hasClass('Hit')){
-			DesignerGameDefs.update(Session.get("currentElement")._id, 
-				{$set: {'hit.audioFile': $(e.currentTarget.id).selector}});
-		}
-		
-
+		var classList = e.currentTarget.className.split(/\s+/);
+		var audioFile = classList[1] + '.audioFile';
+		var setObj = {};
+		setObj[audioFile] = $(e.currentTarget.id).selector;
+		DesignerGameDefs.update(Session.get("currentElement")._id, {$set: setObj});
 		e.preventDefault();
 	},
 
 	'click .ampBox':function(e){
 
-
-		if($(e.currentTarget).hasClass('Background')){
-			DesignerGameDefs.update(Session.get("currentElement")._id, 
-				{$set: {'background.amp': parseFloat(e.currentTarget.value)}});
-		}else if($(e.currentTarget).hasClass('Footsteps')){
-			DesignerGameDefs.update(Session.get("currentElement")._id, 
-				{$set: {'footsteps.amp': parseFloat(e.currentTarget.value)}});
-		}else if($(e.currentTarget).hasClass('Narrator')){
-			DesignerGameDefs.update(Session.get("currentElement")._id, 
-				{$set: {'narrator.amp': parseFloat(e.currentTarget.value)}});
-		}else if($(e.currentTarget).hasClass('Hit')){
-			DesignerGameDefs.update(Session.get("currentElement")._id, 
-				{$set: {'hit.amp': parseFloat(e.currentTarget.value)}});
-		}
-		
-
+		var classList = e.currentTarget.className.split(/\s+/);
+		var amp = classList[1] + '.amp';
+		var setObj = {};
+		setObj[amp] = parseFloat(e.currentTarget.value);
+		DesignerGameDefs.update(Session.get("currentElement")._id, {$set: setObj});
 		e.preventDefault();
 
 	}
@@ -465,6 +450,60 @@ Template.pickupableMaker.events({
 		e.preventDefault();
 	}
 });
+
+/*------------------------------------keyhole maker -------------------------------------*/
+
+
+Template.keyholeMaker.keyPickupable = function(){
+	var kp = DesignerGameDefs.findOne(Session.get("currentElement").keyPickupable);
+	if(kp !== undefined)return kp;
+}
+
+Template.keyholeMaker.removeWall = function(){
+	var e = getElement(Session.get('currentElement').removeWall);
+	if(e !== undefined){
+		return e
+	}else{
+		return {name: 'none'};
+	}
+}
+
+Template.keyholeMaker.checkLevelLinked = function(){
+	return (Session.get("currentElement").isLevelLinked)? 'checked' : '';
+}
+
+Template.keyholeMaker.events({
+
+	'click .wallOption':function(e){
+		var ce = Session.get("currentElement");
+		var id = e.currentTarget.id;
+		ce.removeWall = e.currentTarget.id;
+		DesignerGameDefs.update(ce._id, {$set: {removeWall: ce.removeWall}});
+		Session.set('currentElement', ce);
+		e.preventDefault();
+	},
+
+	'click #linkedKey':function(e){
+
+		var ce = Session.get("currentElement");
+		ce.isLevelLinked = !ce.isLevelLinked;
+		DesignerGameDefs.update(ce._id, {$set: {isLevelLinked: ce.isLevelLinked}});
+		Session.set('currentElement', ce);
+	},
+
+	'click #priority':function(e){
+
+		var ce = Session.get("currentElement");
+		var value = $('#priority').val();
+		ce.priority = parseInt(value);
+		DesignerGameDefs.update(ce._id, {$set: {priority: ce.priority}});
+		Session.set('currentElement', ce);
+		e.preventDefault();
+	}
+
+});
+
+
 
 
 

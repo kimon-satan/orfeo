@@ -3,41 +3,45 @@
   <ul class="pagination">
     <li><a href="#">&laquo;</a></li>
     {{#each features}}
-      <li class="makerlink" id={{this}}><a href="#">{{this}}</a></li>
+    <li class="makerlink" id={{this}}><a href="#">{{this}}</a></li>
     {{/each}}
     <li><a href="#">&raquo;</a></li>
   </ul>
 
   {{#if isTerrain}}
-    {{>terrainMaker}}
+  {{>terrainMaker}}
   {{/if}}
 
   {{#if isEntryPoint}}
-    <h2>edit entryPoints from the level designer</h2>
+  <h2>edit entryPoints from the level designer</h2>
   {{/if}}
 
   {{#if isExitPoint}}
-    {{>exitPointMaker}}
+  {{>exitPointMaker}}
   {{/if}}
 
   {{#if isWall}}
-    {{>wallMaker}}
+  {{>wallMaker}}
   {{/if}}
 
   {{#if isPickupable}}
-    {{>pickupableMaker}}
+  {{>pickupableMaker}}
+  {{/if}}
+
+  {{#if isKeyhole}}
+  {{>keyholeMaker}}
   {{/if}}
 
 </template>
 
 <template name="nameColorPicker">
-    <div class="form-group">
-      <div class="input-group">
-        <span class="input-group-addon">Name</span>
-        <input type="text" class="form-control adjustable" id="elementName" placeholder="eg. forest" value={{currentElement.name}}>
-        <span class="input-group-addon adjustable" id="colPicker" style = "background-color: {{currentElement.color}}"></span>
-      </div>
+  <div class="form-group">
+    <div class="input-group">
+      <span class="input-group-addon">Name</span>
+      <input type="text" class="form-control adjustable" id="elementName" placeholder="eg. forest" value={{currentElement.name}}>
+      <span class="input-group-addon adjustable" id="colPicker" style = "background-color: {{currentElement.color}}"></span>
     </div>
+  </div>
 </template>
 
 <template name="elementTable">
@@ -61,10 +65,35 @@
     </tbody>
   </table>
 
-          <div class="form-group">
-          <button type="submit" id="copyElement" class="btn btn-success">Copy {{e_disp}}</button>
-          <button type="submit" id="removeElement" class="btn btn-danger adjustable">Delete {{e_disp}}</button>
-        </div>
+  <div class="form-group">
+    <button type="submit" id="copyElement" class="btn btn-success">Copy {{e_disp}}</button>
+    <button type="submit" id="removeElement" class="btn btn-danger adjustable">Delete {{e_disp}}</button>
+  </div>
+
+</template>
+
+<template name="elementPointerTable">
+
+  <div class="shortScrollableColumn">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>{{e_disp}} name</th>
+          <th>Creator</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {{#each elements e_index}}
+        <tr id={{_id}} class="elementPointerRow">
+          <td>{{name}}</td>
+          <td>{{creatorName}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+
 </template>
 
 <!-- ------------------------------------------- ELEMENT DESIGNERS ----------------------------------------------- -->
@@ -81,11 +110,11 @@
 
     <div class="col-xs-4 well">
       <form role="form">
-      
+
         {{>nameColorPicker}}
-        {{>soundControls sc_type="Background"}}
-        {{>soundControls sc_type="Footsteps"}}
-        {{>soundControls sc_type="Narrator"}}
+        {{>soundControls sc_disp="Background" sc_type="background"}}
+        {{>soundControls sc_disp="Footsteps" sc_type="footsteps"}}
+        {{>soundControls sc_disp="Narrator" sc_type="narrator"}}
 
       </form>
     </div>
@@ -100,7 +129,7 @@
 
 <template name="soundControls">
   <div class="panel panel-default">
-    <div class="panel-heading">{{sc_type}}</div>
+    <div class="panel-heading">{{sc_disp}}</div>
     <div class="panel-body">
 
       <div class="form-group">
@@ -145,16 +174,16 @@
     <div class="col-xs-1"></div>
 
     <div class="col-xs-5 well scrollableColumn" style="height: 500px">
-      {{>elementTable e_disp = "ExitPoint" e_index = "exitPoint"}}
+      {{>elementTable e_disp = "ExitPoint" e_index = "exitPoint" }}
     </div>
 
     <div class="col-xs-1"></div>
 
     <div class="col-xs-4 well">
-      
+
       {{>nameColorPicker}}
 
-      <div class="tableOverflow">
+      <div class="tableOverflow shortScrollableColumn">
         <table class="table table-bordered table-condensed">
           <thead>
             <tr>
@@ -173,7 +202,9 @@
           </tbody>
         </table>
       </div>
- 
+
+      <br/><br/>
+
 
       <form role="form">
         <div class="form-group">
@@ -185,7 +216,7 @@
           <input type="number" id="entryIndex" class="adjustable" min="0" max="9" value="{{currentElement.entryIndex}}">
         </div>
       </form>
-   </div>
+    </div>
   </div>
 
 
@@ -194,7 +225,7 @@
 
 <template name="wallMaker">
 
-    <div class ="row">
+  <div class ="row">
     <div class="col-xs-1"></div>
 
     <div class="col-xs-5 well scrollableColumn" style="height: 500px">
@@ -204,15 +235,16 @@
     <div class="col-xs-1"></div>
     <div class="col-xs-4 well">
       <form role="form">
-      
+
         {{>nameColorPicker}}
-        {{>soundControls sc_type="Hit"}}
-        {{>soundControls sc_type="Narrator"}}
+        {{>soundControls  sc_disp="Hit" sc_type="hit"}}
+        {{>soundControls sc_disp="Narrator" sc_type="narrator"}}
+
 
       </form>
     </div>
 
-    </div>
+  </div>
 
 
 </template>
@@ -220,18 +252,18 @@
 
 <template name="pickupableMaker">
 
-    <div class ="row">
+  <div class ="row">
     <div class="col-xs-1"></div>
 
     <div class="col-xs-5 well scrollableColumn" style="height: 500px">
-      {{>elementTable e_disp = "Pickupable" e_index = "pickupable"}}
+      {{>elementTable e_disp = "Pickupable" e_index = "pickupable" }}
     </div>
 
 
     <div class="col-xs-1"></div>
     <div class="col-xs-4 well">
       <form role="form">
-      
+
         {{>nameColorPicker}}
 
         <div class="form-control tbspacer">
@@ -239,17 +271,94 @@
           <input class = "adjustable" type = "text" id="displayName" value={{currentElement.displayName}}> 
         </div>
 
-         <div class="form-control tbspacer">
+        <div class="form-control tbspacer">
           <label for="mapSymbol">Map Symbol</label>
           <input class = "adjustable" maxLength="1" type = "text" id="mapSymbol" value={{currentElement.mapSymbol}}> 
         </div>
-        
+
         <br/><br/>
-        {{>soundControls sc_type="Narrator"}}
+        {{>soundControls sc_disp="Narrator" sc_type="narrator"}}
 
       </form>
     </div>
 
+  </div>
+
+</template>
+
+
+<template name="keyholeMaker">
+
+  <div class ="row">
+
+    <div class="col-xs-5 scrollableColumn" style="height: 500px">
+      <div class="well lrspacer">
+        {{>elementTable e_disp = "Keyhole" e_index = "keyhole"}}
+      </div>
     </div>
+
+    <div class="col-xs-7"> 
+      <div class="well lrspacer">
+        <form role="form">
+
+          {{>nameColorPicker}}
+
+
+          {{>elementPointerTable e_disp="Pickupable" e_index="pickupable" }}
+
+
+          <div class="form-group tbspacer">
+            <label for="keyP">Key Pickupable</label>
+            <input type="text" id="keyP" disabled="true" value="{{keyPickupable.name}}">
+          </div>
+
+          <div class="form-group tbspacer">
+
+            <div class="lrspacer">
+              <label>Remove wall type </label>
+              <div class="btn-group">
+                <button type="button" class="btn btn-default adjustable">{{removeWall.name}}</button>
+                <button type="button" class="btn btn-default dropdown-toggle adjustable" data-toggle="dropdown">
+                  <span class="caret"></span>
+                  <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                  {{#each myElements 'wall' 'true'}}
+                  <li><a class="wallOption" id={{this._id}} href="#">{{this.name}}</a></li>
+                  {{/each}}
+                </ul>
+              </div>
+            </div>
+
+
+            <div class="lrspacer">
+              <label for="linkedKey">Linked key</label>
+              <input id="linkedKey" type="checkbox" {{checkLevelLinked}}> 
+            </div>
+
+
+            <label for="priority">Priority</label>
+            <input id="priority" class ="adjustable" type="number" min="0" max="3" step="1" value={{currentElement.priority}}>
+          </div>
+
+
+
+          {{>soundControls sc_disp = "Start Sound" sc_type="preSound"}}
+          {{>soundControls sc_disp = "True Sound" sc_type="trueSound"}}
+          {{>soundControls sc_disp ="False Sound" sc_type="falseSound"}}
+          {{>soundControls sc_disp = "End Sound" sc_type="postSound"}}
+
+
+
+
+          <br/><br/>
+
+
+
+        </form>
+      </div>
+    </div>
+
+  </div>
 
 </template>

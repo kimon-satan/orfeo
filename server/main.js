@@ -57,11 +57,11 @@ Meteor.startup(function(){
 	}
 
 
+	var daudio = {folder: "none", audioFile: "none", amp: 0.5};
 
 	//populate DesignerGameDefs with default objects
 	if(!DesignerGameDefs.findOne({type: 'terrain'})){
 		
-		var daudio = {folder: "none", audioFile: "none", amp: 0.5};
 		var terrain = {name: "default", type: "terrain", creator: "server", background: daudio, footsteps: daudio, narrator: daudio};
 
 		DesignerGameDefs.insert(terrain);
@@ -78,9 +78,7 @@ Meteor.startup(function(){
 
 	if(!DesignerGameDefs.findOne({type: 'wall'})){
 
-		var daudio = {folder: "none", audioFile: "none", amp: 0.5};
 		var wall = {name: "default", type: "wall", creator: "server", hit: daudio, narrator: daudio};
-
 		DesignerGameDefs.insert(wall);
 
 	}
@@ -88,12 +86,32 @@ Meteor.startup(function(){
 
 	if(!DesignerGameDefs.findOne({type: 'pickupable'})){
 
-		var daudio = {folder: "none", audioFile: "none", amp: 0.5};
 		var pu = {name: "default", type: "pickupable", creator: "server", narrator: daudio, displayName: "default", icon: "", mapSymbol: "0"};
 
 		DesignerGameDefs.insert(pu);
 	}
 
+
+	if(!DesignerGameDefs.findOne({type: 'keyhole'})){
+
+		var kh = {
+
+			name: 'default',
+			creator: 'server',
+			type: 'keyhole',
+			preSound: daudio,
+			trueSound: daudio,
+			falseSound: daudio,
+			postSound: daudio,
+			keyPickupable: 'none',
+			isLevelLinked: false,
+			removeWall: 'none',
+			priority: 0
+		}
+
+		DesignerGameDefs.insert(kh);
+
+	}
 
 	
 

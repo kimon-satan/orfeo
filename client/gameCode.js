@@ -1,8 +1,10 @@
 
 audio = 0;
 cTerrain = 0;
+nTerrain = 'none';
+cell = {};
+playerPos = {};
 isAudioLock = false;
-isChat = false;
 isPickup = false;
 maxBagItems = 5;
 
@@ -15,8 +17,6 @@ Template.game.created = function(){
 //console.log(id);
 
 Meteor.subscribe("PlayerGameData", id, { onReady: function(){
-
-
 
      Meteor.subscribe("AudioFiles",{}, {onReady: function(){
 
@@ -68,13 +68,12 @@ Template.startSplash.events({
                Session.set('currentLevel', getLevel(level.id));
           }
 
-          var playerPos = PlayerGameData.findOne({player: Meteor.user()._id, type: "pos"});
-
-          var cell = getCell(playerPos.x, playerPos.y);
+          playerPos = PlayerGameData.findOne({player: Meteor.user()._id, type: "pos"});
+          cell = getCell(playerPos.x, playerPos.y);
           cTerrain = getElement(cell.terrain);
+          nTerrain = 'none';
 
-          isAudioLock = true;
-          updateGameCellAudio(cTerrain, 'none', resetButtons);
+          handleBegin(cell, playerPos);
 
           e.preventDefault();
      }
@@ -113,16 +112,14 @@ Template.navScreen.events({
 
      $('.toggleBtn').not('#' + id).addClass('disable');
 
-
-     var playerPos = PlayerGameData.findOne({player: Meteor.user()._id, type: "pos"});
-
      if(id == "north")playerPos.y = Math.max(playerPos.y - 1, 0);
      if(id == "south")playerPos.y = Math.min(playerPos.y + 1, Session.get('currentLevel').height - 1); //these need turning into variables
      if(id == "east")playerPos.x = Math.min(playerPos.x + 1, Session.get('currentLevel').width - 1); //these need turning into variables
      if(id == "west")playerPos.x = Math.max(playerPos.x - 1, 0);
 
-     var cell = getCell(playerPos.x, playerPos.y);
-     handleCell(cell, playerPos, function(){
+     cell = getCell(playerPos.x, playerPos.y);
+
+     handleStep(function(){
           $(event.target).removeClass('active');
           $(event.target).addClass('disable');
      });
@@ -175,23 +172,17 @@ Template.inventoryScreen.events({
           if($(e.target).hasClass('disable'))return;
 
           var inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
-          var pos = PlayerGameData.findOne({player: Meteor.user()._id, type: 'pos'});
+          var idx = findLockedKeyhole(inv);
 
-          if(inv.pickupables[Session.get("currentLevel")._id][pos.x] === undefined)inv.pickupables[Session.get("currentLevel")._id][pos.x] = {};
+          if(idx < 0){
 
-          if(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y] === undefined){
-
-               console.log("remove: " + e.currentTarget.id);
-               var i = inv.bag.indexOf(e.currentTarget.id);
-               if( ~i )inv.bag.splice(i, 1);
-
-               inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y] = e.currentTarget.id;
-               PlayerGameData.update(inv._id, {$set: {pickupables: inv.pickupables, bag: inv.bag}});
+               handleDropItem(inv, e.currentTarget.id);
 
           }else{
-               console.log("square full");
-               console.log(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y]);
+
+               handleKeyholeDrop(inv, e.currentTarget.id, idx);
           }
+         
 
 
           e.preventDefault();
@@ -227,6 +218,8 @@ Template.inventoryScreen.groundFull = function(){
      var inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
      var pos = PlayerGameData.findOne({player: Meteor.user()._id, type: 'pos'});
 
+     if(findLockedKeyhole(inv) > -1)return;
+
      if(inv.pickupables[Session.get("currentLevel")._id][pos.x] === undefined)return;
 
      return(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y] === undefined) ? '' : 'disable';
@@ -251,13 +244,17 @@ Template.inventoryScreen.pickupables = function(){
      var pos = PlayerGameData.findOne({player: Meteor.user()._id, type: 'pos'});
      var pu = [];
 
-     if(inv.pickupables[Session.get("currentLevel")._id][pos.x]){
-          if(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y]){
 
-               pu.push(getElement(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y]));
+     var item;
+     if(inv.pickupables[Session.get("currentLevel")._id][pos.x])item = inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y];
+     var idx = findLockedKeyhole(inv);
 
-          }
+     if(idx > -1 && cell.pickupable == item ){
+          item = false;
      }
+
+     if(item)pu.push(getElement(item));
+     
 
      return pu;
 
@@ -265,79 +262,37 @@ Template.inventoryScreen.pickupables = function(){
 
 /*----------------------------------------helper functions----------------------------*/
 
-function handleCell(cell, playerPos, callback){
-
-     isPickup = false;
-     var wall;
-     var isRebound = false;
-     var isKeyOverride = false;
-     var audioArray = [];
-
-
-     if(cell.wall != 'none'){
-
-          isRebound = true;
-          wall = getElement(cell.wall);
-
-     }
-
-     var inv = PlayerGameData.findOne({player: Meteor.user()._id, type: 'inventory'});
-
-     var lkh = inv.keyholes[Session.get("currentLevel")._id];
-
-     if(typeof lkh[playerPos.x] !== 'undefined'){
-          if(typeof lkh[playerPos.x][playerPos.y] !== 'undefined'){
-
-               for(var i = 0; i < 4; i++){
-                    if(lkh[playerPos.x][playerPos.y][i] !== undefined){
-                         if(lkh[playerPos.x][playerPos.y][i].locked){
-                              isKeyOverride = true;
-                              var key = getElement(lkh[playerPos.x][playerPos.y][i].id);
-                              audioArray.push(key.preSound);
-                              break;
-                         }else{
-                              var key = getElement(lkh[playerPos.x][playerPos.y][i].id);
-                              audioArray.push(key.postSound);
-                         }
-               
-                    }
-               }
-
-          }
-     }
-
-
-     if(!isKeyOverride){
-          if(cell.exitPoint != 'none'){
-
-               cell = handleExitPoint(cell.exitPoint);
-               playerPos.x = cell.x; playerPos.y = cell.y;
-
-          }
-
-
-
-          var lps = inv.pickupables[Session.get("currentLevel")._id];
-
-          if(typeof lps[playerPos.x] !== 'undefined'){
-               if(typeof lps[playerPos.x][playerPos.y] !== 'undefined'){
-
-                    var pu = getElement(lps[playerPos.x][playerPos.y]);
-                    isPickup = true;
-                    audioArray.push(pu.narrator);
-
-               }
-          }
-     }
+function handleBegin(){
 
      isAudioLock = true;
+     
+     var audioArray = handleInteractives();
 
-     if(typeof wall !== 'undefined'){
+     handleTerrain(cTerrain, nTerrain, function(){
+
+          playAudioSequence(audioArray, resetButtons);
+
+     });
+     
+}
+
+function handleStep(callback){
+
+ 
+     isAudioLock = true;
+
+     var audioArray;
+     
+     //part of step
+     if(cell.wall != 'none'){
 
           nTerrain = cTerrain;
-          handleWallAudio(wall, resetButtons);
+          handleWallAudio(getElement(cell.wall), resetButtons);
+          playerPos = PlayerGameData.findOne(playerPos._id); //reset back to current position
 
      }else{
+
+          audioArray = handleInteractives();
 
           PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
           nTerrain = getElement(cell.terrain);
@@ -346,7 +301,7 @@ function handleCell(cell, playerPos, callback){
 
                if(typeof callback !== 'undefined')callback();
 
-               updateGameCellAudio(cTerrain, nTerrain, function(){
+               handleTerrain(cTerrain, nTerrain, function(){
 
                     playAudioSequence(audioArray, resetButtons);
 
@@ -357,6 +312,129 @@ function handleCell(cell, playerPos, callback){
           });
 
      }
+
+}
+
+function handleKeyholeDrop(inv, id ,idx){
+
+     var kh = inv.keyholes[Session.get("currentLevel")._id][playerPos.x][playerPos.y][idx];
+                          
+     var key = getElement(kh.id);
+                              
+     if(key.keyPickupable == id){
+          console.log("match");
+          var i = inv.bag.indexOf(id);
+          if( ~i )inv.bag.splice(i, 1);
+          kh.locked = false;
+          inv.keyholes[Session.get("currentLevel")._id][playerPos.x][playerPos.y][idx] = kh;
+          PlayerGameData.update(inv._id, {$set:{keyholes: inv.keyholes, bag: inv.bag}});
+
+          //this will be in a callback from the audio player
+          var audioArray = handleInteractives();
+
+          PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
+          nTerrain = getElement(cell.terrain);
+          
+          handleTerrain(cTerrain, nTerrain, function(){
+
+               playAudioSequence(audioArray, function(){Session.set('screenMode', 1)});
+
+          });
+
+
+     }else{
+          console.log("non match");
+          handleDropItem(inv, id);
+     }
+
+
+
+}
+
+function handleDropItem(inv, id){
+
+     if(inv.pickupables[Session.get("currentLevel")._id][playerPos.x] === undefined)inv.pickupables[Session.get("currentLevel")._id][playerPos.x] = {};
+
+     if(inv.pickupables[Session.get("currentLevel")._id][playerPos.x][playerPos.y] === undefined){
+
+          console.log("remove: " + id);
+          var i = inv.bag.indexOf(id);
+          if( ~i )inv.bag.splice(i, 1);
+
+          inv.pickupables[Session.get("currentLevel")._id][playerPos.x][playerPos.y] = id;
+          PlayerGameData.update(inv._id, {$set: {pickupables: inv.pickupables, bag: inv.bag}});
+
+     }else{
+          console.log("square full");
+          console.log(inv.pickupables[Session.get("currentLevel")._id][playerPos.x][playerPos.y]);
+     }
+
+}
+
+
+
+function handleInteractives(){
+
+     var audioArray = [];
+     var isKeyOverride = false;
+     isPickup = false;
+
+     var inv = PlayerGameData.findOne({player: Meteor.user()._id, type: 'inventory'});
+     var idx = findLockedKeyhole(inv);
+
+     if(checkForKeyholes(inv)){
+          
+          if(idx > -1){
+               var lkh = inv.keyholes[Session.get("currentLevel")._id][playerPos.x][playerPos.y][idx];
+               var key = getElement(lkh.id);
+               isKeyOverride = true;
+               if(key.preSound.audioFile != 'none')audioArray.push(key.preSound);
+
+          }
+          
+          for(var i = 0; i < 4; i++ ){ 
+               if(i != idx){
+                    var lkh = inv.keyholes[Session.get("currentLevel")._id][playerPos.x][playerPos.y][i];  
+                    if(typeof lkh !== 'undefined'){ 
+                         if(!lkh.locked){        
+                              var key = getElement(lkh.id);
+                              if(key.postSound.audioFile != 'none')audioArray.push(key.postSound);
+                         }
+                    }
+               }
+          }
+
+     }
+                         
+
+
+     if(!isKeyOverride){
+          if(cell.exitPoint != 'none'){
+               cell = handleExitPoint(cell.exitPoint); //check whats here
+               playerPos.x = cell.x; playerPos.y = cell.y;
+          }
+     }
+
+     
+
+     var lps = inv.pickupables[Session.get("currentLevel")._id];
+
+     if(typeof lps[playerPos.x] !== 'undefined'){
+          if(typeof lps[playerPos.x][playerPos.y] !== 'undefined'){
+
+
+               if(!isKeyOverride || cell.pickupable != lps[playerPos.x][playerPos.y]){
+                    var pu = getElement(lps[playerPos.x][playerPos.y]);
+                    isPickup = true;
+                    audioArray.push(pu.narrator);
+               }
+
+          }
+     }
+
+     
+
+     return audioArray;
 
 }
 
@@ -383,8 +461,33 @@ function handleExitPoint(exitPointId){
 }
 
 
-function handleKeyHole(){
+function findLockedKeyhole(inv){
 
+     if(checkForKeyholes(inv)){
+
+          var lkh = inv.keyholes[Session.get("currentLevel")._id][playerPos.x][playerPos.y];
+
+          for(var i = 0; i < 4; i++){
+               if(lkh[i] !== undefined){
+                    if(lkh[i].locked)return i;
+               }
+          }
+ 
+     }
+
+     return -1;
+
+}
+
+function checkForKeyholes(inv){
+
+     var lkh = inv.keyholes[Session.get("currentLevel")._id];
+
+     if(typeof lkh[playerPos.x] !== 'undefined'){
+          if(typeof lkh[playerPos.x][playerPos.y] !== 'undefined')return true;
+     }
+
+     return false;
 
 }
 
@@ -421,7 +524,8 @@ playAudioSequence = function(audioObjs, finalCallback){
 
 }
 
-updateGameCellAudio = function(cTerrain , nTerrain, callback){
+handleTerrain = function(cTerrain , nTerrain, callback){
+
 
      if(nTerrain == 'none'){
 

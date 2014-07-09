@@ -599,9 +599,9 @@ function updateKey(){
 	DesignerGameDefs.find({creator: Session.get('currentLevel').creator, type: 'keyhole'}).forEach(function(e){
 
 		for(var i = 0; i < 4; i++){
-			var searchObj = {type: 'cell', level: Session.get("currentLevel").level, creator: Session.get('currentLevel').creator, keyhole: {}};
-			searchObj['keyhole'][i] = e._id;
-			if(DesignerGameMaps.findOne(searchObj))elements.push(e._id);
+			var searchObj = {type: 'cell', level: Session.get("currentLevel").level, creator: Session.get('currentLevel').creator};
+			searchObj['keyhole.' + i] = e._id;
+			if(DesignerGameMaps.findOne(searchObj) && elements.lastIndexOf(e._id) == -1)elements.push(e._id);
 		}
 
 	}); 

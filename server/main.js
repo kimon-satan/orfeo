@@ -209,7 +209,7 @@ Meteor.methods({
 		PlayerGameData.insert({player: userId, type: "level", id: initLevel._id });
 
 		var t_inv = GameMapRelease.findOne({type: "inventory", levelId: initLevel._id});
-		var inv = {player: userId, type: "inventory", pickupables: {}, bag:[], keyholes: {}};
+		var inv = {player: userId, type: "inventory", pickupables: {}, bag:[], keyholes: {}, overrides:{}};
 		inv.pickupables[initLevel._id] = t_inv.pickupables;
 		inv.keyholes[initLevel._id] = t_inv.keyholes;
 		PlayerGameData.insert(inv);

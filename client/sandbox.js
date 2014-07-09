@@ -139,7 +139,7 @@ function resetInventory(){
 
 	var inv = PlayerGameData.findOne({player: Meteor.user()._id, type: 'inventory'});
 	if(inv)PlayerGameData.remove(inv._id);
-	var n_inv = {player: Meteor.user()._id, type: "inventory", pickupables: {}, bag: [], keyholes: {}};
+	var n_inv = {player: Meteor.user()._id, type: "inventory", pickupables: {}, bag: [], keyholes: {}, overrides: {}};
 	var pus = DesignerGameMaps.findOne({type: "inventory", levelId: Session.get("currentLevel")._id}).pickupables;
 	var keys = DesignerGameMaps.findOne({type: "inventory", levelId: Session.get("currentLevel")._id}).keyholes;
 	n_inv.pickupables[Session.get("currentLevel")._id] = pus;

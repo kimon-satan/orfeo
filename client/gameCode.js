@@ -1,3 +1,7 @@
+//TODO ->
+//        sandbox jump to square no longer works due to refactoring
+//    also disable inventory for audio running
+
 
 audio = 0;
 cTerrain = 0;
@@ -282,13 +286,16 @@ function handleStep(callback){
      isAudioLock = true;
 
      var audioArray;
-     
+     var inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
+
+
      //part of step
-     if(cell.wall != 'none'){
+     if(cell.wall != 'none' && typeof inv.overrides[cell.wall] === 'undefined'){
 
           nTerrain = cTerrain;
           handleWallAudio(getElement(cell.wall), resetButtons);
           playerPos = PlayerGameData.findOne(playerPos._id); //reset back to current position
+          cell = getCell(playerPos.x, playerPos.y);
 
      }else{
 
@@ -315,6 +322,36 @@ function handleStep(callback){
 
 }
 
+function keyholeSuccess(inv, idx){
+
+     var kh = inv.keyholes[Session.get("currentLevel")._id][playerPos.x][playerPos.y][idx];
+
+     kh.locked = false;
+
+     var key = getElement(kh.id);
+
+     if(key.removeWall != 'none'){
+          inv.overrides[key.removeWall] = true;
+     }
+
+     inv.keyholes[Session.get("currentLevel")._id][playerPos.x][playerPos.y][idx] = kh;
+     PlayerGameData.update(inv._id, {$set:{keyholes: inv.keyholes, overrides: inv.overrides}});
+
+     var audioArray = handleInteractives();
+
+     PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
+     nTerrain = getElement(cell.terrain);
+     
+     handleTerrain(cTerrain, nTerrain, function(){
+
+          playAudioSequence(audioArray, function(){Session.set('screenMode', 1)});
+
+     });
+
+     cTerrain = nTerrain; 
+
+}
+
 function handleKeyholeDrop(inv, id ,idx){
 
      var kh = inv.keyholes[Session.get("currentLevel")._id][playerPos.x][playerPos.y][idx];
@@ -325,26 +362,26 @@ function handleKeyholeDrop(inv, id ,idx){
           console.log("match");
           var i = inv.bag.indexOf(id);
           if( ~i )inv.bag.splice(i, 1);
-          kh.locked = false;
-          inv.keyholes[Session.get("currentLevel")._id][playerPos.x][playerPos.y][idx] = kh;
-          PlayerGameData.update(inv._id, {$set:{keyholes: inv.keyholes, bag: inv.bag}});
+          PlayerGameData.update(inv._id, {$set:{bag: inv.bag}});
 
-          //this will be in a callback from the audio player
-          var audioArray = handleInteractives();
-
-          PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
-          nTerrain = getElement(cell.terrain);
+          if(key.trueSound.audioFile != 'none'){
+               audio.playOnce(key.trueSound.audioFile, {amp: key.trueSound.amp}, function(){keyholeSuccess(inv, idx)});
+          }else{
+               keyholeSuccess(inv, idx);
+          }
           
-          handleTerrain(cTerrain, nTerrain, function(){
-
-               playAudioSequence(audioArray, function(){Session.set('screenMode', 1)});
-
-          });
-
+          //this will be in a callback from the audio player
 
      }else{
+
           console.log("non match");
-          handleDropItem(inv, id);
+          if(key.falseSound.audioFile != 'none'){
+               audio.playOnce(key.falseSound.audioFile, {amp: key.falseSound.amp}, function(){ handleDropItem(inv, id)});
+          }else{
+               handleDropItem(inv, id);
+          }
+          
+          
      }
 
 
@@ -569,24 +606,24 @@ if(typeof inv.pickupables[levelId] === 'undefined'){
 
 function handleWallAudio(wall, callback){
 
-//TODO add a boolean to be triggered only when all audio is finished
+     //TODO add a boolean to be triggered only when all audio is finished
 
-if(wall.hit.audioFile != 'none'){
+     if(wall.hit.audioFile != 'none'){
 
-     audio.playOnce(wall.hit.audioFile, {amp: wall.hit.amp}, function(){
+          audio.playOnce(wall.hit.audioFile, {amp: wall.hit.amp}, function(){
 
-          if(wall.narrator.audioFile != 'none'){
-               audio.playOnce(wall.narrator.audioFile, {amp: wall.narrator.amp}, callback);  
-          }else{
-               callback();
-          }
+               if(wall.narrator.audioFile != 'none'){
+                    audio.playOnce(wall.narrator.audioFile, {amp: wall.narrator.amp}, callback);  
+               }else{
+                    callback();
+               }
 
-     });  
+          });  
 
-}else if(wall.narrator.audioFile != 'none'){
+     }else if(wall.narrator.audioFile != 'none'){
 
-     audio.playOnce(wall.narrator.audioFile, {amp: wall.narrator.amp}, callback);      
-}
+          audio.playOnce(wall.narrator.audioFile, {amp: wall.narrator.amp}, callback);      
+     }
 
 }
 

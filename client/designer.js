@@ -41,6 +41,7 @@ Template.terrainMap.events({
 
 				var index = $('#priorityBox').val();
 				setArrayElement(loc, index);
+				updateLevelInventory();
 
 			}else{
 				setMultiElement(loc);
@@ -117,7 +118,7 @@ function setArrayElement(loc, index){
 	if(isRemoveItems){
 
 		for(item in array){
-			if(array[item] == Session.get('currentElement')._id)array[item] = undefined;
+			if(array[item] == Session.get('currentElement')._id)delete array[item];
 		}
 
 	}else{
@@ -613,18 +614,31 @@ function updateLevelInventory(){
 
 	var inv = DesignerGameMaps.findOne({type: 'inventory', levelId: Session.get("currentLevel")._id});
 	var pickupables = {};
+	var keyholes = {};
 	var id = Session.get("currentLevel")._id;
 
 	DesignerGameMaps.find({type: 'cell', levelId: id, pickupable: {$not: 'none'}}).forEach(function(e){
 
 		if(typeof pickupables[e.x] === 'undefined')pickupables[e.x] = {};
 		var p = getElement(e.pickupable);
-		p.state = "dropped";
 		pickupables[e.x][e.y] = p._id;
 
 	});
 
-	DesignerGameMaps.update(inv._id, {$set: {pickupables: pickupables}});
+	DesignerGameMaps.find({type: 'cell', levelId: id, keyhole: {$not: {}}}).forEach(function(e){
+
+		if(typeof keyholes[e.x] === 'undefined')keyholes[e.x] = {};
+		keyholes[e.x][e.y] = {};
+
+		for(var i = 0; i < 4; i++){
+			if(e.keyhole[i] !== undefined){
+				var k = getElement(e.keyhole[i]);
+				keyholes[e.x][e.y][i] = {id: k._id, locked: true};
+			}
+		}
+	});
+
+	DesignerGameMaps.update(inv._id, {$set: {pickupables: pickupables, keyholes: keyholes}});
 
 }
 

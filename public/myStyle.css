@@ -129,6 +129,30 @@
 	left: 10px;
 	min-width:20px;
 	min-height:20px;
+	z-index: 800;
+}
+
+.topLeft{
+	top: 0px;
+	left: 0px;
+	z-index: 1000;
+}
+
+.topRight{
+	top: 0px;
+	left: 20px;
+	z-index: 1000;
+}
+
+.bottomRight{
+	top: 20px;
+	left: 20px;
+	z-index: 1000;
+}
+
+.bottomLeft{
+	top: 20px;
+	left: 0px;
 	z-index: 1000;
 }
 

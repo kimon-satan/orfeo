@@ -489,15 +489,13 @@ Template.keyholeMaker.events({
 		ce.isLevelLinked = !ce.isLevelLinked;
 		DesignerGameDefs.update(ce._id, {$set: {isLevelLinked: ce.isLevelLinked}});
 		Session.set('currentElement', ce);
-	},
+	}, 
 
-	'click #priority':function(e){
+	'blur #mapSymbol':function(e){
 
 		var ce = Session.get("currentElement");
-		var value = $('#priority').val();
-		ce.priority = parseInt(value);
-		DesignerGameDefs.update(ce._id, {$set: {priority: ce.priority}});
-		Session.set('currentElement', ce);
+		ce.mapSymbol = $('#mapSymbol').val();
+		DesignerGameDefs.update(ce._id,{$set: {mapSymbol: ce.mapSymbol}});
 		e.preventDefault();
 	}
 

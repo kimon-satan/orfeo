@@ -111,16 +111,17 @@ checkClientIsDesigner = function(){
 
 checkForDependencies = function (doc){
 
-	var search = {type: 'cell', creator: doc.creator};
-	search[doc.type] =  doc._id;
-	var depend = DesignerGameMaps.findOne(search);
-	
-	if(!depend){
-		return false;
-	}else{
-		return depend.level;
+	var levelHeaders = DesignerGameMaps.find({type: 'levelHeader', creator: doc.creator}).fetch();
+
+	for(lh in levelHeaders){
+		for(item in levelHeaders[lh].mapKey){
+			if(levelHeaders[lh].mapKey[item] == doc._id){
+				return levelHeaders[lh].level;
+			}
+		}
 	}
 
+	return false;
 }
 
 disableAdjustables = function (){

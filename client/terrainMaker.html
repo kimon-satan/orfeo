@@ -312,6 +312,11 @@
             <input type="text" id="keyP" disabled="true" value="{{keyPickupable.name}}">
           </div>
 
+         <div class="form-group tbspacer">
+          <label for="mapSymbol">Map Symbol</label>
+          <input class = "adjustable" maxLength="1" type = "text" id="mapSymbol" value={{currentElement.mapSymbol}}> 
+        </div>
+
           <div class="form-group tbspacer">
 
             <div class="lrspacer">
@@ -336,9 +341,6 @@
               <input id="linkedKey" type="checkbox" {{checkLevelLinked}}> 
             </div>
 
-
-            <label for="priority">Priority</label>
-            <input id="priority" class ="adjustable" type="number" min="0" max="3" step="1" value={{currentElement.priority}}>
           </div>
 
 

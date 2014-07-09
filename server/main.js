@@ -99,6 +99,7 @@ Meteor.startup(function(){
 			name: 'default',
 			creator: 'server',
 			type: 'keyhole',
+			mapSymbol: 'x',
 			preSound: daudio,
 			trueSound: daudio,
 			falseSound: daudio,

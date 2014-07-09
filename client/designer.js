@@ -37,10 +37,13 @@ Template.terrainMap.events({
 
 				setSingularElement(loc);
 
-			}else{
+			}else if(Session.get("currentFeatureType") == "keyhole"){
 
+				var index = $('#priorityBox').val();
+				setArrayElement(loc, index);
+
+			}else{
 				setMultiElement(loc);
-				
 			}
 
 			if(Session.get("currentFeatureType") == "pickupable"){
@@ -102,6 +105,33 @@ function setMultiElement(loc){
 
 }
 
+function setArrayElement(loc, index){
+
+
+	var cell = DesignerGameMaps.findOne({type: 'cell', 
+	levelId: Session.get("currentLevel")._id, 
+	x: parseInt(loc[0]), y: parseInt(loc[1])});
+
+	var array = cell[Session.get("currentElement").type];
+
+	if(isRemoveItems){
+
+		for(item in array){
+			if(array[item] == Session.get('currentElement')._id)array[item] = undefined;
+		}
+
+	}else{
+		array[index] = Session.get('currentElement')._id;
+	}
+
+	var setObj = {};
+	setObj[Session.get("currentFeatureType")] = array;
+	DesignerGameMaps.update(cell._id ,{$set: setObj});
+
+	updateKey();
+
+}
+
 
 Template.terrainMap.mapRow = function(){
 
@@ -122,10 +152,14 @@ Template.terrainMap.mapCol = function(y){
 }
 
 
-Template.terrainMap.hasEntryPoint = function(){return (this.entryPoint != 'none');}
-Template.terrainMap.hasExitPoint = function(){return (this.exitPoint != 'none');}
-Template.terrainMap.hasWall = function(){return (this.wall != 'none');}
-Template.terrainMap.hasPickupable = function(){return (this.pickupable != 'none');}
+Template.terrainMap.hasElement = function(type){return (this[type] != 'none');}
+Template.terrainMap.getCollectionElement = function(type, index){
+	index = parseInt(index);
+	var elem = this[type][index];
+	if(elem == 'none')elem = undefined;
+	return elem;
+}
+
 
 Template.terrainMap.elementColor = function(e){
 
@@ -561,6 +595,16 @@ function updateKey(){
 
 	}
 
+	DesignerGameDefs.find({creator: Session.get('currentLevel').creator, type: 'keyhole'}).forEach(function(e){
+
+		for(var i = 0; i < 4; i++){
+			var searchObj = {type: 'cell', level: Session.get("currentLevel").level, creator: Session.get('currentLevel').creator, keyhole: {}};
+			searchObj['keyhole'][i] = e._id;
+			if(DesignerGameMaps.findOne(searchObj))elements.push(e._id);
+		}
+
+	}); 
+
 	DesignerGameMaps.update(Session.get("currentLevel")._id, {$set:{mapKey: elements}});
 
 }
@@ -590,6 +634,7 @@ Template.mapKey.elemTerrain = function(){return this.type == 'terrain';}
 Template.mapKey.elemExitPoint = function(){return this.type == 'exitPoint';}
 Template.mapKey.elemWall = function(){return this.type == 'wall';}
 Template.mapKey.elemPickupable = function(){return this.type == 'pickupable';}
+Template.mapKey.elemKeyhole = function(){return this.type == 'keyhole';}
 
 
 

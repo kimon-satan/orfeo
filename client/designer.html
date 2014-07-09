@@ -46,10 +46,35 @@
         {{#each mapCol this.y}}
 
         <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{elementColor this.terrain}}">          
-          {{#if hasEntryPoint}}<div class="designerCellInside">{{this.entryPoint}}</div>{{/if}}
-          {{#if hasExitPoint}}<div id="starCell" style = "background-color: {{elementColor this.exitPoint}}" class="designerCellInside"></div>{{/if}}
-          {{#if hasWall}}<div id="crossCell" style = "background-color: {{elementColor this.wall}}" class="designerCellInside"></div>{{/if}}
-          {{#if hasPickupable}}<div style = "color: {{elementColor this.pickupable}}" class="designerCellInside">{{elementMapSymbol this.pickupable}}</div>{{/if}}
+          {{#if hasElement "entryPoint"}}<div class="designerCellInside">{{this.entryPoint}}</div>{{/if}}
+          {{#if hasElement "exitPoint"}}<div id="starCell" style = "background-color: {{elementColor this.exitPoint}}" class="designerCellInside"></div>{{/if}}
+          {{#if hasElement "wall"}}<div id="crossCell" style = "background-color: {{elementColor this.wall}}" class="designerCellInside"></div>{{/if}}
+          {{#if hasElement "pickupable"}}<div style = "color: {{elementColor this.pickupable}}" class="designerCellInside">{{elementMapSymbol this.pickupable}}</div>{{/if}}
+
+          {{#if getCollectionElement "keyhole" '0'}}
+            {{#with getCollectionElement 'keyhole' '0'}}
+              <div style = "background-color: {{elementColor this}}" class="designerCellInside topLeft">{{elementMapSymbol this}}</div>
+            {{/with}}
+          {{/if}}
+
+          {{#if getCollectionElement "keyhole" '1'}}
+            {{#with getCollectionElement 'keyhole' '1'}}
+              <div style = "background-color: {{elementColor this}}" class="designerCellInside topRight">{{elementMapSymbol this}}</div>
+            {{/with}}
+          {{/if}}
+
+          {{#if getCollectionElement "keyhole" '2'}}
+            {{#with getCollectionElement 'keyhole' '2'}}
+              <div style = "background-color: {{elementColor this}}" class="designerCellInside bottomRight">{{elementMapSymbol this}}</div>
+            {{/with}}
+          {{/if}}
+
+          {{#if getCollectionElement "keyhole" '3'}}
+            {{#with getCollectionElement 'keyhole' '3'}}
+              <div style = "background-color: {{elementColor this}}" class="designerCellInside bottomLeft">{{elementMapSymbol this}}</div>
+            {{/with}}
+          {{/if}}
+
         </td>
 
         {{/each}}
@@ -88,6 +113,10 @@
 
               {{#if elemPickupable}}
               <td><div class="keyCell" style="color: {{color}}">{{mapSymbol}}</div></td>
+              {{/if}}
+
+              {{#if elemKeyhole}}
+              <td><div class="keyCell" style="background-color: {{color}}">{{mapSymbol}}</div></td>
               {{/if}}
 
             </tr>
@@ -192,7 +221,7 @@
         {{#if isEntryPoint}}
           {{>entrySelector}}
         {{else}}
-          {{>selector}}
+            {{>selector}}
         {{/if}}
           
       </form>
@@ -241,11 +270,19 @@
     </ul>
   </div>
 
+    {{#if isKeyhole}}
+      <label for="priorityBox">Priority</label>
+      <input id= "priorityBox" type="number" min="0" max="3" step="1" value='0'>
+      <br/>
+    {{/if}}
 
     <label for="removeBox">Remove items</label>
       <input id= "removeBox" type="checkbox">
 
 </template>
+
+
+
 
 
 

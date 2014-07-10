@@ -103,14 +103,14 @@ function adminTest(user){
 
 
 createMapCell = function(x, y, ep){
-	
-	if(typeof ep === 'undefined' )ep = 'none';
+
+	if(typeof ep === 'undefined')ep = 'none';
 
 	var cell = {
 		x: parseInt(x), y: parseInt(y), 
 		terrain: 'none',
-		entryPoint: ep,
 		exitPoint: 'none', 
+		entryPoint: ep,
 		wall: 'none',
 		pickupable: 'none',
 		simpleSound: 'none',
@@ -130,6 +130,7 @@ createLevelHeader = function(level, width, height, creator){
 		creator: creator,
 		width: width,
 		height: height,
+		entryPoints: [],
 		mapKey: [],
 		cells: []
 	}
@@ -140,7 +141,12 @@ createLevelHeader = function(level, width, height, creator){
 		(function(){
 			var row = [];
 			for(var x = 0; x < width; x++){
-				(count < 10) ? row.push(createMapCell(x,y,count)) : row.push(createMapCell(x,y));
+				if(count < 10){
+					header.entryPoints.push({ep: 0, x: x , y: y}); 
+					row.push(createMapCell(x,y,count));
+				}else{
+					row.push(createMapCell(x,y));
+				}
 				count += 1;
 			}
 			header.cells.push(row);

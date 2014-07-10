@@ -65,11 +65,9 @@ Template.terrainMap.events({
 function setSingularElement(loc){
 
 	//check to see if there is already an element set
-	var n_cell = Session.get('currentLevel').cells[parseInt(loc[1])][parseInt(loc[0])];
+	var cl = Session.get('currentLevel');
+	var n_cell = cl.cells[parseInt(loc[1])][parseInt(loc[0])];
 
-	/*DesignerGameMaps.findOne({type: 'cell', 
-		levelId: Session.get("currentLevel")._id, 
-		x: parseInt(loc[0]), y: parseInt(loc[1])});*/
 
 	if(n_cell.entryPoint != 'none'){ //may need expanding if extra elements have same behaviour
 		
@@ -79,18 +77,22 @@ function setSingularElement(loc){
 	}else{
 
 		//clear the old cell
-		var o_cell = DesignerGameMaps.findOne({type: 'cell', levelId: Session.get("currentLevel")._id, 
-						entryPoint: Session.get("currentElement")});
-
-		if(o_cell)DesignerGameMaps.update(o_cell._id, {$set: {entryPoint: 'none'}});
-
+		var o_cell = cl.entryPoints[Session.get('currentElement')];
+		cl.cells[o_cell.y][o_cell.x].entryPoint = 'none';
 
 		//set the new one
-		DesignerGameMaps.update(n_cell._id ,{$set:{entryPoint: Session.get("currentElement")}});
+		cl.entryPoints[Session.get('currentElement')].x = parseInt(loc[0]);
+		cl.entryPoints[Session.get('currentElement')].y = parseInt(loc[1]);
+		cl.cells[parseInt(loc[1])][parseInt(loc[0])].entryPoint = Session.get('currentElement');
+
+		
+		DesignerGameMaps.update(cl._id , {$set: {cells: cl.cells, entryPoints: cl.entryPoints}});
+		Session.set('currentLevel', cl);
 
 	}
 
 }
+
 
 function setMultiElement(loc){
 

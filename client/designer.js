@@ -65,9 +65,11 @@ Template.terrainMap.events({
 function setSingularElement(loc){
 
 	//check to see if there is already an element set
-	var n_cell = DesignerGameMaps.findOne({type: 'cell', 
+	var n_cell = Session.get('currentLevel').cells[parseInt(loc[1])][parseInt(loc[0])];
+
+	/*DesignerGameMaps.findOne({type: 'cell', 
 		levelId: Session.get("currentLevel")._id, 
-		x: parseInt(loc[0]), y: parseInt(loc[1])});
+		x: parseInt(loc[0]), y: parseInt(loc[1])});*/
 
 	if(n_cell.entryPoint != 'none'){ //may need expanding if extra elements have same behaviour
 		
@@ -147,11 +149,7 @@ Template.terrainMap.mapRow = function(){
 Template.terrainMap.mapCol = function(y){
 
 	return Session.get('currentLevel').cells[y]; 
-	/*return DesignerGameMaps.find({
-		type: 'cell', 
-		levelId: Session.get("currentLevel")._id, 
-		y: y},
-		{sort: ["x", "asc"]}).fetch();*/
+
 }
 
 

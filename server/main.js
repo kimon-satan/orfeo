@@ -107,17 +107,12 @@ Meteor.startup(function(){
 
 	}
 
-	/*DesignerGameMaps.find({type: 'levelHeader'}).forEach(function(e){
+	if(!DesignerGameDefs.findOne({type: 'soundField'})){
 
-		for(var x = 0; x < e.width; x++){
-			for(var y =0; y < e.height; y++){
-				e.cells[y][x].keyhole = {};
-				delete e.cells[y][x].keyholes;
-			}
-		}
+		var sf = {name: 'default', creator: 'server', type: 'soundField', mapSymbol: 'x', sound: daudio, range: 4, isHollow: false};
 
-		DesignerGameMaps.upsert(e._id, e);
-	})*/
+		DesignerGameDefs.insert(sf);
+	}
 
 
 });

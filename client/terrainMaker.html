@@ -401,6 +401,24 @@
       {{>elementTable e_disp = "Sound Field" e_index = "soundField" }}
     </div>
 
+    <div class="col-xs-1"></div>
+        <div class="col-xs-4 well">
+            <form role="form">
+
+                {{>nameColorPicker}}
+                {{>soundControls sc_disp = "Sound" sc_type="sound"}}
+
+                <div class="form-group">
+                  <label for="range">Range</label>
+                  <input type="number" id="range" class="adjustable" min="1" max="5" value="{{currentElement.range}}">
+
+                  <label for="isHollow">Hollow Center</label>
+                  <input type="checkbox" id="isHollow" class="adjustable" {{isHollow}}>
+                </div>
+
+
+            </form>
+        </div>
     </div>
 
 

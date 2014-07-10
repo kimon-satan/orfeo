@@ -502,6 +502,32 @@ Template.keyholeMaker.events({
 });
 
 
+Template.soundFieldMaker.isHollow = function(){
+	return (Session.get("currentElement").isHollow)? 'checked' : '';
+}
+
+
+Template.soundFieldMaker.events({
+
+	'click #isHollow':function(e){
+
+		var ce = Session.get("currentElement");
+		ce.isHollow = !ce.isHollow;
+		DesignerGameDefs.update(ce._id, {$set: {isHollow: ce.isHollow}});
+		Session.set('currentElement', ce);
+	},
+
+	'click #range':function(e){
+
+		var ce = Session.get("currentElement");
+		ce.range = $('#range').val();
+		DesignerGameDefs.update(ce._id, {$set: {range: ce.range}});
+		Session.set('currentElement', ce);
+	}
+
+
+});
+
 
 
 

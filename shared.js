@@ -102,24 +102,21 @@ function adminTest(user){
 
 
 
-createMapCell = function(levelHeader, x, y, ep){
+createMapCell = function(x, y, ep){
 	
 	if(typeof ep === 'undefined' )ep = 'none';
 
 	var cell = {
-		type: 'cell', 
-		creator: levelHeader.creator,
-		level: levelHeader.level,
-		levelId: levelHeader._id ,
 		x: parseInt(x), y: parseInt(y), 
 		terrain: 'none',
 		entryPoint: ep,
 		exitPoint: 'none', 
 		wall: 'none',
 		pickupable: 'none',
+		simpleSound: 'none',
+		soundField: 'none',
 		keyholes: [], 
-		n_additions: [],
-		audibleTraces: []
+		soundFieldTraces: []
 	};
 
 	return cell;
@@ -134,6 +131,20 @@ createLevelHeader = function(level, width, height, creator){
 		width: width,
 		height: height,
 		mapKey: [],
+		cells: []
+	}
+
+	var count = 0;
+
+	for(var y = 0; y < height; y++){
+		(function(){
+			var row = [];
+			for(var x = 0; x < width; x++){
+				(count < 10) ? row.push(createMapCell(x,y,count)) : row.push(createMapCell(x,y));
+				count += 1;
+			}
+			header.cells.push(row);
+		})();
 	}
 
 	return header;

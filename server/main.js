@@ -34,20 +34,6 @@ Meteor.startup(function(){
 		DesignerGameMaps.insert(header,function(err, id){
 			
 			header._id = id;
-			var count = 0;
-			
-			for(var x = 0; x < 5; x++){
-				for(var y = 0; y < 5; y++){
-
-					if(count < 10){
-						DesignerGameMaps.insert(createMapCell(header ,x,y, count));
-						count += 1;
-					}else{
-						DesignerGameMaps.insert(createMapCell(header ,x,y));
-					}
-				}
-			}
-			
 			DesignerGameMaps.insert({type: 'inventory', levelId: header._id , creator: "server", pickupables: {} });
 
 		});

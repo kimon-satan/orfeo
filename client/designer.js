@@ -136,21 +136,22 @@ function setArrayElement(loc, index){
 
 Template.terrainMap.mapRow = function(){
 
+	var array = [];
 
-	return DesignerGameMaps.find({
-	type: 'cell', 
-	levelId: Session.get("currentLevel")._id,
-	 x: 0},
-	 {sort: ["y", "asc"]}).fetch();
+	for(var i = 0; i < Session.get('currentLevel').width; i++)array.push(i);
+	
+	return array;
+
 }
 
 Template.terrainMap.mapCol = function(y){
 
-	return DesignerGameMaps.find({
+	return Session.get('currentLevel').cells[y]; 
+	/*return DesignerGameMaps.find({
 		type: 'cell', 
 		levelId: Session.get("currentLevel")._id, 
 		y: y},
-		{sort: ["x", "asc"]}).fetch();
+		{sort: ["x", "asc"]}).fetch();*/
 }
 
 

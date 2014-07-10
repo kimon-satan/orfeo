@@ -2,7 +2,8 @@
 JOBS
 
 1.simple sound trigger
-2.sound fields (filled or hollow center options) 
+2.sound fields (filled or hollow center options)
+3. give every element a map symbol in combination with colour picker and shape (dependent on element type) 
 3. auditioning in terrain builder
 4. search filters for elements in designer
 5. cell inspector in designer + filters in key

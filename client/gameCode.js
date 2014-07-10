@@ -139,7 +139,7 @@ Template.navScreen.events({
      $(event.target).addClass("active");
      $('.step').addClass('disable');
 
-     audio.playOnce(cTerrain.narrator.audioFile, {amp: cTerrain.narrator.amp}, resetButtons);
+     audio.playOnce(cTerrain.narrator.audioFile, {amp: cTerrain.narrator.amp}, resetButtons); //needs modding to play the whole sequence ?
 
      event.preventDefault();
 
@@ -446,6 +446,11 @@ function handleInteractives(){
 
 
      if(!isKeyOverride){
+          if(cell.simpleSound != 'none'){
+               var ss = getElement(cell.simpleSound)
+               audioArray.push(ss.sound);
+          }
+
           if(cell.exitPoint != 'none'){
                cell = handleExitPoint(cell.exitPoint); //check whats here
                playerPos.x = cell.x; playerPos.y = cell.y;

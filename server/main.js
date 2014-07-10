@@ -114,6 +114,14 @@ Meteor.startup(function(){
 
 	}
 
+	if(!DesignerGameDefs.findOne({type: 'simpleSound'})){
+
+		var ss = {name: 'default', creator: 'server', type: 'simpleSound', mapSymbol: 'x', sound: daudio};
+
+		DesignerGameDefs.insert(ss);
+
+	}
+
 	
 
 

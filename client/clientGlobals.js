@@ -57,7 +57,7 @@ UI.registerHelper('creatorName', function(){return getCreatorName(this.creator)}
 
 UI.registerHelper('currentFeatureType' , function(){return Session.get("currentFeatureType")});
 
-UI.registerHelper('features', function(){return ["terrain", "entryPoint", "exitPoint", "wall", "pickupable", "keyhole", "soundField"];});
+UI.registerHelper('features', function(){return ["terrain", "entryPoint", "exitPoint", "wall", "pickupable", "keyhole", "simpleSound","soundField"];});
 
 UI.registerHelper('isTerrain' , function(){return Session.get("currentFeatureType") == "terrain"});
 UI.registerHelper('isEntryPoint' , function(){return Session.get("currentFeatureType") == "entryPoint"});
@@ -65,8 +65,9 @@ UI.registerHelper('isExitPoint' , function(){return Session.get("currentFeatureT
 UI.registerHelper('isWall' , function(){return Session.get("currentFeatureType") == "wall"});
 UI.registerHelper('isPickupable' , function(){return Session.get("currentFeatureType") == "pickupable"});
 UI.registerHelper('isKeyhole' , function(){return Session.get("currentFeatureType") == "keyhole"});
+UI.registerHelper('isSimpleSound' , function(){return Session.get("currentFeatureType") == "simpleSound"});
 UI.registerHelper('isSoundField' , function(){return Session.get("currentFeatureType") == "soundField"});
-UI.registerHelper('isRegistered' , function(){return Meteor.user().emails !== undefined});
+UI.registerHelper('isRegistered' , function(){return typeof Meteor.user().emails !== 'undefined'});
 
 UI.registerHelper("isAudioReady", function(){
   return Session.get("isAudioInit") && Session.get("isLoaded");

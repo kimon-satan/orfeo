@@ -32,6 +32,14 @@
   {{>keyholeMaker}}
   {{/if}}
 
+  {{#if isSimpleSound}}
+  {{>simpleSoundMaker}}
+  {{/if}}
+
+  {{#if isSoundField}}
+  {{>soundFieldMaker}}
+  {{/if}}
+
 </template>
 
 <template name="nameColorPicker">
@@ -350,17 +358,50 @@
           {{>soundControls sc_disp ="False Sound" sc_type="falseSound"}}
           {{>soundControls sc_disp = "End Sound" sc_type="postSound"}}
 
-
-
-
           <br/><br/>
-
-
 
         </form>
       </div>
     </div>
 
   </div>
+
+</template>
+
+
+<template name="simpleSoundMaker">
+
+    <div class ="row">
+        <div class="col-xs-1"></div>
+
+        <div class="col-xs-5 well scrollableColumn" style="height: 500px">
+            {{>elementTable e_disp = "Simple Sound" e_index = "simpleSound" }}
+        </div>
+
+        <div class="col-xs-1"></div>
+        <div class="col-xs-4 well">
+            <form role="form">
+
+                {{>nameColorPicker}}
+                {{>soundControls sc_disp = "Sound" sc_type="sound"}}
+
+            </form>
+        </div>
+
+    </div>
+
+</template>
+
+
+<template name="soundFieldMaker">
+    <div class ="row">
+    <div class="col-xs-1"></div>
+
+    <div class="col-xs-5 well scrollableColumn" style="height: 500px">
+      {{>elementTable e_disp = "Sound Field" e_index = "soundField" }}
+    </div>
+
+    </div>
+
 
 </template>

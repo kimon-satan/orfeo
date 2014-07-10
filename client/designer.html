@@ -50,6 +50,7 @@
           {{#if hasElement "exitPoint"}}<div id="starCell" style = "background-color: {{elementColor this.exitPoint}}" class="designerCellInside"></div>{{/if}}
           {{#if hasElement "wall"}}<div id="crossCell" style = "background-color: {{elementColor this.wall}}" class="designerCellInside"></div>{{/if}}
           {{#if hasElement "pickupable"}}<div style = "color: {{elementColor this.pickupable}}" class="designerCellInside">{{elementMapSymbol this.pickupable}}</div>{{/if}}
+          {{#if hasElement "simpleSound"}}<div style = "color: {{elementColor this.simpleSound}}" class="designerCellInside">{{elementMapSymbol this.simpleSound}}</div>{{/if}}
 
           {{#if getCollectionElement "keyhole" '0'}}
             {{#with getCollectionElement 'keyhole' '0'}}

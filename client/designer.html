@@ -51,6 +51,7 @@
           {{#if hasElement "wall"}}<div id="crossCell" style = "background-color: {{elementColor this.wall}}" class="designerCellInside"></div>{{/if}}
           {{#if hasElement "pickupable"}}<div style = "color: {{elementColor this.pickupable}}" class="designerCellInside">{{elementMapSymbol this.pickupable}}</div>{{/if}}
           {{#if hasElement "simpleSound"}}<div style = "color: {{elementColor this.simpleSound}}" class="designerCellInside">{{elementMapSymbol this.simpleSound}}</div>{{/if}}
+          {{#if hasElement "soundField"}}<div style = "color: {{elementColor this.soundField}}" class="designerCellInside">{{elementMapSymbol this.soundField}}</div>{{/if}}
 
           {{#if getCollectionElement "keyhole" '0'}}
             {{#with getCollectionElement 'keyhole' '0'}}
@@ -75,6 +76,10 @@
               <div style = "background-color: {{elementColor this}}" class="designerCellInside bottomLeft">{{elementMapSymbol this}}</div>
             {{/with}}
           {{/if}}
+
+          {{#each soundFieldTraces}}
+            <div style = "background-color: {{elementColor this.id}}" class="designerCellInside bottomLeft">{{elementMapSymbol this.id}}</div>
+          {{/each}}
 
         </td>
 
@@ -118,6 +123,14 @@
 
               {{#if elemKeyhole}}
               <td><div class="keyCell" style="background-color: {{color}}">{{mapSymbol}}</div></td>
+              {{/if}}
+
+              {{#if elemSimpleSound}}
+              <td><div class="keyCell" style="color: {{color}}">{{mapSymbol}}</div></td>
+              {{/if}}
+
+              {{#if elemSoundField}}
+              <td><div class="keyCell" style="color: {{color}}">{{mapSymbol}}</div></td>
               {{/if}}
 
             </tr>

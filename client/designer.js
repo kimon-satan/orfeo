@@ -51,6 +51,10 @@ Template.terrainMap.events({
 				updateLevelInventory();
 			}
 
+			if(Session.get('currentFeatureType') == 'soundField'){
+				updateSoundFieldTraces(loc);
+			}
+
 
 
 		}else{
@@ -61,6 +65,59 @@ Template.terrainMap.events({
 
 
 });
+
+function updateSoundFieldTraces(loc){
+
+	var cl = Session.get('currentLevel');
+	var ce = Session.get('currentElement');
+
+	ce.range = parseInt(ce.range);
+	if(ce.range == 0)return;
+
+
+
+	var radMinX = Math.max(0, parseInt(loc[0]) - ce.range);
+	var radMaxX = Math.min(parseInt(cl.width - 1), parseInt(loc[0]) + ce.range + 1);
+	var radMinY = Math.max(0, parseInt(loc[1]) - ce.range);
+	var radMaxY = Math.min(parseInt(cl.height- 1), parseInt(loc[1]) + ce.range + 1);
+
+	
+
+	if(isRemoveItems){
+
+		for(var y = radMinY; y < radMaxY; y++){
+			for(var x = radMinX; x < radMaxX; x++){
+
+				delete cl.cells[y][x].soundFieldTraces[ce._id];
+			
+			}
+		}
+
+
+	}else{
+
+
+		for(var y = radMinY; y < radMaxY; y++){
+			for(var x = radMinX; x < radMaxX; x++){
+
+				(function(){
+
+					var dist = Math.sqrt(Math.pow(x - parseInt(loc[0]), 2) + Math.pow(y - parseInt(loc[1]) ,2));
+					
+					var t = {id: ce._id, amp: ce.amp * ce.range/dist};
+					cl.cells[y][x].soundFieldTraces[ce._id] = t;
+
+				})();
+			}
+		}
+
+	}
+
+	DesignerGameMaps.update(cl._id , {$set: {cells: cl.cells}});
+	Session.set('currentLevel', cl);
+
+
+}
 
 function setSingularElement(loc){
 
@@ -154,6 +211,18 @@ Template.terrainMap.mapCol = function(y){
 
 
 Template.terrainMap.hasElement = function(type){return (this[type] != 'none');}
+
+Template.terrainMap.soundFieldTraces = function(){
+
+	var array = [];
+	
+	for(a in this.soundFieldTraces){
+		array.push(this.soundFieldTraces[a]);
+	}
+
+	return array;
+}
+
 Template.terrainMap.getCollectionElement = function(type, index){
 	index = parseInt(index);
 	if(typeof this[type] == 'undefined')return;
@@ -661,6 +730,8 @@ Template.mapKey.elemExitPoint = function(){return this.type == 'exitPoint';}
 Template.mapKey.elemWall = function(){return this.type == 'wall';}
 Template.mapKey.elemPickupable = function(){return this.type == 'pickupable';}
 Template.mapKey.elemKeyhole = function(){return this.type == 'keyhole';}
+Template.mapKey.elemSimpleSound = function(){return this.type == 'simpleSound';}
+Template.mapKey.elemSoundField = function(){return this.type == 'soundField';}
 
 
 

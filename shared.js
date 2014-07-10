@@ -116,7 +116,7 @@ createMapCell = function(x, y, ep){
 		simpleSound: 'none',
 		soundField: 'none',
 		keyhole: {}, 
-		soundFieldTraces: []
+		soundFieldTraces: {}
 	};
 
 	return cell;

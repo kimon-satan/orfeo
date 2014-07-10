@@ -114,6 +114,21 @@ Meteor.startup(function(){
 		DesignerGameDefs.insert(sf);
 	}
 
+	//for adapting cells
+
+	 /*DesignerGameMaps.find({type: 'levelHeader'}).forEach(function(e){
+ 
+       for(var x = 0; x < e.width; x++){
+               for(var y =0; y < e.height; y++){
+                       e.cells[y][x].soundFieldTraces = {};
+               }
+       }
+
+
+       DesignerGameMaps.upsert(e._id, e);
+
+     })*/
+
 
 });
 

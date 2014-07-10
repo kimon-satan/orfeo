@@ -105,16 +105,15 @@ function setMultiElement(loc){
 	DesignerGameMaps.update(cl._id , {$set: {cells: cl.cells}});
 	Session.set('currentLevel', cl);
 
-	updateKey(id);
+	updateKey(Session.get("currentElement")._id, isRemoveItems);
 
 }
 
 function setArrayElement(loc, index){
 
 
-	var cell = DesignerGameMaps.findOne({type: 'cell', 
-	levelId: Session.get("currentLevel")._id, 
-	x: parseInt(loc[0]), y: parseInt(loc[1])});
+	var cl = Session.get('currentLevel');
+	var cell = cl.cells[parseInt(loc[1])][parseInt(loc[0])];
 
 	var array = cell[Session.get("currentElement").type];
 
@@ -128,11 +127,11 @@ function setArrayElement(loc, index){
 		array[index] = Session.get('currentElement')._id;
 	}
 
-	var setObj = {};
-	setObj[Session.get("currentFeatureType")] = array;
-	DesignerGameMaps.update(cell._id ,{$set: setObj});
 
-	updateKey();
+	Session.set('currentLevel', cl);
+	DesignerGameMaps.update(cl._id ,{$set: {cells: cl.cells}});
+
+	updateKey(Session.get("currentElement")._id, isRemoveItems);
 
 }
 
@@ -141,7 +140,7 @@ Template.terrainMap.mapRow = function(){
 
 	var array = [];
 
-	for(var i = 0; i < Session.get('currentLevel').width; i++)array.push(i);
+	for(var i = 0; i < Session.get('currentLevel').height; i++)array.push(i);
 	
 	return array;
 
@@ -205,7 +204,6 @@ Template.levelTable.events({
 
 		var level = Session.get("currentLevel");
 		makeLevelCopy(level.level, level.creator, level.level, Meteor.user()._id);
-		Deps.flush();
 		e.preventDefault();
 
 	},
@@ -233,8 +231,8 @@ Template.levelTable.events({
 
 			}else{
 
-				DesignerGameMaps.find({levelId: level._id}).forEach(function(cell){
-					DesignerGameMaps.remove(cell._id);
+				DesignerGameMaps.find({levelId: level._id}).forEach(function(elem){
+					DesignerGameMaps.remove(elem._id);
 				});
 
 				DesignerGameMaps.remove(Session.get("currentLevel")._id, function(){
@@ -315,8 +313,7 @@ Template.mainSettings.events({
 
 	'click #levelWidth':function(e){
 
-		var w = $('#levelWidth').val();
-		updateCurrentLevel();
+		var w = parseInt($('#levelWidth').val());
 		var cl = Session.get("currentLevel");
 
 		if(w > cl.width){
@@ -325,14 +322,13 @@ Template.mainSettings.events({
 
 			for(var x = cl.width; x < w; x++){
 				for(var y = 0; y < cl.height; y++){
-
-					var cell = createMapCell(cl, x, y);
-					DesignerGameMaps.insert(cell);
+					cl.cells[y].push(createMapCell(x, y));
 				}
 			}
 
-			DesignerGameMaps.update(cl._id, {$set:{width: parseInt(w)}});
-
+			cl.width = w;
+			DesignerGameMaps.update(cl._id, {$set:{width: parseInt(w), cells: cl.cells}});
+			Session.set('currentLevel', cl);
 			isReduceWarning = false;
 
 		}else{
@@ -349,13 +345,15 @@ Template.mainSettings.events({
 			if(isReduceWarning){
 
 
-				DesignerGameMaps.find({levelId: cl._id, x: {$gte: parseInt(w)}}).forEach(function(cell){
+				for(var y = 0; y < cl.height; y++){
+					for(var x = cl.width; x > w; x--){
+						cl.cells[y].pop();
+					}
+				}
 
-					DesignerGameMaps.remove(cell._id);
-
-				});
-
-				DesignerGameMaps.update(cl._id, {$set:{width: parseInt(w)}});
+				cl.width = w;
+				DesignerGameMaps.update(cl._id, {$set:{width: cl.width, cells: cl.cells}});
+				Session.set('currentLevel', cl);
 
 			}else{
 				$('#levelWidth').val(cl.width);
@@ -368,26 +366,21 @@ Template.mainSettings.events({
 
 	'click #levelHeight':function(e){
 
-		var h = $('#levelHeight').val();
+		var h = parseInt($('#levelHeight').val());
 		Session.set("currentLevel", DesignerGameMaps.findOne(Session.get("currentLevel")._id));
 		var cl = Session.get("currentLevel");
 
 		if(h > cl.height){
 
-
 			for(var y = cl.height; y < h; y++){
-
-				for(var x = 0; x < cl.width; x++){
-
-					var cell = createMapCell(cl, x, y);
-
-					DesignerGameMaps.insert(cell);
-					
-				}
+				var row = [];
+				for(var x = 0; x < cl.width; x++)row.push(createMapCell(x, y));
+				cl.cells.push(row);
 			}
 
-			DesignerGameMaps.update(cl._id, {$set:{height: parseInt(h)}});
-
+			cl.height = h;
+			DesignerGameMaps.update(cl._id, {$set:{height: cl.height, cells: cl.cells}});
+			Session.set('currentLevel',cl);
 			isReduceWarning = false;
 
 		}else{
@@ -398,13 +391,10 @@ Template.mainSettings.events({
 
 			if(isReduceWarning){
 
-				DesignerGameMaps.find({levelId: cl._id, y: {$gte: parseInt(h)}}).forEach(function(cell){
-
-					DesignerGameMaps.remove(cell._id);
-
-				});
-
-				DesignerGameMaps.update(cl._id, {$set:{height: parseInt(h)}});
+				for(var y = cl.height; y > h; y--)cl.cells.pop();
+				cl.height = h;
+				Session.set('currentLevel', cl);
+				DesignerGameMaps.update(cl._id, {$set:{height: cl.height, cells: cl.cells}});
 
 			}else{
 				$('#levelHeight').val(cl.height);
@@ -582,41 +572,46 @@ function makeLevelCopy(o_levelName, o_creator, n_levelName, n_creator){
 
 
 
-function updateKey(id){
-
+function updateKey(id, isRemove){
 
 	var cl = Session.get('currentLevel');
-	var elemTypes = ["terrain", "exitPoint", "wall", "pickupable", "simpleSound", "soundField"];
 
-	cl.mapKey = []; 
+	if(!isRemove){
+		if(cl.mapKey.indexOf(id) == -1){
+			cl.mapKey.push(id);
+			Session.set('currentLevel', cl);
+			DesignerGameMaps.update(cl._id, {$set:{mapKey: cl.mapKey}});
+		}
 
-	for(var i = 0; i < elemTypes.length; i++){
+		return;
 
-		DesignerGameDefs.find({creator: Session.get('currentLevel').creator, type: elemTypes[i]}).forEach(function(e){
-		
+	}else{
+
+		var elem = getElement(id);
+
+		if(elem.type == 'keyhole'){
+
 			for(var y = 0; y < cl.height; y++){
 				for(var x = 0; x < cl.width; x++){
-
-					if(cl.cells[y][x][elemTypes[i]] == e._id){
-						cl.mapKey.push(e._id); break;
+					for(var i = 0; i < 4; i++){
+						if(cl.cells[y][x][elem.type][i] == id)return;
 					}
-			
 				}
 			}
 
-		}); 
+		}else{
+
+			for(var y = 0; y < cl.height; y++){
+				for(var x = 0; x < cl.width; x++){
+					if(cl.cells[y][x][elem.type] == id)return;
+				}
+			}
+		}
+
+		cl.mapKey.splice(cl.mapKey.indexOf(id),1);
 
 	}
 
-	/*DesignerGameDefs.find({creator: Session.get('currentLevel').creator, type: 'keyhole'}).forEach(function(e){
-
-		for(var i = 0; i < 4; i++){
-			var searchObj = {type: 'cell', level: Session.get("currentLevel").level, creator: Session.get('currentLevel').creator};
-			searchObj['keyhole.' + i] = e._id;
-			if(DesignerGameMaps.findOne(searchObj) && elements.lastIndexOf(e._id) == -1)elements.push(e._id);
-		}
-
-	}); */
 
 	Session.set('currentLevel', cl);
 	DesignerGameMaps.update(cl._id, {$set:{mapKey: cl.mapKey}});
@@ -629,27 +624,31 @@ function updateLevelInventory(){
 	var pickupables = {};
 	var keyholes = {};
 	var id = Session.get("currentLevel")._id;
+	var cl = Session.get('currentLevel');
 
-	DesignerGameMaps.find({type: 'cell', levelId: id, pickupable: {$not: 'none'}}).forEach(function(e){
+	for(var y = 0; y < cl.height; y++){
+		for(var x = 0; x < cl.width; x++){
 
-		if(typeof pickupables[e.x] === 'undefined')pickupables[e.x] = {};
-		var p = getElement(e.pickupable);
-		pickupables[e.x][e.y] = p._id;
+			if(cl.cells[y][x]['pickupable'] != 'none'){
+				if(typeof pickupables[x] === 'undefined')pickupables[x] = {};
+				var p = getElement(cl.cells[y][x]['pickupable']);
+				pickupables[x][y] = p._id;
+			}
 
-	});
+			if(Object.keys(cl.cells[y][x]['keyhole']).length > 0){
+				if(typeof keyholes[x] === 'undefined')keyholes[x] = {};
+					keyholes[x][y] = {};
 
-	DesignerGameMaps.find({type: 'cell', levelId: id, keyhole: {$not: {}}}).forEach(function(e){
+					for(var i = 0; i < 4; i++){
+						if(typeof cl.cells[y][x]['keyhole'][i] !== 'undefined'){
+							var k = getElement(cl.cells[y][x]['keyhole'][i]);
+							keyholes[x][y][i] = {id: k._id, locked: true};
+						}
+				}
 
-		if(typeof keyholes[e.x] === 'undefined')keyholes[e.x] = {};
-		keyholes[e.x][e.y] = {};
-
-		for(var i = 0; i < 4; i++){
-			if(e.keyhole[i] !== undefined){
-				var k = getElement(e.keyhole[i]);
-				keyholes[e.x][e.y][i] = {id: k._id, locked: true};
 			}
 		}
-	});
+	}
 
 	DesignerGameMaps.update(inv._id, {$set: {pickupables: pickupables, keyholes: keyholes}});
 

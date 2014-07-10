@@ -107,7 +107,17 @@ Meteor.startup(function(){
 
 	}
 
-	
+	/*DesignerGameMaps.find({type: 'levelHeader'}).forEach(function(e){
+
+		for(var x = 0; x < e.width; x++){
+			for(var y =0; y < e.height; y++){
+				e.cells[y][x].keyhole = {};
+				delete e.cells[y][x].keyholes;
+			}
+		}
+
+		DesignerGameMaps.upsert(e._id, e);
+	})*/
 
 
 });

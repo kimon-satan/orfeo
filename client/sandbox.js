@@ -144,6 +144,7 @@ function resetInventory(){
 	var keys = DesignerGameMaps.findOne({type: "inventory", levelId: Session.get("currentLevel")._id}).keyholes;
 	n_inv.pickupables[Session.get("currentLevel")._id] = pus;
 	n_inv.keyholes[Session.get("currentLevel")._id] = keys;
+	n_inv.overrides = {};
 	PlayerGameData.insert(n_inv);
 
 }

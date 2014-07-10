@@ -91,26 +91,26 @@ function makeReleaseCopy(levelId, isInit){
 
 	}
 
-	GameMapRelease.insert(clh); 
+	GameMapRelease.insert(clh,function(err, id){
+
+		for(var y = 0; y < clh.height; y++){
+			for(var x = 0; x < clh.width; x++){
+				if(clh.cells[y][x].exitPoint != 'none'){
+
+					var ep = DesignerGameDefs.findOne(clh.cells[y][x].exitPoint);
+
+					if(ep.exitTo != clh._id && !GameMapRelease.findOne(ep.exitTo)){
+						makeReleaseCopy(ep.exitTo, false);
+					}
+
+				}
+			}
+		}	
+	}); 
 
 	var inventory = DesignerGameMaps.findOne({type: 'inventory', levelId: levelId});
 
 	GameMapRelease.insert(inventory);
-
-	DesignerGameMaps.find({type: 'cell', levelId: clh._id}).forEach(function(elem){
-
-		GameMapRelease.insert(elem);
-		
-		if(elem.exitPoint != 'none'){
-
-			var ep = DesignerGameDefs.findOne(elem.exitPoint);
-
-			if(ep.exitTo != clh._id && !GameMapRelease.findOne(ep.exitTo)){
-				makeReleaseCopy(ep.exitTo, false);
-			}
-		}		
-
-	});
 
 }
 

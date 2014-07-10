@@ -136,6 +136,7 @@ function setArrayElement(loc, index){
 
 Template.terrainMap.mapRow = function(){
 
+
 	return DesignerGameMaps.find({
 	type: 'cell', 
 	levelId: Session.get("currentLevel")._id,
@@ -156,6 +157,7 @@ Template.terrainMap.mapCol = function(y){
 Template.terrainMap.hasElement = function(type){return (this[type] != 'none');}
 Template.terrainMap.getCollectionElement = function(type, index){
 	index = parseInt(index);
+	if(typeof this[type] == 'undefined')return;
 	var elem = this[type][index];
 	if(elem == 'none')elem = undefined;
 	return elem;
@@ -319,6 +321,8 @@ Template.mainSettings.events({
 
 		if(w > cl.width){
 
+			console.log('increase');
+
 			for(var x = cl.width; x < w; x++){
 				for(var y = 0; y < cl.height; y++){
 
@@ -333,17 +337,24 @@ Template.mainSettings.events({
 
 		}else{
 
-			if(!isReduceWarning){
+			isReduceWarning = true;
+
+			if(!isReduceWarning){	
+
 				isReduceWarning = confirm("Data may be lost. Do you wish to continue ?");
 			}
 
+			
+
 			if(isReduceWarning){
 
-				DesignerGameMaps.find({levelId: cl.levelId, x: {$gte: parseInt(w)}}).forEach(function(cell){
+
+				DesignerGameMaps.find({levelId: cl._id, x: {$gte: parseInt(w)}}).forEach(function(cell){
 
 					DesignerGameMaps.remove(cell._id);
 
 				});
+
 				DesignerGameMaps.update(cl._id, {$set:{width: parseInt(w)}});
 
 			}else{
@@ -387,7 +398,7 @@ Template.mainSettings.events({
 
 			if(isReduceWarning){
 
-				DesignerGameMaps.find({levelId: cl.levelId, y: {$gte: parseInt(h)}}).forEach(function(cell){
+				DesignerGameMaps.find({levelId: cl._id, y: {$gte: parseInt(h)}}).forEach(function(cell){
 
 					DesignerGameMaps.remove(cell._id);
 
@@ -415,6 +426,8 @@ Template.mainSettings.events({
 			DesignerGameMaps.find({levelId: Session.get("currentLevel")._id}).forEach(function(item){
 				DesignerGameMaps.update( item._id ,{$set: {level: name}});
 			});
+
+			DesignerGameMaps.update(Session.get("currentLevel")._id, {$set: {level: name}});
 
 			updateCurrentLevel();
 		

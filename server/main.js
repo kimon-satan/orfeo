@@ -48,10 +48,9 @@ Meteor.startup(function(){
 				}
 			}
 			
+			DesignerGameMaps.insert({type: 'inventory', levelId: header._id , creator: "server", pickupables: {} });
 
 		});
-
-		DesignerGameMaps.insert({type: 'inventory', levelId: header._id , creator: "server", pickupables: {} });
 
 
 	}

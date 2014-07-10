@@ -199,31 +199,13 @@ getLevel = function(levelId){
 
 getEntryCell = function(n){
 
-  if(checkClientIsDesigner()){
-    return DesignerGameMaps.findOne({levelId: Session.get("currentLevel")._id, entryPoint: n});
-  }else{
-    return GameMapRelease.findOne({levelId: Session.get("currentLevel")._id, entryPoint: n});
-  }
-
+	return Session.get("currentLevel").entryPoints[n];
 
 }
 
 getCell = function(x,y){
 
-  if(checkClientIsDesigner()){
-
-    var newCell = DesignerGameMaps.findOne({
-      type: 'cell', 
-      levelId: Session.get("currentLevel")._id, 
-      x: parseInt(x), y: parseInt(y)
-
-    });
-
-  }else{
-
-    var level = PlayerGameData.findOne({player: Meteor.user()._id, type: "level"});    
-    var newCell = GameMapRelease.findOne({type: 'cell', levelId: level.id , x: x, y: y});
-  }
+  var newCell = Session.get('currentLevel').cells[y][x];
 
   return newCell; 
 }

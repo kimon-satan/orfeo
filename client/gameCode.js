@@ -7,6 +7,7 @@ audio = 0;
 cTerrain = 0;
 nTerrain = 'none';
 cell = {};
+inv = {};
 playerPos = {};
 isAudioLock = false;
 isPickup = false;
@@ -76,6 +77,7 @@ Template.startSplash.events({
           cell = getCell(playerPos.x, playerPos.y);
           cTerrain = getElement(cell.terrain);
           nTerrain = 'none';
+          inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
 
           handleBegin(cell, playerPos);
 
@@ -175,16 +177,15 @@ Template.inventoryScreen.events({
 
           if($(e.target).hasClass('disable'))return;
 
-          var inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
-          var idx = findLockedKeyhole(inv);
+          var idx = findLockedKeyhole();
 
           if(idx < 0){
 
-               handleDropItem(inv, e.currentTarget.id);
+               handleDropItem(e.currentTarget.id);
 
           }else{
 
-               handleKeyholeDrop(inv, e.currentTarget.id, idx);
+               handleKeyholeDrop(e.currentTarget.id, idx);
           }
          
 
@@ -196,12 +197,11 @@ Template.inventoryScreen.events({
 
           if($(e.target).hasClass('disable'))return;
 
-          var inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
           var pos = PlayerGameData.findOne({player: Meteor.user()._id, type: 'pos'});
 
           if(inv.bag.length > maxBagItems)return;
 
-          if(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y] !== undefined){
+          if(typeof inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y] !== 'undefined'){
                inv.bag.push(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y]);
                delete inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y];
                PlayerGameData.update(inv._id, {$set: {pickupables: inv.pickupables, bag: inv.bag}});
@@ -213,16 +213,14 @@ Template.inventoryScreen.events({
 });
 
 Template.inventoryScreen.bagFull = function(){
-     var inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
      return (inv.bag.length >= maxBagItems) ? 'disable' : "";
 }
 
 Template.inventoryScreen.groundFull = function(){
 
-     var inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
      var pos = PlayerGameData.findOne({player: Meteor.user()._id, type: 'pos'});
 
-     if(findLockedKeyhole(inv) > -1)return;
+     if(findLockedKeyhole() > -1)return;
 
      if(inv.pickupables[Session.get("currentLevel")._id][pos.x] === undefined)return;
 
@@ -244,14 +242,14 @@ Template.inventoryScreen.bagItems = function(){
 
 Template.inventoryScreen.pickupables = function(){
 
-     var inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
+     inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
      var pos = PlayerGameData.findOne({player: Meteor.user()._id, type: 'pos'});
      var pu = [];
 
 
      var item;
      if(inv.pickupables[Session.get("currentLevel")._id][pos.x])item = inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y];
-     var idx = findLockedKeyhole(inv);
+     var idx = findLockedKeyhole();
 
      if(idx > -1 && cell.pickupable == item ){
           item = false;
@@ -286,7 +284,6 @@ function handleStep(callback){
      isAudioLock = true;
 
      var audioArray;
-     var inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
 
 
      //part of step
@@ -322,7 +319,7 @@ function handleStep(callback){
 
 }
 
-function keyholeSuccess(inv, idx){
+function keyholeSuccess(idx){
 
      var kh = inv.keyholes[Session.get("currentLevel")._id][playerPos.x][playerPos.y][idx];
 
@@ -352,7 +349,7 @@ function keyholeSuccess(inv, idx){
 
 }
 
-function handleKeyholeDrop(inv, id ,idx){
+function handleKeyholeDrop(id ,idx){
 
      var kh = inv.keyholes[Session.get("currentLevel")._id][playerPos.x][playerPos.y][idx];
                           
@@ -365,9 +362,9 @@ function handleKeyholeDrop(inv, id ,idx){
           PlayerGameData.update(inv._id, {$set:{bag: inv.bag}});
 
           if(key.trueSound.audioFile != 'none'){
-               audio.playOnce(key.trueSound.audioFile, {amp: key.trueSound.amp}, function(){keyholeSuccess(inv, idx)});
+               audio.playOnce(key.trueSound.audioFile, {amp: key.trueSound.amp}, function(){keyholeSuccess(idx)});
           }else{
-               keyholeSuccess(inv, idx);
+               keyholeSuccess(idx);
           }
           
           //this will be in a callback from the audio player
@@ -376,9 +373,9 @@ function handleKeyholeDrop(inv, id ,idx){
 
           console.log("non match");
           if(key.falseSound.audioFile != 'none'){
-               audio.playOnce(key.falseSound.audioFile, {amp: key.falseSound.amp}, function(){ handleDropItem(inv, id)});
+               audio.playOnce(key.falseSound.audioFile, {amp: key.falseSound.amp}, function(){ handleDropItem(id)});
           }else{
-               handleDropItem(inv, id);
+               handleDropItem(id);
           }
           
           
@@ -388,11 +385,11 @@ function handleKeyholeDrop(inv, id ,idx){
 
 }
 
-function handleDropItem(inv, id){
+function handleDropItem(id){
 
-     if(inv.pickupables[Session.get("currentLevel")._id][playerPos.x] === undefined)inv.pickupables[Session.get("currentLevel")._id][playerPos.x] = {};
+     if(typeof inv.pickupables[Session.get("currentLevel")._id][playerPos.x] === 'undefined')inv.pickupables[Session.get("currentLevel")._id][playerPos.x] = {};
 
-     if(inv.pickupables[Session.get("currentLevel")._id][playerPos.x][playerPos.y] === undefined){
+     if(typeof inv.pickupables[Session.get("currentLevel")._id][playerPos.x][playerPos.y] === 'undefined'){
 
           console.log("remove: " + id);
           var i = inv.bag.indexOf(id);
@@ -416,10 +413,9 @@ function handleInteractives(){
      var isKeyOverride = false;
      isPickup = false;
 
-     var inv = PlayerGameData.findOne({player: Meteor.user()._id, type: 'inventory'});
-     var idx = findLockedKeyhole(inv);
+     var idx = findLockedKeyhole();
 
-     if(checkForKeyholes(inv)){
+     if(checkForKeyholes()){
           
           if(idx > -1){
                var lkh = inv.keyholes[Session.get("currentLevel")._id][playerPos.x][playerPos.y][idx];
@@ -491,10 +487,10 @@ function handleExitPoint(exitPointId){
 
      if(checkClientIsDesigner()){
           updateCurrentLevel();
-     }else{
-          var cl = PlayerGameData.findOne({player: Meteor.user()._id , type: "level" });
-          PlayerGameData.update(cl._id, {$set: {id: level._id}});
      }
+
+     var cl = PlayerGameData.findOne({player: Meteor.user()._id , type: "level" });
+     PlayerGameData.update(cl._id, {$set: {id: level._id}});
 
      var ep_i = getEntryCell(ep.entryIndex);
 
@@ -503,9 +499,9 @@ function handleExitPoint(exitPointId){
 }
 
 
-function findLockedKeyhole(inv){
+function findLockedKeyhole(){
 
-     if(checkForKeyholes(inv)){
+     if(checkForKeyholes()){
 
           var lkh = inv.keyholes[Session.get("currentLevel")._id][playerPos.x][playerPos.y];
 
@@ -521,7 +517,7 @@ function findLockedKeyhole(inv){
 
 }
 
-function checkForKeyholes(inv){
+function checkForKeyholes(){
 
      var lkh = inv.keyholes[Session.get("currentLevel")._id];
 
@@ -599,13 +595,12 @@ function updatePlayerInventory (levelId){
 //add this levels inventory to the players inventory
 //only if it's a new level
 
-var inv = PlayerGameData.findOne({player: Meteor.user()._id, type: 'inventory'});
-if(typeof inv.pickupables[levelId] === 'undefined'){
-     var t_inv = getInventory(levelId);
-     inv.pickupables[levelId] = t_inv.pickupables; 
-     inv.keyholes[levelId] = t_inv.keyholes;
-     PlayerGameData.update(inv._id, {$set: {pickupables: inv.pickupables, keyholes: inv.keyholes}});
-}
+     if(typeof inv.pickupables[levelId] === 'undefined'){
+          var t_inv = getInventory(levelId);
+          inv.pickupables[levelId] = t_inv.pickupables; 
+          inv.keyholes[levelId] = t_inv.keyholes;
+          PlayerGameData.update(inv._id, {$set: {pickupables: inv.pickupables, keyholes: inv.keyholes}});
+     }
 
 }
 

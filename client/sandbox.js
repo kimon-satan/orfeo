@@ -125,9 +125,9 @@ Template.sandboxControls.levelHeight = function(){
 function setPlayerPos(){
 
 	var playerPos = PlayerGameData.findOne({player: Meteor.user()._id, type: "pos"});
-	var ep0 = DesignerGameMaps.findOne({levelId: Session.get("currentLevel")._id, entryPoint: 0});
+	var lh = DesignerGameMaps.findOne(Session.get("currentLevel")._id);
 
-	playerPos.x = ep0.x; playerPos.y = ep0.y;
+	playerPos.x = lh.entryPoints[0].x; playerPos.y = lh.entryPoints[0].y;
 
 	PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
 

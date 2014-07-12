@@ -5,6 +5,7 @@ aapiWrapper = function(){
 
     this.context = 0;
     this.initialised = true;
+    this.sampleSources = {};
     this.sampleObjs = {};
 
 }
@@ -41,7 +42,7 @@ aapiWrapper.prototype.loadSounds = function(files, callBack){
       //name = name.split(".");
       //name = name[0];
 
-			parent.sampleObjs[name] = new appiSample(name);
+			parent.sampleSources[name] = new appiSample(name);
       var fp = "sounds/" + files[i].parent + "/" + files[i].filename;
       //console.log(fp);
 
@@ -51,8 +52,8 @@ aapiWrapper.prototype.loadSounds = function(files, callBack){
 
       req.addEventListener('load', function(event){
 
-          parent.sampleObjs[name].buffer = parent.context.createBuffer(req.response, false);
-          parent.sampleObjs[name].bufSrc = {};
+          parent.sampleSources[name].buffer = parent.context.createBuffer(req.response, false);
+          parent.sampleSources[name].bufSrc = {};
           if(i == files.length-1)callBack(true);
 
       }, true);
@@ -64,9 +65,12 @@ aapiWrapper.prototype.loadSounds = function(files, callBack){
 
 }
 
-aapiWrapper.prototype.playOnce = function(n, options, callBack){
+aapiWrapper.prototype.playOnce = function(options, callBack){
 
-  var sample = this.sampleObjs[n];
+  this.sampleObjs[options.index] = new appiSample();
+  var sample = this.sampleObjs[options.index];
+  sample.buffer = this.sampleSources[options.audioFile].buffer;
+  sample.bufSrc = this.sampleSources[options.audioFile].bufSrc;
 
   //defaults
   if(typeof options.amp !== 'undefined')sample.amp = options.amp;
@@ -104,17 +108,22 @@ aapiWrapper.prototype.playSequence = function(sampleNames){
 
 }
 
-aapiWrapper.prototype.startLooping = function(n, amp, fadeIn){ //n is a key with the fileName
 
-  var sample = this.sampleObjs[n];
-  sample.amp = amp;
+aapiWrapper.prototype.startLooping = function(options){ //n is a key with the fileName
+
+  this.sampleObjs[options.index] = new appiSample();
+  var sample = this.sampleObjs[options.index];
+  sample.buffer = this.sampleSources[options.audioFile].buffer;
+  sample.bufSrc = this.sampleSources[options.audioFile].bufSrc;
+
+  sample.amp = options.amp;
   sample.crossfades = this.calcXFades(1);
 
   if(!sample.isLooping){
 
     sample.isLooping = true;
 
-    this.play(sample, fadeIn, -1);
+    this.play(sample, options.fadeIn, -1);
     sample.loopTime = this.context.currentTime + sample.buffer.duration - 1;
 
     sample.loopThread = window.setInterval(function(){
@@ -132,6 +141,16 @@ aapiWrapper.prototype.startLooping = function(n, amp, fadeIn){ //n is a key with
 
 }
 
+aapiWrapper.prototype.setLoopAmp = function(n ,amp){
+
+  var sample = this.sampleObjs[n];
+  var ct = this.context.currentTime;
+  sample.amp = amp;
+  sample.gainNode.gain.linearRampToValueAtTime(sample.gainNode.gain.value, 0);
+  sample.gainNode.gain.linearRampToValueAtTime(sample.amp, ct + 0.5);
+
+}
+
 aapiWrapper.prototype.stopLooping = function(n, fadeOut, offset){
 
 	var sample = this.sampleObjs[n];
@@ -141,7 +160,6 @@ aapiWrapper.prototype.stopLooping = function(n, fadeOut, offset){
 
     if(typeof offset === 'undefined')offset = 0;
 
-    sample.gainNode.gain.cancelScheduledValues(ct + offset); //clear the cross fade
     sample.gainNode.gain.linearRampToValueAtTime(sample.gainNode.gain.value, ct + offset);
     sample.gainNode.gain.linearRampToValueAtTime(0, ct + offset + fadeOut);
 
@@ -236,6 +254,8 @@ aapiWrapper.prototype.killAll = function(){
 
     if(this.sampleObjs[sample].isLooping){
       this.stopLooping(sample, 0.5,0);
+    }else{
+      this.sampleObjs[sample].bufSrc.stop(0);
     }
   }
 

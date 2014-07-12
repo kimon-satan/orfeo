@@ -77,9 +77,10 @@ function updateSoundFieldTraces(loc){
 
 
 	var radMinX = Math.max(0, parseInt(loc[0]) - ce.range);
-	var radMaxX = Math.min(parseInt(cl.width - 1), parseInt(loc[0]) + ce.range + 1);
+	var radMaxX = Math.min(parseInt(cl.width ), parseInt(loc[0]) + ce.range + 1);
 	var radMinY = Math.max(0, parseInt(loc[1]) - ce.range);
-	var radMaxY = Math.min(parseInt(cl.height- 1), parseInt(loc[1]) + ce.range + 1);
+	var radMaxY = Math.min(parseInt(cl.height), parseInt(loc[1]) + ce.range + 1);
+
 
 	
 
@@ -96,6 +97,7 @@ function updateSoundFieldTraces(loc){
 
 	}else{
 
+		var maxDist = Math.sqrt(Math.pow(ce.range, 2) + Math.pow(ce.range ,2));
 
 		for(var y = radMinY; y < radMaxY; y++){
 			for(var x = radMinX; x < radMaxX; x++){
@@ -103,8 +105,10 @@ function updateSoundFieldTraces(loc){
 				(function(){
 
 					var dist = Math.sqrt(Math.pow(x - parseInt(loc[0]), 2) + Math.pow(y - parseInt(loc[1]) ,2));
+
 					
-					var t = {id: ce._id, amp: ce.amp * ce.range/dist};
+					var t = {id: ce._id, amp: ce.sound.amp * (1 - dist/maxDist)};
+					console.log(t.amp);
 					cl.cells[y][x].soundFieldTraces[ce._id] = t;
 
 				})();
@@ -240,6 +244,19 @@ Template.terrainMap.elementColor = function(e){
 		return;
 	}else{
 		return t.color;
+	}
+
+
+}
+
+Template.terrainMap.soundFieldOpacity = function(){
+
+	var t = DesignerGameDefs.findOne(this.id);
+
+	if(!t){
+		return;
+	}else{
+		return this.amp/t.sound.amp;
 	}
 
 

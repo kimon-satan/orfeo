@@ -78,7 +78,8 @@
           {{/if}}
 
           {{#each soundFieldTraces}}
-            <div style = "background-color: {{elementColor this.id}}" class="designerCellInside bottomLeft">{{elementMapSymbol this.id}}</div>
+            <div style = "background-color: {{elementColor this.id}}; opacity: {{soundFieldOpacity this.amp}}" 
+            class="designerCellInside">{{elementMapSymbol this.id}}</div>
           {{/each}}
 
         </td>

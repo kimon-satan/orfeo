@@ -1,9 +1,10 @@
 
 JOBS
 
-2.sound fields (filled or hollow center options)
+2.sound fields -  hollow centers
+2b. terrains check for new bg file and allow none options on background and narrator
 3. give every element a map symbol in combination with colour picker and shape (dependent on element type)
-4. allow all audio elements to have 'none' option 
+ 
 3. auditioning in terrain builder
 4. search filters for elements in designer
 5. cell inspector in designer + filters in key
@@ -18,7 +19,6 @@ JOBS
 8.load points
 
 9. release changed flag using TS
-10.changes to appi wrapper for mulitple instantiations of the same file (?) 
 
 RESEARCH / TESTING
 

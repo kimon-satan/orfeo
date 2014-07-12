@@ -6,6 +6,7 @@
 audio = 0;
 cTerrain = 0;
 nTerrain = 'none';
+soundFieldLoops = {};
 cell = {};
 inv = {};
 playerPos = {};
@@ -77,6 +78,7 @@ Template.startSplash.events({
           cell = getCell(playerPos.x, playerPos.y);
           cTerrain = getElement(cell.terrain);
           nTerrain = 'none';
+          soundFieldLoops = {};
           inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
 
           handleBegin(cell, playerPos);
@@ -141,7 +143,8 @@ Template.navScreen.events({
      $(event.target).addClass("active");
      $('.step').addClass('disable');
 
-     audio.playOnce(cTerrain.narrator.audioFile, {amp: cTerrain.narrator.amp}, resetButtons); //needs modding to play the whole sequence ?
+     
+     audio.playOnce(cTerrain.narrator, resetButtons); //needs modding to play the whole sequence ?
 
      event.preventDefault();
 
@@ -270,6 +273,8 @@ function handleBegin(){
      
      var audioArray = handleInteractives();
 
+     handleSoundFieldTraces();
+
      handleTerrain(cTerrain, nTerrain, function(){
 
           playAudioSequence(audioArray, resetButtons);
@@ -301,9 +306,11 @@ function handleStep(callback){
           PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
           nTerrain = getElement(cell.terrain);
 
-          audio.playOnce(cTerrain.footsteps.audioFile, {amp: cTerrain.footsteps.amp}, function(){
+          audio.playOnce(cTerrain.footsteps, function(){
 
                if(typeof callback !== 'undefined')callback();
+
+               handleSoundFieldTraces();
 
                handleTerrain(cTerrain, nTerrain, function(){
 
@@ -337,6 +344,9 @@ function keyholeSuccess(idx){
      var audioArray = handleInteractives();
 
      PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
+
+     handleSoundFieldTraces();
+
      nTerrain = getElement(cell.terrain);
      
      handleTerrain(cTerrain, nTerrain, function(){
@@ -354,6 +364,7 @@ function handleKeyholeDrop(id ,idx){
      var kh = inv.keyholes[Session.get("currentLevel")._id][playerPos.x][playerPos.y][idx];
                           
      var key = getElement(kh.id);
+
                               
      if(key.keyPickupable == id){
           console.log("match");
@@ -362,7 +373,8 @@ function handleKeyholeDrop(id ,idx){
           PlayerGameData.update(inv._id, {$set:{bag: inv.bag}});
 
           if(key.trueSound.audioFile != 'none'){
-               audio.playOnce(key.trueSound.audioFile, {amp: key.trueSound.amp}, function(){keyholeSuccess(idx)});
+               key.trueSound.index = kh.id + '_ts';
+               audio.playOnce(key.trueSound, function(){keyholeSuccess(idx)});
           }else{
                keyholeSuccess(idx);
           }
@@ -373,7 +385,8 @@ function handleKeyholeDrop(id ,idx){
 
           console.log("non match");
           if(key.falseSound.audioFile != 'none'){
-               audio.playOnce(key.falseSound.audioFile, {amp: key.falseSound.amp}, function(){ handleDropItem(id)});
+               key.falseSound.index = kh.id + '_fs';
+               audio.playOnce(key.falseSound, function(){ handleDropItem(id)});
           }else{
                handleDropItem(id);
           }
@@ -421,7 +434,10 @@ function handleInteractives(){
                var lkh = inv.keyholes[Session.get("currentLevel")._id][playerPos.x][playerPos.y][idx];
                var key = getElement(lkh.id);
                isKeyOverride = true;
-               if(key.preSound.audioFile != 'none')audioArray.push(key.preSound);
+               if(key.preSound.audioFile != 'none'){
+                    key.preSound.index =lkh.id + '_ps';
+                    audioArray.push(key.preSound);
+               }
 
           }
           
@@ -431,7 +447,10 @@ function handleInteractives(){
                     if(typeof lkh !== 'undefined'){ 
                          if(!lkh.locked){        
                               var key = getElement(lkh.id);
-                              if(key.postSound.audioFile != 'none')audioArray.push(key.postSound);
+                              if(key.postSound.audioFile != 'none'){
+                                   key.postSound.index = lkh.id + '_pos';
+                                   audioArray.push(key.postSound);
+                              }
                          }
                     }
                }
@@ -444,6 +463,7 @@ function handleInteractives(){
      if(!isKeyOverride){
           if(cell.simpleSound != 'none'){
                var ss = getElement(cell.simpleSound)
+               ss.index = cell.simpleSound;
                audioArray.push(ss.sound);
           }
 
@@ -464,6 +484,7 @@ function handleInteractives(){
                if(!isKeyOverride || cell.pickupable != lps[playerPos.x][playerPos.y]){
                     var pu = getElement(lps[playerPos.x][playerPos.y]);
                     isPickup = true;
+                    pu.narrator.index = lps[playerPos.x][playerPos.y];
                     audioArray.push(pu.narrator);
                }
 
@@ -553,7 +574,7 @@ playAudioSequence = function(audioObjs, finalCallback){
           $('#where').removeClass('disable');
 
           var ao = audioObjs.shift();
-          audio.playOnce(ao.audioFile, {amp: ao.amp}, function(){
+          audio.playOnce(ao, function(){
                playAudioSequence(audioObjs, finalCallback);
           });
      }else{
@@ -570,23 +591,68 @@ handleTerrain = function(cTerrain , nTerrain, callback){
           $('#where').addClass('active');
           $('#where').removeClass('disable');
 
-          audio.startLooping(cTerrain.background.audioFile, cTerrain.background.amp, 1);
-          audio.playOnce(cTerrain.narrator.audioFile, {amp: cTerrain.narrator.amp, offset: 2}, callback);
+          cTerrain.background.index = cTerrain._id + '_bg';
+          cTerrain.narrator.index = cTerrain._id + '_n';
+          cTerrain.narrator.offset = 2;
 
-     }else if(nTerrain.name!= cTerrain.name){
+          audio.startLooping(cTerrain.background, 1);
+          audio.playOnce(cTerrain.narrator, callback);
+
+     }else if(nTerrain._id!= cTerrain._id){
+
+          //something to check whether audio files are actually different
 
           $('#where').addClass('active');
           $('#where').removeClass('disable');
 
-          audio.stopLooping(cTerrain.background.audioFile, 1);
-          audio.playOnce(nTerrain.narrator.audioFile, {amp: nTerrain.narrator.amp, offset: 2}, callback);
-          audio.startLooping(nTerrain.background.audioFile, nTerrain.background.amp, 1);
+          nTerrain.background.index = nTerrain._id + '_bg';
+          nTerrain.narrator.index = nTerrain._id + '_n';
+          nTerrain.narrator.offset = 2;
+
+          audio.stopLooping(cTerrain._id + '_bg', 1);
+          audio.playOnce(nTerrain.narrator, callback);
+          audio.startLooping(nTerrain.background, 1);
 
      }else{
 
           callback();
 
      }
+
+}
+
+function handleSoundFieldTraces(){
+
+
+     for(item in cell.soundFieldTraces){
+
+          var elem = getElement(item);
+
+          if(typeof soundFieldLoops[item] !== 'undefined'){
+               //adjust volume
+               console.log('adjust: ' + item);
+               audio.setLoopAmp(item, cell.soundFieldTraces[item].amp);
+          }else{
+               //start the new loop
+               console.log('start: ' + item);
+               soundFieldLoops[item] = getElement(item);
+               elem.sound.amp = cell.soundFieldTraces[item].amp; 
+               elem.sound.index = item;
+               audio.startLooping(elem.sound, 0.5);
+          }
+     }
+     
+     for(item in soundFieldLoops){
+
+          if(typeof cell.soundFieldTraces[item] === 'undefined'){
+               //stop the sound 
+               var elem = getElement(item);
+               console.log('stop: ' +  item);
+               audio.stopLooping(item, 0.5);
+               delete soundFieldLoops[item];
+          }
+     }
+
 
 }
 
@@ -610,10 +676,12 @@ function handleWallAudio(wall, callback){
 
      if(wall.hit.audioFile != 'none'){
 
-          audio.playOnce(wall.hit.audioFile, {amp: wall.hit.amp}, function(){
+          wall.hit.index = wall._id + '_h';
+          audio.playOnce(wall.hit, function(){
 
                if(wall.narrator.audioFile != 'none'){
-                    audio.playOnce(wall.narrator.audioFile, {amp: wall.narrator.amp}, callback);  
+                    wall.narrator.index = wall._id + '_n';
+                    audio.playOnce(wall.narrator, callback);  
                }else{
                     callback();
                }
@@ -622,7 +690,8 @@ function handleWallAudio(wall, callback){
 
      }else if(wall.narrator.audioFile != 'none'){
 
-          audio.playOnce(wall.narrator.audioFile, {amp: wall.narrator.amp}, callback);      
+          wall.narrator.index = wall._id + '_n';
+          audio.playOnce(wall.narrator, callback);      
      }
 
 }

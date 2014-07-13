@@ -661,50 +661,71 @@ function updateKey(id, isRemove){
 	if(!isRemove){
 		if(cl.mapKey.indexOf(id) == -1){
 			cl.mapKey.push(id);
-			Session.set('currentLevel', cl);
-			DesignerGameMaps.update(cl._id, {$set:{mapKey: cl.mapKey}});
 		}
+	}
 
-		return;
+	for(e in cl.mapKey){
 
-	}else{
 
-		var elem = getElement(id);
+		(function(){
+
+		 
+		var elem = getElement(cl.mapKey[e]);
+		var rmv = true;
 
 		if(elem.type == 'keyhole'){
 
 			for(var y = 0; y < cl.height; y++){
+				if(!rmv)break;
 				for(var x = 0; x < cl.width; x++){
+					if(!rmv)break;
 					for(var i = 0; i < 4; i++){
-						if(cl.cells[y][x][elem.type][i] == id)return;
+						if(cl.cells[y][x][elem.type][i] == elem._id){
+							rmv = false;
+							break;
+						}
 					}
+					
 				}
+				
 			}
 
 		}else if(elem.type == 'soundField'){
 
 			for(var y = 0; y < cl.height; y++){
+				if(!rmv)break;
 				for(var x = 0; x < cl.width; x++){
+					if(!rmv)break;
 					for(item in cl.cells[y][x].soundFieldTraces){
-						if(item == id)return;
+						if(item == elem._id){
+							rmv = false;break;
+						}
 					}
+					
 				}
 			}
 
 		}else{
 
 			for(var y = 0; y < cl.height; y++){
+				if(!rmv)break;
 				for(var x = 0; x < cl.width; x++){
-					if(cl.cells[y][x][elem.type] == id)return;
+					if(cl.cells[y][x][elem.type] == elem._id){
+						rmv = false; 
+						break;
+					}
 				}
 			}
 		}
 
-		if(cl.mapKey.indexOf(id) > -1){
-			cl.mapKey.splice(cl.mapKey.indexOf(id),1);
+		if(cl.mapKey.indexOf(elem._id) > -1 && rmv == true){
+			cl.mapKey.splice(cl.mapKey.indexOf(elem._id),1);
 		}
 
+		})();
+
 	}
+
 
 
 	Session.set('currentLevel', cl);

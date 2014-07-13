@@ -7,6 +7,7 @@ audio = 0;
 cTerrain = 0;
 nTerrain = 'none';
 soundFieldLoops = {};
+cSimpleSound = 'none';
 cell = {};
 inv = {};
 playerPos = {};
@@ -80,6 +81,7 @@ Template.startSplash.events({
           nTerrain = 'none';
           soundFieldLoops = {};
           inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
+          cSimpleSound = 'none';
 
           handleBegin(cell, playerPos);
 
@@ -461,11 +463,17 @@ function handleInteractives(){
 
 
      if(!isKeyOverride){
+
           if(cell.simpleSound != 'none'){
-               var ss = getElement(cell.simpleSound)
-               ss.index = cell.simpleSound;
-               audioArray.push(ss.sound);
+
+               if(cSimpleSound != cell.simpleSound){ //don't play simple sounds twice in a row
+                    var ss = getElement(cell.simpleSound);
+                    ss.index = cell.simpleSound;
+                    audioArray.push(ss.sound);
+               }
           }
+          
+          cSimpleSound = cell.simpleSound;
 
           if(cell.exitPoint != 'none'){
                cell = handleExitPoint(cell.exitPoint); //check whats here
@@ -595,13 +603,12 @@ handleTerrain = function(cTerrain , nTerrain, callback){
           cTerrain.narrator.index = cTerrain._id + '_n';
           cTerrain.narrator.offset = 2;
 
-          audio.startLooping(cTerrain.background, 1);
-          audio.playOnce(cTerrain.narrator, callback);
+          if(cTerrain.background.audioFile != 'none')audio.startLooping(cTerrain.background, 1);
+          if(cTerrain.narrator.audioFile != 'none')audio.playOnce(cTerrain.narrator, callback);
 
      }else if(nTerrain._id!= cTerrain._id){
 
-          //something to check whether audio files are actually different
-
+          var isNewBg = false;
           $('#where').addClass('active');
           $('#where').removeClass('disable');
 
@@ -609,9 +616,19 @@ handleTerrain = function(cTerrain , nTerrain, callback){
           nTerrain.narrator.index = nTerrain._id + '_n';
           nTerrain.narrator.offset = 2;
 
-          audio.stopLooping(cTerrain._id + '_bg', 1);
-          audio.playOnce(nTerrain.narrator, callback);
-          audio.startLooping(nTerrain.background, 1);
+          if(nTerrain.background.audioFile != cTerrain.background.audioFile){
+               audio.stopLooping(cTerrain._id + '_bg', 1);
+               if(nTerrain.background.audioFile != 'none')audio.startLooping(nTerrain.background, 1);
+               isNewBg = true;
+          }
+
+          if(nTerrain.narrator.audioFile != cTerrain.narrator.audioFile && nTerrain.narrator.audioFile != 'none'){
+               nTerrain.narrator.offset = (isNewBg)? 2: 0;
+               audio.playOnce(nTerrain.narrator, callback);
+          }else{
+               callback();
+          }
+          
 
      }else{
 

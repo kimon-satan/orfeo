@@ -43,6 +43,10 @@ Template.terrainMap.events({
 				setArrayElement(loc, index);
 				updateLevelInventory();
 
+			}else if(Session.get('currentFeatureType') == 'soundField'){
+
+				updateSoundFieldTraces(loc);
+
 			}else{
 				setMultiElement(loc);
 			}
@@ -51,10 +55,7 @@ Template.terrainMap.events({
 				updateLevelInventory();
 			}
 
-			if(Session.get('currentFeatureType') == 'soundField'){
-				updateSoundFieldTraces(loc);
-			}
-
+		
 
 
 		}else{
@@ -71,9 +72,16 @@ function updateSoundFieldTraces(loc){
 	var cl = Session.get('currentLevel');
 	var ce = Session.get('currentElement');
 
+	if(isRemoveItems){
+		delete cl.cells[parseInt(loc[1])][parseInt(loc[0])].soundFieldTraces[ce._id];
+		DesignerGameMaps.update(cl._id , {$set: {cells: cl.cells}});
+		Session.set('currentLevel', cl);
+		updateKey(Session.get("currentElement")._id, isRemoveItems);
+		return;
+	}
+
 	ce.range = parseInt(ce.range);
 	if(ce.range == 0)return;
-
 
 
 	var radMinX = Math.max(0, parseInt(loc[0]) - ce.range);
@@ -81,44 +89,32 @@ function updateSoundFieldTraces(loc){
 	var radMinY = Math.max(0, parseInt(loc[1]) - ce.range);
 	var radMaxY = Math.min(parseInt(cl.height), parseInt(loc[1]) + ce.range + 1);
 
+	var maxDist = Math.sqrt(Math.pow(ce.range, 2) + Math.pow(ce.range ,2));
 
+	for(var y = radMinY; y < radMaxY; y++){
+		for(var x = radMinX; x < radMaxX; x++){
+
+			(function(){
+
+				var dist = Math.sqrt(Math.pow(x - parseInt(loc[0]), 2) + Math.pow(y - parseInt(loc[1]) ,2));
+
+				if(ce.isHollow && dist == 0){
 	
-
-	if(isRemoveItems){
-
-		for(var y = radMinY; y < radMaxY; y++){
-			for(var x = radMinX; x < radMaxX; x++){
-
-				delete cl.cells[y][x].soundFieldTraces[ce._id];
-			
-			}
-		}
-
-
-	}else{
-
-		var maxDist = Math.sqrt(Math.pow(ce.range, 2) + Math.pow(ce.range ,2));
-
-		for(var y = radMinY; y < radMaxY; y++){
-			for(var x = radMinX; x < radMaxX; x++){
-
-				(function(){
-
-					var dist = Math.sqrt(Math.pow(x - parseInt(loc[0]), 2) + Math.pow(y - parseInt(loc[1]) ,2));
-
-					
+				}else{
 					var t = {id: ce._id, amp: ce.sound.amp * (1 - dist/maxDist)};
-					console.log(t.amp);
-					cl.cells[y][x].soundFieldTraces[ce._id] = t;
+					if(t.amp > 0)cl.cells[y][x].soundFieldTraces[ce._id] = t;
+				}
+				
+				
 
-				})();
-			}
+			})();
 		}
-
-	}
+	}	
 
 	DesignerGameMaps.update(cl._id , {$set: {cells: cl.cells}});
 	Session.set('currentLevel', cl);
+
+	updateKey(Session.get("currentElement")._id, isRemoveItems);
 
 
 }
@@ -256,7 +252,7 @@ Template.terrainMap.soundFieldOpacity = function(){
 	if(!t){
 		return;
 	}else{
-		return this.amp/t.sound.amp;
+		return Math.max(0.1, this.amp/t.sound.amp);
 	}
 
 
@@ -685,6 +681,16 @@ function updateKey(id, isRemove){
 				}
 			}
 
+		}else if(elem.type == 'soundField'){
+
+			for(var y = 0; y < cl.height; y++){
+				for(var x = 0; x < cl.width; x++){
+					for(item in cl.cells[y][x].soundFieldTraces){
+						if(item == id)return;
+					}
+				}
+			}
+
 		}else{
 
 			for(var y = 0; y < cl.height; y++){
@@ -694,7 +700,9 @@ function updateKey(id, isRemove){
 			}
 		}
 
-		cl.mapKey.splice(cl.mapKey.indexOf(id),1);
+		if(cl.mapKey.indexOf(id) > -1){
+			cl.mapKey.splice(cl.mapKey.indexOf(id),1);
+		}
 
 	}
 

@@ -466,8 +466,9 @@ function handleInteractives(){
 
           if(cell.simpleSound != 'none'){
 
-               if(cSimpleSound != cell.simpleSound){ //don't play simple sounds twice in a row
-                    var ss = getElement(cell.simpleSound);
+               var ss = getElement(cell.simpleSound);
+
+               if(cSimpleSound != cell.simpleSound || !ss.isZone){ 
                     ss.index = cell.simpleSound;
                     audioArray.push(ss.sound);
                }

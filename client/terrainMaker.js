@@ -80,6 +80,18 @@ Template.nameColorPicker.events({
 
 });
 
+Template.mapSymbolPicker.events({
+
+	'blur #mapSymbol':function(e){
+
+	var ce = Session.get("currentElement");
+	ce.mapSymbol = $('#mapSymbol').val();
+	DesignerGameDefs.update(ce._id,{$set: {mapSymbol: ce.mapSymbol}});
+	e.preventDefault();
+
+	}
+});
+
 
 
 
@@ -434,13 +446,6 @@ function selectExitLevel(){
 
 Template.pickupableMaker.events({
 
-	'blur #mapSymbol':function(e){
-
-		var ce = Session.get("currentElement");
-		ce.mapSymbol = $('#mapSymbol').val();
-		DesignerGameDefs.update(ce._id,{$set: {mapSymbol: ce.mapSymbol}});
-		e.preventDefault();
-	},
 
 	'blur #displayName':function(e){
 
@@ -491,15 +496,25 @@ Template.keyholeMaker.events({
 		Session.set('currentElement', ce);
 	}, 
 
-	'blur #mapSymbol':function(e){
+
+
+});
+
+Template.simpleSoundMaker.events({
+
+	'click #isZone':function(e){
 
 		var ce = Session.get("currentElement");
-		ce.mapSymbol = $('#mapSymbol').val();
-		DesignerGameDefs.update(ce._id,{$set: {mapSymbol: ce.mapSymbol}});
-		e.preventDefault();
+		ce.isZone = !ce.isZone;
+		DesignerGameDefs.update(ce._id, {$set: {isZone: ce.isZone}});
+		Session.set('currentElement', ce);
 	}
 
 });
+
+Template.simpleSoundMaker.isZone = function(){
+	return (Session.get("currentElement").isZone)? 'checked' : '';
+}
 
 
 Template.soundFieldMaker.isHollow = function(){

@@ -52,6 +52,13 @@
   </div>
 </template>
 
+<template name="mapSymbolPicker">
+    <div class="form-group tbspacer">
+      <label for="mapSymbol">Map Symbol</label>
+      <input class = "adjustable" maxLength="1" type = "text" id="mapSymbol" value={{currentElement.mapSymbol}}> 
+    </div>
+</template>
+
 <template name="elementTable">
 
 
@@ -190,6 +197,7 @@
     <div class="col-xs-4 well">
 
       {{>nameColorPicker}}
+      {{>mapSymbolPicker}}
 
       <div class="tableOverflow shortScrollableColumn">
         <table class="table table-bordered table-condensed">
@@ -245,6 +253,7 @@
       <form role="form">
 
         {{>nameColorPicker}}
+        {{>mapSymbolPicker}}
         {{>soundControls  sc_disp="Hit" sc_type="hit"}}
         {{>soundControls sc_disp="Narrator" sc_type="narrator"}}
 
@@ -273,16 +282,13 @@
       <form role="form">
 
         {{>nameColorPicker}}
+        {{>mapSymbolPicker}}
 
         <div class="form-control tbspacer">
           <label for="dispName">Display Name</label>
           <input class = "adjustable" type = "text" id="displayName" value={{currentElement.displayName}}> 
         </div>
 
-        <div class="form-control tbspacer">
-          <label for="mapSymbol">Map Symbol</label>
-          <input class = "adjustable" maxLength="1" type = "text" id="mapSymbol" value={{currentElement.mapSymbol}}> 
-        </div>
 
         <br/><br/>
         {{>soundControls sc_disp="Narrator" sc_type="narrator"}}
@@ -310,6 +316,7 @@
         <form role="form">
 
           {{>nameColorPicker}}
+          {{>mapSymbolPicker}}
 
 
           {{>elementPointerTable e_disp="Pickupable" e_index="pickupable" }}
@@ -320,10 +327,7 @@
             <input type="text" id="keyP" disabled="true" value="{{keyPickupable.name}}">
           </div>
 
-         <div class="form-group tbspacer">
-          <label for="mapSymbol">Map Symbol</label>
-          <input class = "adjustable" maxLength="1" type = "text" id="mapSymbol" value={{currentElement.mapSymbol}}> 
-        </div>
+
 
           <div class="form-group tbspacer">
 
@@ -383,7 +387,11 @@
             <form role="form">
 
                 {{>nameColorPicker}}
+                {{>mapSymbolPicker}}
                 {{>soundControls sc_disp = "Sound" sc_type="sound"}}
+
+                <label for="isZone">is Zone</label>
+                <input type="checkbox" id="isZone" class="adjustable" {{isZone}}>
 
             </form>
         </div>
@@ -406,6 +414,7 @@
             <form role="form">
 
                 {{>nameColorPicker}}
+                {{>mapSymbolPicker}}
                 {{>soundControls sc_disp = "Sound" sc_type="sound"}}
 
                 <div class="form-group">

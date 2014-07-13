@@ -132,6 +132,15 @@
 	z-index: 800;
 }
 
+.designerCellImage{
+	top: 0px;
+	left: 0px;
+	position: absolute;
+	z-index: 700;
+	width: 40px;
+	height: 40px;
+}
+
 .topLeft{
 	top: 0px;
 	left: 0px;
@@ -156,11 +165,7 @@
 	z-index: 1000;
 }
 
-#starCell{
-	
-	background:url(images/star.png); 
-	z-index: 100;
-}
+
 
 #crossCell{
 	
@@ -170,12 +175,26 @@
 
 .keyCell{
 
-	width: 20px;
-	height: 20px;
-	border: 1px solid black;
+	position: relative;
+	width: 25px;
+	height: 25px;
+	border: 1px solid gray;
 
 }
 
+.keyCellImg{
+
+	width: 20px;
+	height: 20px;
+}
+
+.keyCellInside{
+
+	position: absolute;
+	top: 2px;
+	left: 10px;
+
+}
 
 .scrollableColumn{
 

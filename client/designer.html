@@ -46,11 +46,23 @@
         {{#each mapCol this}}
 
         <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{elementColor this.terrain}}">          
-          {{#if hasElement "entryPoint"}}<div class="designerCellInside">{{this.entryPoint}}</div>{{/if}}
-          {{#if hasElement "exitPoint"}}<div id="starCell" style = "background-color: {{elementColor this.exitPoint}}" class="designerCellInside"></div>{{/if}}
+          {{#if hasElement "entryPoint"}}
+          <img src ="images/triangle.png" class="designerCellImage">
+          <div class="designerCellInside">{{this.entryPoint}}</div>{{/if}}
+
+          {{#if hasElement "exitPoint"}}
+            <img src ="images/star.png" class="designerCellImage">
+            <div class="designerCellInside" style = "color: {{elementColor this.exitPoint}}">{{elementMapSymbol this.exitPoint}}</div>
+          {{/if}}
+
           {{#if hasElement "wall"}}<div id="crossCell" style = "background-color: {{elementColor this.wall}}" class="designerCellInside"></div>{{/if}}
           {{#if hasElement "pickupable"}}<div style = "color: {{elementColor this.pickupable}}" class="designerCellInside">{{elementMapSymbol this.pickupable}}</div>{{/if}}
-          {{#if hasElement "simpleSound"}}<div style = "color: {{elementColor this.simpleSound}}" class="designerCellInside">{{elementMapSymbol this.simpleSound}}</div>{{/if}}
+          
+          {{#if hasElement "simpleSound"}}
+            <img src ="images/circle.png" class="designerCellImage">
+            <div style = "color: {{elementColor this.simpleSound}}" class="designerCellInside">{{elementMapSymbol this.simpleSound}}</div>
+          {{/if}}
+
           {{#if hasElement "soundField"}}<div style = "color: {{elementColor this.soundField}}" class="designerCellInside">{{elementMapSymbol this.soundField}}</div>{{/if}}
 
           {{#if getCollectionElement "keyhole" '0'}}
@@ -107,11 +119,14 @@
               <td>{{type}}</td>
 
               {{#if elemTerrain}}
-              <td><div class = "keyCell" style="background-color: {{color}}"></div></td>
+              <td><div class = "keyCell" style="color: {{color}}"></div></td>
               {{/if}}
 
               {{#if elemExitPoint}}
-              <td><div id="starCell" class = "keyCell" style="background-color: {{color}}"></div></td>
+              <td><div class = "keyCell">
+                <img src="images/star-small.png" class="keyCellImg">
+                <div class ="keyCellInside" style="color: {{color}}">{{mapSymbol}}</div>
+              </div></td>
               {{/if}}
 
               {{#if elemWall}}
@@ -127,7 +142,10 @@
               {{/if}}
 
               {{#if elemSimpleSound}}
-              <td><div class="keyCell" style="color: {{color}}">{{mapSymbol}}</div></td>
+                 <td><div class = "keyCell">
+                <img src="images/circle-small.png" class="keyCellImg">
+                <div class ="keyCellInside" style="color: {{color}}">{{mapSymbol}}</div>
+              </div></td>
               {{/if}}
 
               {{#if elemSoundField}}

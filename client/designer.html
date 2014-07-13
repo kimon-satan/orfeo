@@ -45,18 +45,23 @@
       <tr>
         {{#each mapCol this}}
 
-        <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{elementColor this.terrain}}">          
+
+        <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{elementColor this.terrain}}">   
+
           {{#if hasElement "entryPoint"}}
           <img src ="images/triangle.png" class="designerCellImage">
-          <div class="designerCellInside">{{this.entryPoint}}</div>{{/if}}
+          <div class="designerCellInside">{{this.entryPoint}}</div>
+          {{/if}}
 
           {{#if hasElement "exitPoint"}}
             <img src ="images/star.png" class="designerCellImage">
             <div class="designerCellInside" style = "color: {{elementColor this.exitPoint}}">{{elementMapSymbol this.exitPoint}}</div>
           {{/if}}
 
-          {{#if hasElement "wall"}}<div id="crossCell" style = "background-color: {{elementColor this.wall}}" class="designerCellInside"></div>{{/if}}
-          {{#if hasElement "pickupable"}}<div style = "color: {{elementColor this.pickupable}}" class="designerCellInside">{{elementMapSymbol this.pickupable}}</div>{{/if}}
+          {{#if hasElement "wall"}}<div style = "background-color: {{elementColor this.wall}}" class="designerCellInside">
+          <div style="color: white">{{elementMapSymbol this.wall}}</div>
+          </div>{{/if}}
+          {{#if hasElement "pickupable"}}<div style = "color: {{elementColor this.pickupable}}" class="designerCellInside bottomRight">{{elementMapSymbol this.pickupable}}</div>{{/if}}
           
           {{#if hasElement "simpleSound"}}
             <img src ="images/circle.png" class="designerCellImage">
@@ -91,8 +96,9 @@
 
           {{#each soundFieldTraces}}
             <div style = "background-color: {{elementColor this.id}}; opacity: {{soundFieldOpacity}}" 
-            class="designerCellInside">{{elementMapSymbol this.id}}</div>
+            class="soundFieldCell"><div style="color: white">{{elementMapSymbol this.id}}</div></div>
           {{/each}}
+
 
         </td>
 
@@ -119,13 +125,13 @@
               <td>{{type}}</td>
 
               {{#if elemTerrain}}
-              <td><div class = "keyCell" style="color: {{color}}"></div></td>
+              <td><div class = "keyCell" style="background-color: {{color}}"></div></td>
               {{/if}}
 
               {{#if elemExitPoint}}
               <td><div class = "keyCell">
                 <img src="images/star-small.png" class="keyCellImg">
-                <div class ="keyCellInside" style="color: {{color}}">{{mapSymbol}}</div>
+                <div class="keyCellText" style="color: {{color}}">{{mapSymbol}}</div>
               </div></td>
               {{/if}}
 
@@ -142,18 +148,35 @@
               {{/if}}
 
               {{#if elemSimpleSound}}
-                 <td><div class = "keyCell">
+              <td><div class = "keyCell">
                 <img src="images/circle-small.png" class="keyCellImg">
-                <div class ="keyCellInside" style="color: {{color}}">{{mapSymbol}}</div>
+                <div class="keyCellText" style="color: {{color}}">{{mapSymbol}}</div>
               </div></td>
               {{/if}}
 
               {{#if elemSoundField}}
-              <td><div class="keyCell" style="color: {{color}}">{{mapSymbol}}</div></td>
+              <td><div class="keyCell" style="background-color: {{color}}; opacity: 0.5"><div style="color: white">{{mapSymbol}}</div></div></td>
               {{/if}}
+
+              <td>
+                <input id={{this._id}} type='checkbox' {{visible}}>
+              </td>
 
             </tr>
             {{/each}}
+
+            <tr>
+              <td></td>
+              <td>entryPoints</td>
+              <td><div class = "keyCell">
+                <img src="images/triangle.png" class="keyCellImg">
+                <div class="keyCellText">0</div>
+              </div></td>
+
+              <td>
+                <input id='entryPoint' type='checkbox' {{visible 'entryPoints'}}>
+              </td>
+            </tr>
 
           </tbody>
         </table>

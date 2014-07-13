@@ -67,6 +67,8 @@ Template.terrainMap.events({
 
 });
 
+
+
 function updateSoundFieldTraces(loc){
 
 	var cl = Session.get('currentLevel');
@@ -210,14 +212,20 @@ Template.terrainMap.mapCol = function(y){
 }
 
 
-Template.terrainMap.hasElement = function(type){return (this[type] != 'none');}
+Template.terrainMap.hasElement = function(type){
+	if(type == 'entryPoint'){
+		return (this[type] != 'none' && Session.get('currentView').entryPoint);
+	}else{
+		return (this[type] != 'none' && Session.get('currentView')[this[type]]);
+	}
+}
 
 Template.terrainMap.soundFieldTraces = function(){
 
 	var array = [];
 	
 	for(a in this.soundFieldTraces){
-		array.push(this.soundFieldTraces[a]);
+		if(Session.get('currentView')[a])array.push(this.soundFieldTraces[a]);
 	}
 
 	return array;
@@ -227,7 +235,7 @@ Template.terrainMap.getCollectionElement = function(type, index){
 	index = parseInt(index);
 	if(typeof this[type] == 'undefined')return;
 	var elem = this[type][index];
-	if(elem == 'none')elem = undefined;
+	if(elem == 'none' || !Session.get('currentView')[this[type][index]])elem = undefined;
 	return elem;
 }
 
@@ -731,6 +739,8 @@ function updateKey(id, isRemove){
 	Session.set('currentLevel', cl);
 	DesignerGameMaps.update(cl._id, {$set:{mapKey: cl.mapKey}});
 
+	updateCurrentView();
+
 }
 
 function updateLevelInventory(){
@@ -769,7 +779,11 @@ function updateLevelInventory(){
 
 }
 
+Template.mapKey.created = function(){
 
+	updateCurrentView();
+
+}
 
 Template.mapKey.elemTerrain = function(){return this.type == 'terrain';}
 Template.mapKey.elemExitPoint = function(){return this.type == 'exitPoint';}
@@ -779,6 +793,51 @@ Template.mapKey.elemKeyhole = function(){return this.type == 'keyhole';}
 Template.mapKey.elemSimpleSound = function(){return this.type == 'simpleSound';}
 Template.mapKey.elemSoundField = function(){return this.type == 'soundField';}
 
+Template.mapKey.visible = function(type){
+
+	var cv = Session.get('currentView');
+
+	if(typeof type === 'undefined'){	
+		return (cv[this._id])? 'checked' : '';
+	}else{
+		return(cv['entryPoint'])? 'checked' : '';
+	}
+}
+
+Template.mapKey.events({
+
+	'click input':function(e){
+
+		var cv = Session.get('currentView');
+		cv[e.currentTarget.id ] = !cv[e.currentTarget.id ];
+		Session.set('currentView', cv);
+
+	}
+})
+
+
+function updateCurrentView(){
+
+	var mk = Session.get('currentLevel').mapKey;
+	var cv = Session.get('currentView');
+
+	if(typeof cv === 'undefined'){
+		cv = {};
+		for(item in mk){
+			cv[mk[item]] = true;
+		}
+
+		cv['entryPoint'] = true;
+
+	}else{
+		for(item in mk){
+			if(typeof cv[mk[item]] === 'undefined')cv[mk[item]] = true;
+		}
+	}
+
+	Session.set('currentView', cv);
+
+}
 
 
 

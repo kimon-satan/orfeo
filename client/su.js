@@ -4,6 +4,7 @@ Template.su.created = function(){
 
 	Session.set("suMode", "designElements");	
 	Session.set('currentFilter', Meteor.user().username);
+	Session.set('pointerFilter', Meteor.user().username);
 
 }
 
@@ -41,15 +42,9 @@ Template.su.events({
 
 });
 
-Template.su.designers = function(){
-	var designers = Meteor.users.find({$or: [{'profile.role': 'admin'}, {'profile.role': 'designer'}]}).fetch();
-	designers.push({username: 'allDesigners'});
-	return designers;
-}
 
-Template.su.designerFilter = function(){
-	return Session.get('currentFilter');
-}
+
+
 
 Template.su.isPlay = function(){return Session.get("suMode") == "playGame";}
 Template.su.isDesignLevel = function(){return Session.get("suMode") == "designLevel";}

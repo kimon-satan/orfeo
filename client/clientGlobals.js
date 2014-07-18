@@ -28,19 +28,19 @@ UI.registerHelper('currentElement' , function(){
 
 
 
-UI.registerHelper('elements', function(eType, addNone){
+UI.registerHelper('elements', function(eType, filter, addNone){
 
 	var elems;
 
-	if(Session.get('currentFilter') == 'allDesigners'){
+	if(filter == 'allDesigners'){
 		elems = DesignerGameDefs.find({type: eType}).fetch();
 	}else{
-		var id = Meteor.users.findOne({username: Session.get('currentFilter')})._id;
+		var id = Meteor.users.findOne({username: filter})._id;
 		var t_elems = DesignerGameDefs.find({type: eType, creator: id}).fetch();
 		var myElems = DesignerGameDefs.find({type: eType, creator: Meteor.user()._id}).fetch();
 		var s_elems = DesignerGameDefs.find({type: eType, creator: 'server'}).fetch();
 		
-		if(Meteor.user().username != Session.get('currentFilter')){
+		if(Meteor.user().username != filter){
 			t_elems = t_elems.concat(myElems);
 		}
 
@@ -66,19 +66,33 @@ UI.registerHelper('myElements', function(eType, addNone){
 	return elems;
 });
 
-UI.registerHelper('levels', function(){
+UI.registerHelper('designerFilter', function(){
+	return Session.get('currentFilter');
+});
+
+UI.registerHelper('pointerFilter', function(){
+	return Session.get('pointerFilter');
+});
+
+UI.registerHelper('designers' , function(){
+	var designers = Meteor.users.find({$or: [{'profile.role': 'admin'}, {'profile.role': 'designer'}]}).fetch();
+	designers.push({username: 'allDesigners'});
+	return designers;
+});
+
+UI.registerHelper('levels', function(filter){
 
 
-	if(Session.get('currentFilter') == 'allDesigners'){
+	if(filter == 'allDesigners'){
 		return DesignerGameMaps.find({type: 'levelHeader'}).fetch();
 	}else{
 		var levels;
-		var id = Meteor.users.findOne({username: Session.get('currentFilter')})._id;
+		var id = Meteor.users.findOne({username: filter})._id;
 		var t_levels = DesignerGameMaps.find({type: 'levelHeader', creator: id}).fetch();
 		var myLevels = DesignerGameMaps.find({type: 'levelHeader', creator: Meteor.user()._id}).fetch();
 		var s_levels = DesignerGameMaps.find({type: 'levelHeader', creator: 'server'}).fetch();
 		
-		if(Meteor.user().username != Session.get('currentFilter')){
+		if(Meteor.user().username != filter){
 			t_levels = t_levels.concat(myLevels);
 		}
 		levels = t_levels.concat(s_levels);

@@ -244,8 +244,25 @@ Template.elementPointerTable.events({
 		$('.elementPointerRow').removeClass('subSelected');
 		$('.elementPointerRow > td' ).removeClass('subSelected');
 
-	}
+	},
 
+
+
+
+});
+
+Template.filterPicker.events({
+
+	'click .pFilterOption':function(e){
+
+		Session.set('pointerFilter', e.currentTarget.id);
+		
+		if(checkClientIsOwner(Meteor.user()._id, Session.get("currentElement"))){
+			enableAdjustables();
+		}else{
+			disableAdjustables();
+		}
+	}
 
 });
 

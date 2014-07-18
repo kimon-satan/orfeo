@@ -71,7 +71,7 @@
     </thead>
 
     <tbody>
-      {{#each elements e_index}}
+      {{#each elements e_index designerFilter}}
       <tr id={{_id}} class="elementRow">
         <td>{{name}}</td>
         <td>{{creatorName}}</td>
@@ -89,6 +89,8 @@
 
 <template name="elementPointerTable">
 
+  {{>filterPicker}}
+
   <div class="shortScrollableColumn">
     <table class="table table-bordered">
       <thead>
@@ -99,7 +101,7 @@
       </thead>
 
       <tbody>
-        {{#each elements e_index}}
+        {{#each elements e_index pointerFilter}}
         <tr id={{_id}} class="elementPointerRow">
           <td>{{name}}</td>
           <td>{{creatorName}}</td>
@@ -109,6 +111,24 @@
     </table>
   </div>
 
+</template>
+
+<template name ="filterPicker">
+
+  <label for="filter">Filter by: </label>
+     <div id="filter" class="btn-group">
+          <button type="button" class="btn btn-default">{{pointerFilter}}</button>
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+          </button>
+
+          <ul class="dropdown-menu" role="menu">
+            {{#each designers}}
+            <li><a class="pFilterOption" id={{this.username}} href="#">{{this.username}}</a></li>
+            {{/each}}
+          </ul>
+        </div>
 </template>
 
 <!-- ------------------------------------------- ELEMENT DESIGNERS ----------------------------------------------- -->
@@ -204,6 +224,7 @@
       {{>nameColorPicker}}
       {{>mapSymbolPicker}}
 
+      {{>filterPicker}}
       <div class="tableOverflow shortScrollableColumn">
         <table class="table table-bordered table-condensed">
           <thead>
@@ -214,7 +235,7 @@
           </thead>
 
           <tbody>
-            {{#each levels}}
+            {{#each levels pointerFilter}}
             <tr id={{this._id}} class="levelRow adjustable">
               <td>{{this.level}}</td>
               <td>{{creatorName}}</td>

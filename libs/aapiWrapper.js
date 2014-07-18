@@ -31,19 +31,17 @@ aapiWrapper.prototype.init = function(){
 }
 
 aapiWrapper.prototype.loadSounds = function(files, callBack){
-
+  var i = 0;
 	for (var a in files) {
-		(function(parent) {
-
-			var i = parseInt(a);
+		(function(parent) {		
       
       //get the file name
-      var name = files[i].filename;
+      var name = files[a].filename;
       //name = name.split(".");
       //name = name[0];
 
 			parent.sampleSources[name] = new appiSample(name);
-      var fp = "sounds/" + files[i].parent + "/" + files[i].filename;
+      var fp = "sounds/" + files[a].parent + "/" + files[a].filename;
       //console.log(fp);
 
 			var req = new XMLHttpRequest();
@@ -54,12 +52,14 @@ aapiWrapper.prototype.loadSounds = function(files, callBack){
 
           parent.context.decodeAudioData(req.response, function(decodedAudio){
 
+            console.log(event);
             parent.sampleSources[name].buffer = decodedAudio;
+            parent.sampleSources[name].bufSrc = {};
+            i++;
+            console.log(i , name);
+            if(i == files.length)callBack(true);
 
           });
-
-          parent.sampleSources[name].bufSrc = {};
-          if(i == files.length-1)callBack(true);
 
       }, true);
 
@@ -203,7 +203,7 @@ aapiWrapper.prototype.play = function(sample, fadeIn, fadeOut, offset){
 
     //patch nodes
 
-    sample.bufSrc .connect(sample.crossFadeNode);
+    sample.bufSrc.connect(sample.crossFadeNode);
     sample.crossFadeNode.connect(sample.gainNode);
     sample.gainNode.connect(this.context.destination);
 

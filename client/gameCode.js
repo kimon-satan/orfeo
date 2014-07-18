@@ -64,7 +64,7 @@ Template.game.destroyed = function(){
 
 Template.startSplash.events({
 
-     'click #begin':function(e){
+     'click  #begin':function(e){
 
           Session.set("screenMode", 1);
 
@@ -113,7 +113,9 @@ Template.navScreen.created = function(){
 
 Template.navScreen.events({
 
-'click .step': function(event){
+ 'click .step': function(event){
+
+     console.log('step');
 
      if($(event.target).hasClass('disable'))return;
      if($(event.target).hasClass('active'))return;
@@ -279,6 +281,8 @@ function handleBegin(){
      handleSoundFieldTraces();
 
      handleTerrain(cTerrain, nTerrain, function(){
+
+          console.log('seq');
 
           playAudioSequence(audioArray, resetButtons);
 

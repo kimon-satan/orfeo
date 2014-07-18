@@ -8,7 +8,7 @@ Meteor.startup(function(){
   Session.set("isAudioInit", false);
   Session.set("loginMode", 0);
   Session.set("loginError", "");
-
+  FastClick.attach(document.body);
   if(Meteor.user()){
 
 

@@ -34,7 +34,7 @@
   <br/>
   <p>This is some place holder text for the introductory story. This screen is needed as an extra UI event has to trigger the audio</p>
   <br/>
-  <div class="tbspacer"><a href="javascript:;" id="begin" class="btn btn-success btn-lg">Enter</a></div>
+  <div class="tbspacer"><a href="#" id="begin" class="btn btn-success btn-lg">Enter</a></div>
 </template>
 
 
@@ -60,7 +60,7 @@
 
 
         <div class="col-xs-12">
-          <a href="javascript:;" id="north" class="step toggleBtn"></a>
+          <a href="#" id="north" class="step toggleBtn"></a>
         </div>
 
       </div>
@@ -68,27 +68,27 @@
       <div class ="row">
 
         <div class="col-xs-4">
-          <a href="javascript:;" id="west" class="step toggleBtn"></a>
+          <a href="#" id="west" class="step toggleBtn"></a>
         </div>
         <div class="col-xs-4">
-          <a href="javascript:;" id="where" class="toggleBtn"></a>
+          <a href="#" id="where" class="toggleBtn"></a>
         </div>
         <div class="col-xs-4">
-          <a href="javascript:;" id="east" class="step toggleBtn"></a>
+          <a href="#" id="east" class="step toggleBtn"></a>
         </div>
       </div>  
 
       <div class ="row">
 
         <div class="col-xs-12">
-          <a href="javascript:;" id="south" class="step toggleBtn"></a>
+          <a href="#" id="south" class="step toggleBtn"></a>
         </div>
 
       </div>
 
     <div class ="row">
       <div class="col-xs-12">
-        <a href="javascript:;" id="inventory" class="toggleBtn"></a>
+        <a href="#" id="inventory" class="toggleBtn"></a>
       </div>
     </div>
     
@@ -110,7 +110,7 @@
         {{#each bagItems}}
         <div class="text-left alert alert-success" role="alert">
              <strong>{{displayName}}</strong>
-             <a class="dropBagItem" href="#" style="float: right" id={{_id}}><span class="glyphicon glyphicon-minus {{groundFull}}"></span></a>
+             <button class="dropBagItem" href="#" style="float: right" id={{_id}}><span class="glyphicon glyphicon-minus {{groundFull}}"></span></button>
         </div>
         {{/each}}
       </div>
@@ -119,13 +119,13 @@
       {{#each pickupables}}
       <div class="alert alert-warning" role="alert">
            <strong>{{displayName}}</strong>
-           <a href="#" style="float: right" class="addPickupable"><span class="glyphicon glyphicon-plus {{bagFull}}"></span></a>
+           <button href="#" style="float: right" class="addPickupable"><span class="glyphicon glyphicon-plus {{bagFull}}"></span></button>
       </div>
       {{/each}}
         
     
       
-      <a href="javascript:;" id="compass" class="toggleBtn"></a>
+      <a href="#" id="compass" class="toggleBtn"></a>
      
 
       

@@ -27,4 +27,5 @@ add active / disabled classes with jquery to all game screen elements
 
 BUGS
 
-
+level copying bug with designer
+level loading bug

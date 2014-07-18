@@ -30,7 +30,22 @@ UI.registerHelper('currentElement' , function(){
 
 UI.registerHelper('elements', function(eType, addNone){
 
-	var elems = DesignerGameDefs.find({type: eType}).fetch();
+	var elems;
+
+	if(Session.get('currentFilter') == 'allDesigners'){
+		elems = DesignerGameDefs.find({type: eType}).fetch();
+	}else{
+		var id = Meteor.users.findOne({username: Session.get('currentFilter')})._id;
+		var t_elems = DesignerGameDefs.find({type: eType, creator: id}).fetch();
+		var myElems = DesignerGameDefs.find({type: eType, creator: Meteor.user()._id}).fetch();
+		var s_elems = DesignerGameDefs.find({type: eType, creator: 'server'}).fetch();
+		
+		if(Meteor.user().username != Session.get('currentFilter')){
+			t_elems = t_elems.concat(myElems);
+		}
+
+		elems = t_elems.concat(s_elems);
+	}
 
 	if(addNone == 'true'){
 		elems.unshift({name: 'none', _id: 'none'});
@@ -51,7 +66,27 @@ UI.registerHelper('myElements', function(eType, addNone){
 	return elems;
 });
 
-UI.registerHelper('levels', function(){return DesignerGameMaps.find({type: 'levelHeader'}).fetch()});
+UI.registerHelper('levels', function(){
+
+
+	if(Session.get('currentFilter') == 'allDesigners'){
+		return DesignerGameMaps.find({type: 'levelHeader'}).fetch();
+	}else{
+		var levels;
+		var id = Meteor.users.findOne({username: Session.get('currentFilter')})._id;
+		var t_levels = DesignerGameMaps.find({type: 'levelHeader', creator: id}).fetch();
+		var myLevels = DesignerGameMaps.find({type: 'levelHeader', creator: Meteor.user()._id}).fetch();
+		var s_levels = DesignerGameMaps.find({type: 'levelHeader', creator: 'server'}).fetch();
+		
+		if(Meteor.user().username != Session.get('currentFilter')){
+			t_levels = t_levels.concat(myLevels);
+		}
+		levels = t_levels.concat(s_levels);
+		return levels;
+	}
+
+});
+
 UI.registerHelper('creatorName', function(){return getCreatorName(this.creator)});
 
 

@@ -1,6 +1,21 @@
 <template name="su">
 
-	<a href="#" class="btn btn-danger" id="logout">Logout</a>
+	<a href="#" class="lrspacer btn btn-danger" id="logout">Logout</a>
+
+	<label for="filter">Filter menus by: </label>
+	   <div id="filter" class="btn-group">
+          <button type="button" class="btn btn-default">{{designerFilter}}</button>
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+          </button>
+
+          <ul class="dropdown-menu" role="menu">
+            {{#each designers}}
+            <li><a class="filterOption" id={{this.username}} href="#">{{this.username}}</a></li>
+            {{/each}}
+          </ul>
+        </div>
 
 	<br/><br/>
 

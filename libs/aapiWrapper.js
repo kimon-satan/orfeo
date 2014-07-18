@@ -34,38 +34,43 @@ aapiWrapper.prototype.loadSounds = function(files, callBack){
   var i = 0;
 	for (var a in files) {
 		(function(parent) {		
+
+      var name = files[a].parent + files[a].filename;
       
+      if(typeof parent.sampleSources[name] === 'undefined'){
       //get the file name
-      var name = files[a].filename;
-      //name = name.split(".");
-      //name = name[0];
+        
 
-			parent.sampleSources[name] = new appiSample(name);
-      var fp = "sounds/" + files[a].parent + "/" + files[a].filename;
-      //console.log(fp);
+  			parent.sampleSources[name] = new appiSample(name);
+        var fp = "sounds/" + files[a].parent + "/" + files[a].filename;
 
-			var req = new XMLHttpRequest();
-			req.open('GET', fp, true);
-			req.responseType = 'arraybuffer';
+  			var req = new XMLHttpRequest();
+  			req.open('GET', fp, true);
+  			req.responseType = 'arraybuffer';
 
-      req.addEventListener('load', function(event){
+        req.addEventListener('load', function(event){
 
-          parent.context.decodeAudioData(req.response, function(decodedAudio){
+            parent.context.decodeAudioData(req.response, function(decodedAudio){
 
-            console.log(event);
-            parent.sampleSources[name].buffer = decodedAudio;
-            parent.sampleSources[name].bufSrc = {};
-            i++;
-            console.log(i , name);
-            if(i == files.length)callBack(true);
+              parent.sampleSources[name].buffer = decodedAudio;
+              parent.sampleSources[name].bufSrc = {};
+              i++;
 
-          });
+              if(i == files.length)callBack(true);
 
-      }, true);
+            });
 
-			req.send();
+        }, true);
+
+  			req.send();
+
+      }else{
+        i++;
+        if(i == files.length)callBack(true);
+      }
 
 		})(this); 
+
 	}
 
 }
@@ -74,8 +79,8 @@ aapiWrapper.prototype.playOnce = function(options, callBack){
 
   this.sampleObjs[options.index] = new appiSample();
   var sample = this.sampleObjs[options.index];
-  sample.buffer = this.sampleSources[options.audioFile].buffer;
-  sample.bufSrc = this.sampleSources[options.audioFile].bufSrc;
+  sample.buffer = this.sampleSources[options.folder + options.audioFile].buffer;
+  sample.bufSrc = this.sampleSources[options.folder + options.audioFile].bufSrc;
 
   //defaults
   if(typeof options.amp !== 'undefined')sample.amp = options.amp;
@@ -118,8 +123,8 @@ aapiWrapper.prototype.startLooping = function(options){ //n is a key with the fi
 
   this.sampleObjs[options.index] = new appiSample();
   var sample = this.sampleObjs[options.index];
-  sample.buffer = this.sampleSources[options.audioFile].buffer;
-  sample.bufSrc = this.sampleSources[options.audioFile].bufSrc;
+  sample.buffer = this.sampleSources[options.folder + options.audioFile].buffer;
+  sample.bufSrc = this.sampleSources[options.folder + options.audioFile].bufSrc;
 
   sample.amp = options.amp;
   sample.crossfades = this.calcXFades(1);

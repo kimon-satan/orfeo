@@ -15,7 +15,6 @@ Template.designElements.created = function(){
 
 			if(audio.init()){
 				Session.set("isAudioInit", true);
-				Session.set('playingSounds', {});
 			}else{
 				console.log("init failed");
 			}
@@ -49,9 +48,8 @@ Template.designElements.destroyed = function(){
 
 	if(typeof audio !== 'undefined'){
 		audio.killAll();
-		audio = undefined;
+		delete audio;
 		Session.set('isAudioInit', false);
-		Session.set('playingSounds', {});
 	}
 }
 
@@ -117,8 +115,12 @@ Template.mapSymbolPicker.events({
 
 Template.elementTable.created = function(){
 
-	 Session.set('playingSounds' , {});
-	 if(typeof audio !== 'undefined')audio.killAll();
+	 if(typeof audio !== 'undefined'){
+	 	if(Session.get('isAudioInit')){
+	 		audio.killAll();
+	 	}
+	 }
+
 
 	 Meteor.defer(function(){
 
@@ -326,10 +328,7 @@ Template.soundControls.audioParam = function(type, item){
 	return ct[type][item.hash.item];
 }
 
-Template.soundControls.isAudition = function(type){
 
-	return (typeof Session.get('playingSounds')[type] !== 'undefined');
-}
 
 Template.soundControls.events({
 
@@ -353,23 +352,57 @@ Template.soundControls.events({
 	'click .fileOption':function(e){
 
 		var classList = e.currentTarget.className.split(/\s+/);
-		var audioFile = classList[1] + '.audioFile';
+		var af = classList[1] + '.audioFile';
 		var setObj = {};
-		setObj[audioFile] = $(e.currentTarget.id).selector;
-		DesignerGameDefs.update(Session.get("currentElement")._id, {$set: setObj});
+		setObj[af] = $(e.currentTarget.id).selector;
+		var ce = Session.get('currentElement');
+		ce[classList[1]].audioFile = $(e.currentTarget.id).selector;
+		DesignerGameDefs.update(ce._id, {$set: setObj});
+		Session.set('currentElement', ce);
+
 		e.preventDefault();
 	},
 
 	'click .ampBox':function(e){
 
 		var classList = e.currentTarget.className.split(/\s+/);
-		var amp = classList[1] + '.amp';
+		var amp = classList[2] + '.amp'; //this is a bit of a nasty technique
 		var setObj = {};
 		setObj[amp] = parseFloat(e.currentTarget.value);
+		var ce = Session.get('currentElement');
+		ce[classList[2]].amp = parseFloat(e.currentTarget.value);
+		Session.set('currentElement', ce);
 		DesignerGameDefs.update(Session.get("currentElement")._id, {$set: setObj});
 		e.preventDefault();
 
-	}
+	},
+
+	'click .play':function(e){
+
+		if(Session.get('currentElement')[e.currentTarget.id].audioFile == 'none')return;
+		if($('#' + e.currentTarget.id + '_glyph').hasClass('glyphicon-stop'))return;
+
+		var fileObj = [{filename: Session.get('currentElement')[e.currentTarget.id].audioFile,
+						parent: Session.get('currentElement')[e.currentTarget.id].folder
+						}];
+		audio.loadSounds(fileObj, function(){
+
+		$('#' + e.currentTarget.id + '_glyph').removeClass('glyphicon-play');
+		$('#' + e.currentTarget.id + '_glyph').addClass('glyphicon-stop');
+
+			audio.playOnce(Session.get('currentElement')[e.currentTarget.id], function(){
+				$('#' + e.currentTarget.id + '_glyph').removeClass('glyphicon-stop');
+				$('#' + e.currentTarget.id + '_glyph').addClass('glyphicon-play');
+			});
+
+
+		});
+
+
+		
+		e.preventDefault();
+	},
+
 
 
 });

@@ -52,7 +52,12 @@ aapiWrapper.prototype.loadSounds = function(files, callBack){
 
       req.addEventListener('load', function(event){
 
-          parent.sampleSources[name].buffer = parent.context.createBuffer(req.response, false);
+          parent.context.decodeAudioData(req.response, function(decodedAudio){
+
+            parent.sampleSources[name].buffer = decodedAudio;
+
+          });
+
           parent.sampleSources[name].bufSrc = {};
           if(i == files.length-1)callBack(true);
 
@@ -265,6 +270,7 @@ aapiWrapper.prototype.killAll = function(){
 /*-------------------------------------other constructors------------------------------*/
 
 appiSample = function(fileName){
+
 
   this.buffer;
   this.bufSrc;

@@ -57,6 +57,7 @@ Template.game.isInGameRegister = function(){
 Template.game.destroyed = function(){
 
      audio.killAll();
+     audio = undefined;
      Session.set('isAudioInit', false);
      Session.set('screenMode', 0);
 }

@@ -11,9 +11,19 @@ Template.designElements.created = function(){
 			$("#" + Session.get("currentFeatureType")).addClass('active');
 			$("#entryPoint").addClass('disabled');
 
+			audio = new aapiWrapper();
+
+			if(audio.init()){
+				Session.set("isAudioInit", true);
+				Session.set('playingSounds', {});
+			}else{
+				console.log("init failed");
+			}
+
 		}});
 
 	});
+
 
 }
 
@@ -34,6 +44,16 @@ Template.designElements.events({
 
 	}
 })
+
+Template.designElements.destroyed = function(){
+
+	if(typeof audio !== 'undefined'){
+		audio.killAll();
+		audio = undefined;
+		Session.set('isAudioInit', false);
+		Session.set('playingSounds', {});
+	}
+}
 
 /*------------------------------------TERRAIN MAKER---------------------------------------------*/
 
@@ -97,9 +117,11 @@ Template.mapSymbolPicker.events({
 
 Template.elementTable.created = function(){
 
+	 Session.set('playingSounds' , {});
+	 if(typeof audio !== 'undefined')audio.killAll();
+
 	 Meteor.defer(function(){
 
-	  	
 	  	var ct = DesignerGameDefs.findOne({type: Session.get("currentFeatureType"), creator: "server"});
 	  	if(ct)Session.set("currentElement", ct);
 		  	 
@@ -302,6 +324,11 @@ Template.soundControls.audioParam = function(type, item){
 	var ct = DesignerGameDefs.findOne(Session.get("currentElement")._id);
 	if(typeof ct === "undefined" || ct[type] === "undefined")return;
 	return ct[type][item.hash.item];
+}
+
+Template.soundControls.isAudition = function(type){
+
+	return (typeof Session.get('playingSounds')[type] !== 'undefined');
 }
 
 Template.soundControls.events({

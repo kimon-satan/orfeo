@@ -19,12 +19,13 @@ Template.sandboxLevelSelector.events({
 		playerPos = setPlayerPos();
 		resetInventory();
 
+		loadAudioFiles();
+
 		if(Session.get("screenMode") > 0){
-
-			Session.set("screenMode", 0);
 			audio.killAll();
-
-    	}
+			Session.set("screenMode", 0);
+		}
+    	
 
 		$('.levelRow').removeClass('selected');
 		$('.levelRow > td' ).removeClass('selected');

@@ -27,14 +27,14 @@ Meteor.startup(function(){
 
 
 	//if there is no game map make an initial one
-	if(!DesignerGameMaps.findOne({type: 'levelHeader'})){
+	if(!DesignerGameMaps.findOne({type: 'levelHeader', creator: 'server'})){
 
 		var header = createLevelHeader('init', 5 , 5, "server");
 		
 		DesignerGameMaps.insert(header,function(err, id){
 			
 			header._id = id;
-			DesignerGameMaps.insert({type: 'inventory', levelId: header._id , creator: "server", pickupables: {} });
+			DesignerGameMaps.insert({type: 'inventory', levelId: header._id , creator: "server", pickupables: {}, keyholes: {}, overrides:{}});
 
 		});
 

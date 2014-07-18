@@ -23,16 +23,23 @@ Template.game.created = function(){
 
 //console.log(id);
 
-Meteor.subscribe("PlayerGameData", id, { onReady: function(){
+     Meteor.subscribe("PlayerGameData", id, { onReady: function(){     
 
-     Meteor.subscribe("AudioFiles",{}, {onReady: function(){
+          var level = PlayerGameData.findOne({player: Meteor.user()._id, type: "level"});
 
-          if(!Session.get("isAudioInit"))startAudio();
+          if(checkClientIsDesigner()){
+               PlayerGameData.update(level._id, {$set: {level: Session.get('currentLevel')._id}});
+          }else{
+               Session.set('currentLevel', getLevel(level.id));
+          }
+
+          if(!Session.get("isAudioInit")){
+               startAudio();
+          }else{
+               loadAudioFiles();
+          }
+
      }});
-
-}});
-
-// console.log("subscribe");
 
 
 }
@@ -68,13 +75,7 @@ Template.startSplash.events({
 
           Session.set("screenMode", 1);
 
-          var level = PlayerGameData.findOne({player: Meteor.user()._id, type: "level"});
-
-          if(checkClientIsDesigner()){
-               PlayerGameData.update(level._id, {$set: {level: Session.get('currentLevel')._id}});
-          }else{
-               Session.set('currentLevel', getLevel(level.id));
-          }
+          
 
           playerPos = PlayerGameData.findOne({player: Meteor.user()._id, type: "pos"});
           cell = getCell(playerPos.x, playerPos.y);
@@ -734,18 +735,75 @@ function startAudio (){
 
 }
 
-function loadAudioFiles(){
+loadAudioFiles = function(){
 
-     var files = AudioFiles.find({dt: 'file'}).fetch();
+     Session.set("isLoaded" , false);
+     var files = getAudioDependencies(Session.get('currentLevel')._id);
 
-//console.log(files);
+     audio.loadSounds( files , function(){
 
-audio.loadSounds( files , function(){
+          Session.set("isLoaded" , true);
+          Session.set("screenMode", 0);
 
-     Session.set("isLoaded" , true);
-     Session.set("screenMode", 0);
+     });
 
-});
+}
+
+function getAudioDependencies(levelId){
+
+     var level = getLevel(levelId);
+     var mk = level.mapKey;
+
+     var files = [];
+
+     for(item in mk){
+
+          var elem = getElement(mk[item]);
+
+
+          switch(elem.type){
+
+               case 'terrain':
+                    if(files.indexOf(elem.narrator) == -1)files.push(elem.narrator);
+                    if(files.indexOf(elem.background) == -1)files.push(elem.background);
+                    if(files.indexOf(elem.footsteps) ==-1)files.push(elem.footsteps);
+               break;
+               case 'wall':
+                    if(files.indexOf(elem.hit) == -1)files.push(elem.hit);
+                    if(files.indexOf(elem.narrator) == -1)files.push(elem.narrator);
+               break;
+               case 'pickupable':
+                    if(files.indexOf(elem.narrator) == -1)files.push(elem.narrator);
+               break;
+               case 'keyhole':
+                    if(files.indexOf(elem.startSound) == -1)files.push(elem.startSound);
+                    if(files.indexOf(elem.endSound) == -1)files.push(elem.endSound);
+                    if(files.indexOf(elem.trueSound) == -1)files.push(elem.trueSound);
+                    if(files.indexOf(elem.falseSound) == -1)files.push(elem.falseSound);
+               break;
+               case 'simpleSound':
+                    if(files.indexOf(elem.sound) == -1)files.push(elem.sound);
+               break;
+               case 'soundField':
+                    if(files.indexOf(elem.sound) == -1)files.push(elem.sound);
+               break;
+
+          }
+
+          if(elem.type == 'exitPoint'){
+               if(elem.exitTo != levelId){ //this is also where the load point block will go
+
+                    var newFiles = getAudioDependencies(elem.exitTo);
+
+                    for(i in newFiles){
+                        if(files.indexOf(newFiles[i]) == -1)files.push(newFiles[i]);
+                    };
+
+               }
+          }
+     }
+
+     return files;
 
 }
 

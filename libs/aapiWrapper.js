@@ -33,20 +33,30 @@ aapiWrapper.prototype.init = function(){
 aapiWrapper.prototype.loadSounds = function(files, callBack){
   var i = 0;
 	for (var a in files) {
+
+    if(typeof files[a] === 'undefined' || files[a].folder == 'none' || files[a].audioFile == 'none' || typeof this.sampleSources[name] !== 'undefined'){
+      i++;
+      console.log(i);
+      if(i == files.length)callBack(true);
+      continue;
+    }
+
 		(function(parent) {		
 
-      var name = files[a].parent + files[a].filename;
+      var name = files[a].folder + files[a].audioFile;
       
-      if(typeof parent.sampleSources[name] === 'undefined'){
+      
       //get the file name
         
 
   			parent.sampleSources[name] = new appiSample(name);
-        var fp = "sounds/" + files[a].parent + "/" + files[a].filename;
+        var fp = "sounds/" + files[a].folder + "/" + files[a].audioFile;
+        console.log(fp);
 
   			var req = new XMLHttpRequest();
   			req.open('GET', fp, true);
   			req.responseType = 'arraybuffer';
+
 
         req.addEventListener('load', function(event){
 
@@ -56,6 +66,8 @@ aapiWrapper.prototype.loadSounds = function(files, callBack){
               parent.sampleSources[name].bufSrc = {};
               i++;
 
+              console.log(fp, i , files.length);
+
               if(i == files.length)callBack(true);
 
             });
@@ -64,10 +76,6 @@ aapiWrapper.prototype.loadSounds = function(files, callBack){
 
   			req.send();
 
-      }else{
-        i++;
-        if(i == files.length)callBack(true);
-      }
 
 		})(this); 
 

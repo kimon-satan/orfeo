@@ -15,6 +15,8 @@ isAudioLock = false;
 isPickup = false;
 maxBagItems = 5;
 
+var loadTrigger = false;
+
 
 
 Template.game.created = function(){
@@ -26,6 +28,7 @@ Template.game.created = function(){
 
           var level = PlayerGameData.findOne({player: Meteor.user()._id, type: "level"});
           inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
+
 
           if(checkClientIsDesigner()){
                PlayerGameData.update(level._id, {$set: {level: Session.get('currentLevel')._id}});
@@ -77,7 +80,7 @@ Template.startSplash.events({
 
           Session.set("screenMode", 1);
 
-          
+          loadTrigger = false;
 
           playerPos = PlayerGameData.findOne({player: Meteor.user()._id, type: "pos"});
           cell = getCell(playerPos.x, playerPos.y);
@@ -310,23 +313,39 @@ function handleStep(callback){
           audioArray = handleInteractives();
 
           PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
-          nTerrain = getElement(cell.terrain);
 
-          audio.playOnce(cTerrain.footsteps, function(){
+          
+               nTerrain = getElement(cell.terrain);
 
-               if(typeof callback !== 'undefined')callback();
+               audio.playOnce(cTerrain.footsteps, function(){
 
-               handleSoundFieldTraces();
+                    if(typeof callback !== 'undefined')callback();
 
-               handleTerrain(cTerrain, nTerrain, function(){
 
-                    playAudioSequence(audioArray, resetButtons);
+                    if(!loadTrigger){
+
+                         handleSoundFieldTraces();
+                         handleTerrain(cTerrain, nTerrain, function(){
+
+                              playAudioSequence(audioArray, resetButtons);
+
+                         });
+
+                         cTerrain = nTerrain;        
+
+                    }else{
+
+                         playAudioSequence(audioArray,function(){
+                              audio.killAll();
+                              Session.set('isLoaded', false);
+                              Session.set('screenMode', 0);
+                              loadAudioFiles();
+                         });
+
+                    }
 
                });
 
-               cTerrain = nTerrain;        
-
-          });
 
      }
 
@@ -351,17 +370,27 @@ function keyholeSuccess(idx){
 
      PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
 
-     handleSoundFieldTraces();
+     if(!loadTrigger){
+          handleSoundFieldTraces();
 
-     nTerrain = getElement(cell.terrain);
-     
-     handleTerrain(cTerrain, nTerrain, function(){
+          nTerrain = getElement(cell.terrain);
+          
+          handleTerrain(cTerrain, nTerrain, function(){
 
-          playAudioSequence(audioArray, function(){Session.set('screenMode', 1)});
+               playAudioSequence(audioArray, function(){Session.set('screenMode', 1)});
 
-     });
+          });
 
-     cTerrain = nTerrain; 
+          cTerrain = nTerrain; 
+     }else{
+
+          playAudioSequence(audioArray, function(){
+               audio.killAll();load
+               Session.set('isLoaded', false);
+               Session.set('screenMode', 0);
+               loadAudioFiles();
+          });
+     }
 
 }
 
@@ -481,7 +510,7 @@ function handleInteractives(){
           cSimpleSound = cell.simpleSound;
 
           if(cell.exitPoint != 'none'){
-               cell = handleExitPoint(cell.exitPoint); //check whats here
+               cell = handleExitPoint(cell.exitPoint); 
                playerPos.x = cell.x; playerPos.y = cell.y;
           }
      }
@@ -516,17 +545,18 @@ function handleExitPoint(exitPointId){
      var ep = getElement(exitPointId);
      var level = getLevel(ep.exitTo);
      Session.set("currentLevel", level);
-
-     updatePlayerInventory(level._id);
-
      if(checkClientIsDesigner()){
           updateCurrentLevel();
      }
 
+     updatePlayerInventory(level._id);
      var cl = PlayerGameData.findOne({player: Meteor.user()._id , type: "level" });
      PlayerGameData.update(cl._id, {$set: {id: level._id}});
-
      var ep_i = getEntryCell(ep.entryIndex);
+
+     if(level.isLoadPoint){
+          loadTrigger = true;
+     }
 
      return getCell(ep_i.x, ep_i.y);
 
@@ -791,14 +821,17 @@ function getAudioDependencies(levelId){
           if(elem.type == 'exitPoint'){
                if(elem.exitTo != levelId){ //this is also where the load point block will go
 
-                    var newFiles = getAudioDependencies(elem.exitTo);
+                    var nl = getLevel(elem.exitTo);
 
+                    if(!nl.isLoadPoint){
 
-                    for(i in newFiles){
+                         var newFiles = getAudioDependencies(elem.exitTo);
 
-                         addUniqueSoundObj(files, newFiles[i]);
+                         for(i in newFiles){
+                              addUniqueSoundObj(files, newFiles[i]);
+                         };
 
-                    };
+                    }
 
                }
           }

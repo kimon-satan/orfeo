@@ -1,15 +1,14 @@
 
 JOBS
 
-6.finishing off keyhole 
+2. resizing resets inventory and map key
+
+3.finish off keyhole 
     [inventory lock/ screen changes, 
     terrain changes override,
     linked function,
     extra overrides,
 
-8.load points
-
-9. release changed flag using TS
 
 RESEARCH / TESTING
 
@@ -22,7 +21,7 @@ multi user test (might just be on the day)
 LATER
 
 add active / disabled classes with jquery to all game screen elements
-
+timestamps and metrics
 
 BUGS
 

@@ -34,6 +34,8 @@ aapiWrapper.prototype.loadSounds = function(files, callBack){
   var i = 0;
 	for (var a in files) {
 
+    var name = files[a].folder + files[a].audioFile;
+
     if(typeof files[a] === 'undefined' || files[a].folder == 'none' || files[a].audioFile == 'none' || typeof this.sampleSources[name] !== 'undefined'){
       i++;
       if(i == files.length)callBack(true);
@@ -42,11 +44,7 @@ aapiWrapper.prototype.loadSounds = function(files, callBack){
 
 		(function(parent) {		
 
-      var name = files[a].folder + files[a].audioFile;
-      
-      
-      //get the file name
-        
+        var name = files[a].folder + files[a].audioFile;
 
   			parent.sampleSources[name] = new appiSample(name);
         var fp = "sounds/" + files[a].folder + "/" + files[a].audioFile;

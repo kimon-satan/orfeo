@@ -623,6 +623,7 @@ function makeLevelCopy(o_levelName, o_creator, n_levelName, n_creator){
 			o_t.creator = n_creator;
 			nlh.mapKey[i] = DesignerGameDefs.insert(o_t);
 		}else{
+			console.log(n_t);
 			nlh.mapKey[i] = n_t._id;
 		}
 

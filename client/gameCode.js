@@ -764,28 +764,28 @@ function getAudioDependencies(levelId){
           switch(elem.type){
 
                case 'terrain':
-                    if(files.indexOf(elem.narrator) == -1)files.push(elem.narrator);
-                    if(files.indexOf(elem.background) == -1)files.push(elem.background);
-                    if(files.indexOf(elem.footsteps) ==-1)files.push(elem.footsteps);
+                    addUniqueSoundObj(files, elem.narrator);
+                    addUniqueSoundObj(files, elem.background);
+                    addUniqueSoundObj(files, elem.footsteps);
                break;
                case 'wall':
-                    if(files.indexOf(elem.hit) == -1)files.push(elem.hit);
-                    if(files.indexOf(elem.narrator) == -1)files.push(elem.narrator);
+                    addUniqueSoundObj(files, elem.hit);
+                    addUniqueSoundObj(files, elem.narrator);
                break;
                case 'pickupable':
-                    if(files.indexOf(elem.narrator) == -1)files.push(elem.narrator);
+                    addUniqueSoundObj(files, elem.narrator);
                break;
                case 'keyhole':
-                    if(files.indexOf(elem.startSound) == -1)files.push(elem.startSound);
-                    if(files.indexOf(elem.endSound) == -1)files.push(elem.endSound);
-                    if(files.indexOf(elem.trueSound) == -1)files.push(elem.trueSound);
-                    if(files.indexOf(elem.falseSound) == -1)files.push(elem.falseSound);
+                    addUniqueSoundObj(files, elem.preSound);
+                    addUniqueSoundObj(files, elem.postSound);
+                    addUniqueSoundObj(files, elem.trueSound);
+                    addUniqueSoundObj(files, elem.falseSound);
                break;
                case 'simpleSound':
-                    if(files.indexOf(elem.sound) == -1)files.push(elem.sound);
+                    addUniqueSoundObj(files, elem.sound);
                break;
                case 'soundField':
-                    if(files.indexOf(elem.sound) == -1)files.push(elem.sound);
+                    addUniqueSoundObj(files, elem.sound);
                break;
 
           }
@@ -795,8 +795,11 @@ function getAudioDependencies(levelId){
 
                     var newFiles = getAudioDependencies(elem.exitTo);
 
+
                     for(i in newFiles){
-                        if(files.indexOf(newFiles[i]) == -1)files.push(newFiles[i]);
+
+                         addUniqueSoundObj(files, newFiles[i]);
+
                     };
 
                }
@@ -809,7 +812,23 @@ function getAudioDependencies(levelId){
 
 
 
+function addUniqueSoundObj(array, soundObj){
 
+     var isFound = false;
+
+     for(i in array){
+          if(soundObj.audioFile == array[i].audioFile && 
+               soundObj.folder == array[i].folder){
+               isFound = true;
+               break;
+          }
+     }
+
+
+     if(!isFound)array.push(soundObj);
+
+
+}
 
 
 

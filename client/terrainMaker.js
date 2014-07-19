@@ -399,10 +399,7 @@ Template.soundControls.events({
 		if(Session.get('currentElement')[e.currentTarget.id].audioFile == 'none')return;
 		if($('#' + e.currentTarget.id + '_glyph').hasClass('glyphicon-stop'))return;
 
-		var fileObj = [{filename: Session.get('currentElement')[e.currentTarget.id].audioFile,
-						parent: Session.get('currentElement')[e.currentTarget.id].folder
-						}];
-		audio.loadSounds(fileObj, function(){
+		audio.loadSounds([Session.get('currentElement')[e.currentTarget.id]], function(){
 
 		$('#' + e.currentTarget.id + '_glyph').removeClass('glyphicon-play');
 		$('#' + e.currentTarget.id + '_glyph').addClass('glyphicon-stop');

@@ -412,8 +412,6 @@ Template.mainSettings.events({
 
 		if(w > cl.width){
 
-			console.log('increase');
-
 			for(var x = cl.width; x < w; x++){
 				for(var y = 0; y < cl.height; y++){
 					cl.cells[y].push(createMapCell(x, y));
@@ -524,11 +522,20 @@ Template.mainSettings.events({
 		
 
 		e.preventDefault();
+	},
+
+	'click #loadPoint':function(e){
+
+		var cl = Session.get('currentLevel');
+		cl.isLoadPoint = !cl.isLoadPoint;
+		Session.set('currentLevel', cl);
+		DesignerGameMaps.update(cl._id, {$set: {isLoadPoint: cl.isLoadPoint}});
 	}
 
 });
 
 Template.mainSettings.currentLevel = function(){return DesignerGameMaps.findOne(Session.get("currentLevel")._id)}
+Template.mainSettings.isLoadPoint = function(){return (Session.get('currentLevel').isLoadPoint) ? 'checked' : ''}
 
 /*------------------------------------------------------add Features --------------------------------------------*/
 
@@ -846,10 +853,10 @@ Template.mapKey.events({
 })
 
 
-function updateCurrentView(){
+updateCurrentView = function(){
 
 	var mk = Session.get('currentLevel').mapKey;
-	var cv =  {}; //Session.get('currentView');
+	var cv =  Session.get('currentView');
 
 	if(typeof cv === 'undefined'){
 		cv = {};

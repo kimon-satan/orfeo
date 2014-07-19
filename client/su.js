@@ -37,6 +37,7 @@ Template.su.events({
 		if(Session.get('suMode') == "designLevel"){
 			selectALevel();
 			updateCurrentLevel();
+			updateCurrentView();
 		}
 	}
 

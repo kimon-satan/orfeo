@@ -21,17 +21,19 @@ Template.game.created = function(){
 
      var id = Meteor.user()._id;
 
-//console.log(id);
 
      Meteor.subscribe("PlayerGameData", id, { onReady: function(){     
 
           var level = PlayerGameData.findOne({player: Meteor.user()._id, type: "level"});
+          inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
 
           if(checkClientIsDesigner()){
                PlayerGameData.update(level._id, {$set: {level: Session.get('currentLevel')._id}});
           }else{
                Session.set('currentLevel', getLevel(level.id));
           }
+
+
 
           if(!Session.get("isAudioInit")){
                startAudio();
@@ -82,7 +84,7 @@ Template.startSplash.events({
           cTerrain = getElement(cell.terrain);
           nTerrain = 'none';
           soundFieldLoops = {};
-          inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
+          
           cSimpleSound = 'none';
 
           handleBegin(cell, playerPos);
@@ -115,8 +117,6 @@ Template.navScreen.created = function(){
 Template.navScreen.events({
 
  'click .step': function(event){
-
-     console.log('step');
 
      if($(event.target).hasClass('disable'))return;
      if($(event.target).hasClass('active'))return;
@@ -282,8 +282,6 @@ function handleBegin(){
      handleSoundFieldTraces();
 
      handleTerrain(cTerrain, nTerrain, function(){
-
-          console.log('seq');
 
           playAudioSequence(audioArray, resetButtons);
 
@@ -805,6 +803,19 @@ function getAudioDependencies(levelId){
                }
           }
      }
+
+     for(item in inv.bag){
+          var elem = getElement(inv.bag[item]);
+          addUniqueSoundObj(files, elem.narrator);
+     }
+
+     for(y in inv.pickupables[levelId]){
+          for(x in inv.pickupables[levelId][y]){
+          var elem = getElement(inv.pickupables[levelId][y][x]);
+          addUniqueSoundObj(files, elem.narrator);
+          }
+     }
+
 
      return files;
 

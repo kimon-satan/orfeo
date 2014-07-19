@@ -50,7 +50,6 @@ aapiWrapper.prototype.loadSounds = function(files, callBack){
 
   			parent.sampleSources[name] = new appiSample(name);
         var fp = "sounds/" + files[a].folder + "/" + files[a].audioFile;
-        console.log(fp);
 
   			var req = new XMLHttpRequest();
   			req.open('GET', fp, true);

@@ -130,6 +130,7 @@ createLevelHeader = function(level, width, height, creator){
 		creator: creator,
 		width: width,
 		height: height,
+		isLoadPoint: false,
 		entryPoints: [],
 		mapKey: [],
 		cells: []

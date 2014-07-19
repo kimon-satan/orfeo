@@ -138,7 +138,7 @@ function setPlayerPos(){
 
 function resetInventory(){
 
-	var inv = PlayerGameData.findOne({player: Meteor.user()._id, type: 'inventory'});
+	inv = PlayerGameData.findOne({player: Meteor.user()._id, type: 'inventory'});
 	if(inv)PlayerGameData.remove(inv._id);
 	var n_inv = {player: Meteor.user()._id, type: "inventory", pickupables: {}, bag: [], keyholes: {}, overrides: {}};
 	var pus = DesignerGameMaps.findOne({type: "inventory", levelId: Session.get("currentLevel")._id}).pickupables;
@@ -147,6 +147,7 @@ function resetInventory(){
 	n_inv.keyholes[Session.get("currentLevel")._id] = keys;
 	n_inv.overrides = {};
 	PlayerGameData.insert(n_inv);
+	inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
 
 }
 

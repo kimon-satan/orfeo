@@ -7,7 +7,6 @@ JOBS
     linked function,
     extra overrides,
 
-7.smart audio file loading(50%)
 8.load points
 
 9. release changed flag using TS
@@ -27,5 +26,3 @@ add active / disabled classes with jquery to all game screen elements
 
 BUGS
 
-level copying bug with designer
-level loading bug

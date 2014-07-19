@@ -3,13 +3,15 @@ var isRemoveItems = false;
 
 Template.levelDesigner.created = function(){
 	
-	updateCurrentLevel();
+	
 	selectALevel();
+	updateCurrentLevel();
 	
 
 	Meteor.defer(function(){
-		updateCurrentLevel();
+		
 		selectALevel();
+		updateCurrentLevel();
 		if(!Session.get("currentFeatureType"))Session.set("currentFeatureType", "terrain");
 		Session.set("currentElement", DesignerGameDefs.findOne({type: Session.get("currentFeatureType"), 
 									creator: Meteor.user()._id}));
@@ -362,6 +364,8 @@ Template.levelTable.events({
 			disableAdjustables();
 		}
 
+		updateCurrentView();
+
 	},
 
 	'mouseenter .levelRow':function(e){
@@ -634,9 +638,34 @@ function makeLevelCopy(o_levelName, o_creator, n_levelName, n_creator){
 		for(var x = 0; x < nlh.width; x++){
 			for(var i = 0; i < nlh.mapKey.length; i++){
 
-				if(nlh.cells[y][x][mapTypes[i]] == clh.mapKey[i]){
-					nlh.cells[y][x][mapTypes[i]] = nlh.mapKey[i];
+				var elem = getElement(nlh.mapKey[i]);
+
+				if(elem.type == 'keyhole'){
+
+					for(a in nlh.cells[y][x].keyhole){
+						if(nlh.cells[y][x].keyhole[a] == clh.mapKey[i]){
+							nlh.cells[y][x].keyhole[a] = nlh.mapKey[i];
+						}
+					}
+
+
+				}else if(elem.type == 'soundField'){
+
+					for(a in nlh.cells[y][x].soundFieldTraces){
+						if(a == clh.mapKey[i]){
+							var obj = nlh.cells[y][x].soundFieldTraces[a];
+							obj.id = nlh.mapKey[i];
+							nlh.cells[y][x].soundFieldTraces[nlh.mapKey[i]] = obj;
+							delete nlh.cells[y][x].soundFieldTraces[clh.mapKey[i]];
+						}
+					}
+
+				}else{
+
+					if(nlh.cells[y][x][mapTypes[i]] == clh.mapKey[i])nlh.cells[y][x][mapTypes[i]] = nlh.mapKey[i];
+
 				}
+
 
 			}
 		}
@@ -820,7 +849,7 @@ Template.mapKey.events({
 function updateCurrentView(){
 
 	var mk = Session.get('currentLevel').mapKey;
-	var cv = Session.get('currentView');
+	var cv =  {}; //Session.get('currentView');
 
 	if(typeof cv === 'undefined'){
 		cv = {};

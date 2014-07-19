@@ -34,6 +34,10 @@ Template.su.events({
 	'click .filterOption':function(e){
 
 		Session.set('currentFilter', e.currentTarget.id);
+		if(Session.get('suMode') == "designLevel"){
+			selectALevel();
+			updateCurrentLevel();
+		}
 	}
 
 

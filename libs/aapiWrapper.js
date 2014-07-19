@@ -36,7 +36,6 @@ aapiWrapper.prototype.loadSounds = function(files, callBack){
 
     if(typeof files[a] === 'undefined' || files[a].folder == 'none' || files[a].audioFile == 'none' || typeof this.sampleSources[name] !== 'undefined'){
       i++;
-      console.log(i);
       if(i == files.length)callBack(true);
       continue;
     }
@@ -65,8 +64,6 @@ aapiWrapper.prototype.loadSounds = function(files, callBack){
               parent.sampleSources[name].buffer = decodedAudio;
               parent.sampleSources[name].bufSrc = {};
               i++;
-
-              console.log(fp, i , files.length);
 
               if(i == files.length)callBack(true);
 

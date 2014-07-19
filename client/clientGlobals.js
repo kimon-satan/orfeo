@@ -216,15 +216,16 @@ updateCurrentLevel = function (){
 
 selectALevel = function(){
 
+	var cr = Session.get('currentFilter') == 'allDesigners' ? Meteor.user()._id : Meteor.users.findOne({username: Session.get('currentFilter')})._id;
+
+
+	Session.set("currentLevel",  DesignerGameMaps.findOne({type: 'levelHeader', creator: cr}));
+
 	if(!Session.get("currentLevel")){
+		Session.set("currentLevel", DesignerGameMaps.findOne({type: 'levelHeader', creator: "server"}));
+	}
 
-		Session.set("currentLevel",  DesignerGameMaps.findOne({type: 'levelHeader', creator: Meteor.user()._id}));
 
-		if(!Session.get("currentLevel")){
-			Session.set("currentLevel", DesignerGameMaps.findOne({type: 'levelHeader', creator: "server"}));
-		}
-
-	}	
 
 	updateCurrentLevel();
 

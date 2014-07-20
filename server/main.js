@@ -91,6 +91,7 @@ Meteor.startup(function(){
 			postSound: daudio,
 			keyPickupable: 'none',
 			isLevelLinked: false,
+			linkWith: 'none',
 			removeWall: 'none',
 			priority: 0
 		}

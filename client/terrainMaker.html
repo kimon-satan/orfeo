@@ -375,8 +375,24 @@
 
 
             <div class="lrspacer">
-              <label for="linkedKey">Linked key</label>
+              <label for="linkedKey">Self Link</label>
               <input id="linkedKey" type="checkbox" {{checkLevelLinked}}> 
+            </div>
+
+             <div class="lrspacer">
+              <label>Link with </label>
+              <div class="btn-group">
+                <button type="button" class="btn btn-default adjustable">{{linkWith}}</button>
+                <button type="button" class="btn btn-default dropdown-toggle adjustable" data-toggle="dropdown">
+                  <span class="caret"></span>
+                  <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                  {{#each myElements 'keyhole' 'true'}}
+                  <li><a class="linkWithOption" id={{this._id}} href="#">{{this.name}}</a></li>
+                  {{/each}}
+                </ul>
+              </div>
             </div>
 
           </div>

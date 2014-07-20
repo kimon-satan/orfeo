@@ -551,6 +551,15 @@ Template.keyholeMaker.checkLevelLinked = function(){
 	return (Session.get("currentElement").isLevelLinked)? 'checked' : '';
 }
 
+Template.keyholeMaker.linkWith = function(){
+
+	if(Session.get('currentElement').linkWith == 'none' || typeof Session.get('currentElement').linkWith === 'undefined'){
+		return 'none';
+	}else{
+		return getElement(Session.get('currentElement').linkWith).name;
+	}
+}
+
 Template.keyholeMaker.events({
 
 	'click .wallOption':function(e){
@@ -558,6 +567,17 @@ Template.keyholeMaker.events({
 		var id = e.currentTarget.id;
 		ce.removeWall = e.currentTarget.id;
 		DesignerGameDefs.update(ce._id, {$set: {removeWall: ce.removeWall}});
+		Session.set('currentElement', ce);
+		e.preventDefault();
+	},
+
+	'click .linkWithOption':function(e){
+
+		var ce = Session.get("currentElement");
+		console.log(e.currentTarget.id);
+		var id = e.currentTarget.id;
+		ce.linkWith = e.currentTarget.id;
+		DesignerGameDefs.update(ce._id, {$set: {linkWith: ce.linkWith}});
 		Session.set('currentElement', ce);
 		e.preventDefault();
 	},

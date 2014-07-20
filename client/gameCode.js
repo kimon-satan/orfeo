@@ -354,6 +354,7 @@ function handleStep(callback){
 function keyholeSuccess(idx){
 
      var kh = inv.keyholes[Session.get("currentLevel")._id][playerPos.x][playerPos.y][idx];
+     var cl = Session.get('currentLevel');
 
      kh.locked = false;
 
@@ -361,6 +362,27 @@ function keyholeSuccess(idx){
 
      if(key.removeWall != 'none'){
           inv.overrides[key.removeWall] = true;
+     }
+
+     if(key.isLevelLinked || key.linkWith != 'none'){
+
+          //search for and unlock identical keyholes
+          for(x in  inv.keyholes[cl._id]){
+               for(y in inv.keyholes[cl._id][x]){
+                    for(var i = 0; i < 4; i++){
+                         if(typeof inv.keyholes[cl._id][x][y][i] !== 'undefined'){
+                              if(inv.keyholes[cl._id][x][y][i].id == kh.id && key.isLevelLinked){
+                                   inv.keyholes[cl._id][x][y][i].locked = false;
+                              }
+
+                              if(inv.keyholes[cl._id][x][y][i].id == key.linkWith){
+                                   inv.keyholes[cl._id][x][y][i].locked = false;
+                              }
+                         }
+                    }
+               }
+          }
+
      }
 
      inv.keyholes[Session.get("currentLevel")._id][playerPos.x][playerPos.y][idx] = kh;

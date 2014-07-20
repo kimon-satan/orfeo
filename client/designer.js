@@ -421,11 +421,12 @@ Template.mainSettings.events({
 			cl.width = w;
 			DesignerGameMaps.update(cl._id, {$set:{width: parseInt(w), cells: cl.cells}});
 			Session.set('currentLevel', cl);
+			updateLevelInventory();
 			isReduceWarning = false;
 
 		}else{
 
-			isReduceWarning = true;
+			
 
 			if(!isReduceWarning){	
 
@@ -446,6 +447,9 @@ Template.mainSettings.events({
 				cl.width = w;
 				DesignerGameMaps.update(cl._id, {$set:{width: cl.width, cells: cl.cells}});
 				Session.set('currentLevel', cl);
+				updateLevelInventory();
+				repopulateKey();
+
 
 			}else{
 				$('#levelWidth').val(cl.width);
@@ -473,6 +477,7 @@ Template.mainSettings.events({
 			cl.height = h;
 			DesignerGameMaps.update(cl._id, {$set:{height: cl.height, cells: cl.cells}});
 			Session.set('currentLevel',cl);
+			updateLevelInventory();
 			isReduceWarning = false;
 
 		}else{
@@ -487,6 +492,9 @@ Template.mainSettings.events({
 				cl.height = h;
 				Session.set('currentLevel', cl);
 				DesignerGameMaps.update(cl._id, {$set:{height: cl.height, cells: cl.cells}});
+
+				updateLevelInventory();
+				repopulateKey();
 
 			}else{
 				$('#levelHeight').val(cl.height);
@@ -777,6 +785,76 @@ function updateKey(id, isRemove){
 	DesignerGameMaps.update(cl._id, {$set:{mapKey: cl.mapKey}});
 
 	updateCurrentView();
+
+}
+
+function repopulateKey(){
+
+	var cl = Session.get('currentLevel');	
+	cl.mapKey = [];
+
+	DesignerGameDefs.find({creator: cl.creator}).forEach(function(elem){
+
+		var skip = false;
+		if(elem.type == 'keyhole'){
+
+			for(var y = 0; y < cl.height; y++){
+				if(skip)break;
+				for(var x = 0; x < cl.width; x++){
+					if(skip)break;
+					for(var i = 0; i < 4; i++){
+						if(cl.cells[y][x][elem.type][i] == elem._id){
+							cl.mapKey.push(elem._id);
+							skip = true;
+							break;
+						}
+					}
+					
+				}
+				
+			}
+
+		}else if(elem.type == 'soundField'){
+
+			for(var y = 0; y < cl.height; y++){
+				if(skip)break;
+				for(var x = 0; x < cl.width; x++){
+					if(skip)break;
+					for(item in cl.cells[y][x].soundFieldTraces){
+						if(item == elem._id){
+							cl.mapKey.push(elem._id);
+							skip = true;
+							break;
+						}
+					}
+					
+				}
+			}
+
+		}else{
+
+			for(var y = 0; y < cl.height; y++){
+				if(skip)break;
+				for(var x = 0; x < cl.width; x++){
+					if(cl.cells[y][x][elem.type] == elem._id){
+						cl.mapKey.push(elem._id); 
+						skip = true;
+						break;
+					}
+				}
+			}
+		}
+
+
+	});
+
+
+	Session.set('currentLevel', cl);
+	DesignerGameMaps.update(cl._id, {$set:{mapKey: cl.mapKey}});
+
+	updateCurrentView();
+
+
 
 }
 

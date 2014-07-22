@@ -396,8 +396,18 @@ Template.soundControls.events({
 
 	'click .play':function(e){
 
-		if(Session.get('currentElement')[e.currentTarget.id].audioFile == 'none')return;
-		if($('#' + e.currentTarget.id + '_glyph').hasClass('glyphicon-stop'))return;
+		if(Session.get('currentElement')[e.currentTarget.id].audioFile == 'none'){
+			e.preventDefault();
+			return -1;
+		}
+		if($('#' + e.currentTarget.id + '_glyph').hasClass('glyphicon-stop')){
+			var idx = Session.get('currentElement')[e.currentTarget.id].index;
+			$('#' + e.currentTarget.id + '_glyph').removeClass('glyphicon-stop');
+			$('#' + e.currentTarget.id + '_glyph').addClass('glyphicon-play');
+			audio.stopOnePlay(idx);
+			e.preventDefault();
+			return - 1;
+		}
 
 		audio.loadSounds([Session.get('currentElement')[e.currentTarget.id]], function(){
 

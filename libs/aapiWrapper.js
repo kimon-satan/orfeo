@@ -268,11 +268,19 @@ aapiWrapper.prototype.killAll = function(){
       this.stopLooping(sample, 0.5,0);
     }else{
       this.sampleObjs[sample].bufSrc.stop(0);
+      window.clearInterval(this.sampleObjs[sample].cbThread);
     }
   }
 
 }
 
+
+aapiWrapper.prototype.stopOnePlay = function(id){
+
+  this.sampleObjs[id].bufSrc.stop(0);
+  window.clearInterval(this.sampleObjs[id].cbThread);
+
+}
 
 /*-------------------------------------other constructors------------------------------*/
 

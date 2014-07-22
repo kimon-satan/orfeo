@@ -181,13 +181,16 @@ Template.inventoryScreen.events({
 
      'click #compass':function(e){
 
+          if($('#compass').hasClass('disable')){
+               return - 1;
+          }
           Session.set("screenMode", 1);
           e.preventDefault();
      },
 
      'click .dropBagItem':function(e){
 
-          if($(e.target).hasClass('disable'))return;
+          if($(e.currentTarget).hasClass('disable'))return;
 
           var idx = findLockedKeyhole();
 
@@ -207,7 +210,7 @@ Template.inventoryScreen.events({
 
      'click .addPickupable':function(e){
 
-          if($(e.target).hasClass('disable'))return;
+          if($(e.currentTarget).hasClass('disable'))return;
 
           var pos = PlayerGameData.findOne({player: Meteor.user()._id, type: 'pos'});
 
@@ -428,6 +431,10 @@ function handleKeyholeDrop(id ,idx){
           var i = inv.bag.indexOf(id);
           if( ~i )inv.bag.splice(i, 1);
           PlayerGameData.update(inv._id, {$set:{bag: inv.bag}});
+
+          $('#compass').addClass('disable');
+          $('.dropBagItem').addClass('disable');
+          $('.addPickupable').addClass('disable');
 
           if(key.trueSound.audioFile != 'none'){
                key.trueSound.index = kh.id + '_ts';

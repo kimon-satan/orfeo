@@ -1,10 +1,10 @@
 
 JOBS
 
-3.finish off keyhole 
-    [inventory lock/ screen changes]
-
-4. Finish UI safeties
+1. back buttons on register
+2. invesitgate loading freeze on init level
+3. sandbox and designer prevent return to default level
+4. sort out remove items checkbox in designer
 
 RESEARCH / TESTING
 
@@ -16,7 +16,6 @@ multi user test (might just be on the day)
 
 LATER
 
-add active / disabled classes with jquery to all game screen elements
 timestamps and metrics
 
 BUGS

@@ -175,9 +175,17 @@ Template.playerLoginControls.events({
 
   'click #newGame':function(e){
 
-    audio.killAll();
-    Meteor.call('initPlayer', Meteor.user()._id);
-    Session.set('screenMode' , 0);    
+    if(typeof Meteor.user().emails !== 'undefined'){
+
+      audio.killAll();
+      Meteor.call('initPlayer', Meteor.user()._id);
+      Session.set('screenMode', 0);
+
+    }else{
+      
+      Meteor.logout();
+      Session.set("loginMode", 0);  
+    }
 
     e.preventDefault();
   },
@@ -186,6 +194,7 @@ Template.playerLoginControls.events({
 
     Meteor.logout();
     Session.set("loginMode", 0);
+
     e.preventDefault();
   }
 

@@ -65,9 +65,13 @@ Template.su.isManagePlayers = function(){return Session.get("suMode") == "manage
 
 Template.manageSus.events({
 
-
 	'click .demoteP':function(e){
 		Meteor.users.update(this._id, {$set: {'profile.role': 'designer'}});
+		e.preventDefault();
+	},
+
+	'click .resetP':function(e){
+		Meteor.call('resetUserPassword' ,Meteor.user()._id, this._id);
 		e.preventDefault();
 	}
 
@@ -87,9 +91,9 @@ Template.manageSus.email = function(){
 }
 
 
-Template.manageDesigners.events({
 
-	//TODO reset password
+
+Template.manageDesigners.events({
 
 
 	'click .demoteP':function(e){
@@ -99,6 +103,11 @@ Template.manageDesigners.events({
 
 	'click .promoteP':function(e){
 		Meteor.users.update(this._id, {$set: {'profile.role': 'admin'}});
+		e.preventDefault();
+	},
+
+	'click .resetP':function(e){
+		Meteor.call('resetUserPassword', Meteor.user()._id, this._id);
 		e.preventDefault();
 	}
 
@@ -117,8 +126,23 @@ Template.manageDesigners.email = function(){
 	}
 }
 
+
+Template.managePlayers.created = function(){
+
+	Session.set('registeredOnly', false);
+
+}
+
+Template.managePlayers.registeredOnly = function(){ return (Session.get('registeredOnly'))? 'checked' : ''}
+
+
 Template.managePlayers.players = function(){
-	return Meteor.users.find({'profile.role': 'player'});
+
+	if(!Session.get('registeredOnly')){
+		return Meteor.users.find({'profile.role': 'player'});
+	}else{
+		return Meteor.users.find({'profile.role': 'player', 'profile.registered': true});
+	}
 }
 
 Template.managePlayers.email = function(){
@@ -142,6 +166,17 @@ Template.managePlayers.events({
 	'click .promoteP':function(e){
 		Meteor.users.update(this._id, {$set: {'profile.role': 'designer'}});
 		e.preventDefault();
+	},
+
+	'click .resetP':function(e){
+		Meteor.call('resetUserPassword' ,Meteor.user()._id, this._id);
+		e.preventDefault();
+	},
+
+	'click #regToggle':function(e){
+
+		Session.set('registeredOnly', !Session.get('registeredOnly'));
+
 	}
 
 });

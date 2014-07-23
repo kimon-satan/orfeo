@@ -1,11 +1,9 @@
 Template.sandbox.created = function(){
 
-	selectALevel(); //prevents crash on boot
 	Meteor.defer(function(){
 		selectALevel();
 		setPlayerPos();
 		resetInventory();
-
 	});
 
 }

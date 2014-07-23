@@ -1,8 +1,10 @@
 var isReduceWarning = false;
-var isRemoveItems = false;
+
 
 Template.levelDesigner.created = function(){
 	
+
+	Session.set('isRemove', false);
 	
 	selectALevel();
 	updateCurrentLevel();
@@ -76,11 +78,11 @@ function updateSoundFieldTraces(loc){
 	var cl = Session.get('currentLevel');
 	var ce = Session.get('currentElement');
 
-	if(isRemoveItems){
+	if(Session.get('isRemove')){
 		delete cl.cells[parseInt(loc[1])][parseInt(loc[0])].soundFieldTraces[ce._id];
 		DesignerGameMaps.update(cl._id , {$set: {cells: cl.cells}});
 		Session.set('currentLevel', cl);
-		updateKey(Session.get("currentElement")._id, isRemoveItems);
+		updateKey(Session.get("currentElement")._id, Session.get('isRemove'));
 		return;
 	}
 
@@ -118,7 +120,7 @@ function updateSoundFieldTraces(loc){
 	DesignerGameMaps.update(cl._id , {$set: {cells: cl.cells}});
 	Session.set('currentLevel', cl);
 
-	updateKey(Session.get("currentElement")._id, isRemoveItems);
+	updateKey(Session.get("currentElement")._id, Session.get('isRemove'));
 
 
 }
@@ -160,13 +162,13 @@ function setMultiElement(loc){
 	var cl = Session.get('currentLevel');
 	var cell = cl.cells[parseInt(loc[1])][parseInt(loc[0])];
 
-	var id = (isRemoveItems) ? 'none' : Session.get("currentElement")._id;
+	var id = (Session.get('isRemove')) ? 'none' : Session.get("currentElement")._id;
 	cl.cells[parseInt(loc[1])][parseInt(loc[0])][Session.get("currentFeatureType")] = id;
 	
 	DesignerGameMaps.update(cl._id , {$set: {cells: cl.cells}});
 	Session.set('currentLevel', cl);
 
-	updateKey(Session.get("currentElement")._id, isRemoveItems);
+	updateKey(Session.get("currentElement")._id, Session.get('isRemove'));
 
 }
 
@@ -178,7 +180,7 @@ function setArrayElement(loc, index){
 
 	var array = cell[Session.get("currentElement").type];
 
-	if(isRemoveItems){
+	if(Session.get('isRemove')){
 
 		for(item in array){
 			if(array[item] == Session.get('currentElement')._id)delete array[item];
@@ -192,7 +194,7 @@ function setArrayElement(loc, index){
 	Session.set('currentLevel', cl);
 	DesignerGameMaps.update(cl._id ,{$set: {cells: cl.cells}});
 
-	updateKey(Session.get("currentElement")._id, isRemoveItems);
+	updateKey(Session.get("currentElement")._id, Session.get('isRemove'));
 
 }
 
@@ -596,6 +598,10 @@ Template.selector.created = function(){
 
 }
 
+Template.selector.isRemove = function(){
+
+	return (Session.get('isRemove')) ?'checked' : '';
+}
 
 Template.selector.events({
 
@@ -608,7 +614,7 @@ Template.selector.events({
 	},
 
 	'click #removeBox':function(e){
-		isRemoveItems = $('#removeBox').is(':checked');
+		Session.set('isRemove', !Session.get('isRemove'));
 	}
 
 });

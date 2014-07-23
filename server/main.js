@@ -253,6 +253,7 @@ Meteor.methods({
 
 		user.username = profile.username;
 		user.emails = [{address: profile.email, verified: false}];
+		user.profile.registered = true;
 
 		if(Meteor.users.findOne({username: user.username})){
 			throw new Meteor.Error(403, "A user of that name already exists");
@@ -265,6 +266,22 @@ Meteor.methods({
 			return true;
 		}
 
+	},
+
+	resetUserPassword: function(userId, rUserId){
+
+		if(checkAdmin(userId)){
+
+			Accounts.setPassword(rUserId, 'orfeo');
+			Meteor.users.update(rUserId, {$set: {'profile.isReset': true}});
+
+		}
+
+	},
+
+	endReset: function(userId){
+
+		Meteor.users.update(userId, {$set: {'profile.isReset': false}});
 	}
 
 

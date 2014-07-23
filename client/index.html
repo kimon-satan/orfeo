@@ -9,10 +9,14 @@
 	<div class="container-fluid text-center">
 
     {{#if currentUser}}
-      {{#if isSu}}
-        {{>su}}
+      {{#if isReset}}
+        {{>resetPassword}}
       {{else}}
-        {{>game}}
+        {{#if isSu}}
+          {{>su}}
+        {{else}}
+          {{>game}}
+        {{/if}}
       {{/if}}
     {{else}}
       {{>hello}}
@@ -37,6 +41,8 @@
   {{#if isLogin}}
     {{>login}}
   {{/if}}
+
+
 
 </template>
 
@@ -170,7 +176,7 @@
 
 </template>
 
-<!--
+
 <template name="resetPassword">
   <h2>Please reset your password</h2>
   <form role="form">
@@ -181,14 +187,16 @@
 
       <div class="form-group">
         <label for="confirmPassword">Confirm password</label>
-        <input type="password" class="form-control" id="inputPassword" placeholder="Confirm Password">
+        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm Password">
       </div>
 
+      {{>loginErrors}}
+
       <div class="form-group">
-        <div class="tbspacer"><a href="javascript:;" id="submit" class="btn btn-primary btn-lg">Play</a></div>
+        <div class="tbspacer"><a href="javascript:;" id="submit" class="btn btn-primary btn-lg">reset</a></div>
       </div>
   </form>
-</template> -->
+</template>
 
 
 

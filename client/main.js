@@ -60,6 +60,7 @@ Template.hello.isFrontPage = function(){ return (Session.get("loginMode") == 0 )
 Template.hello.isLogin = function(){ return (Session.get("loginMode") == 1 ) ; }
 Template.hello.isRegister = function(){ return (Session.get("loginMode") == 2 ); }
 
+
 Template.frontPage.events({
 
   'click #justPlay':function(e){
@@ -157,6 +158,12 @@ Template.register.events({
 
       e.preventDefault();
 
+  },
+
+  'click #back':function(e){
+
+    Session.set('loginMode', 0);
+    e.preventDefault();
   }
       
 
@@ -243,8 +250,45 @@ Template.inGameRegister.events({
 
       e.preventDefault();
 
+  },
+
+  'click #back':function(e){
+
+    Session.set('screenMode', 0);
+    e.preventDefault();
   }
 
+
+});
+
+Template.resetPassword.events({
+
+  'click #submit':function(e){
+
+      var error = "";
+
+      var password = $('#inputPassword').val();
+      var cPass = $('#confirmPassword').val();
+
+      if(password.length < 5){
+        error = "please enter a password of at least 5 characters";
+      }else if(password != cPass){
+        error = "your password is typed incorrectly";
+      }
+
+      if(error == ""){ 
+
+        Accounts.changePassword('orfeo', password);
+        Meteor.call('endReset', Meteor.user()._id);
+        Session.set("screenMode", 0);
+          
+      }else{
+
+         Session.set("loginError", error);
+      }
+
+    e.preventDefault();
+  }
 
 });
 

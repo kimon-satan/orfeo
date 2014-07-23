@@ -31,6 +31,12 @@ aapiWrapper.prototype.init = function(){
 }
 
 aapiWrapper.prototype.loadSounds = function(files, callBack){
+
+  if(files.length == 0){
+    callBack(true);
+    return;
+  }
+
   var i = 0;
 	for (var a in files) {
 

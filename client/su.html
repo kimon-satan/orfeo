@@ -76,6 +76,7 @@
 			<tr>
 				<th>username</th>
 				<th>email</th>
+				<th>isReset</th>
 				<th>actions</th>
 			</tr>
 		</thead>
@@ -85,6 +86,7 @@
 			<tr class="{{profile.status}}">
 				<td>{{username}}</td>
 				<td>{{email}}</td>
+				<td>{{profile.isReset}}</td>
 				<td>
 					<button type="button" class="btn btn-small btn-warning resetP" id="{{username}}">reset</button>
 					<button type="button" class="btn btn-small btn-danger demoteP" id="{{username}}">demote</button>
@@ -104,6 +106,7 @@
 			<tr>
 				<th>username</th>
 				<th>email</th>
+				<th>isReset</th>
 				<th>actions</th>
 			</tr>
 		</thead>
@@ -113,6 +116,7 @@
 			<tr class="{{profile.status}}">
 				<td>{{username}}</td>
 				<td>{{email}}</td>
+				<td>{{profile.isReset}}</td>
 				<td>
 					<button type="button" class="btn btn-small btn-warning resetP" id="{{username}}">reset</button>
 					<button type="button" class="btn btn-small btn-danger demoteP" id="{{username}}">demote</button>
@@ -132,7 +136,7 @@
 
 			<div class="checkbox">
 		    	<label>
-		      		<input type="checkbox" id="regToggle"> Registered users only
+		      		<input type="checkbox" id="regToggle" {{registeredOnly}}> Registered users only
 		    	</label>
 		  	</div>
 	   </form>
@@ -142,6 +146,7 @@
 			<tr>
 				<th>username</th>
 				<th>email</th>
+				<th>isReset</th>
 				<th>actions</th>
 
 			</tr>
@@ -152,6 +157,7 @@
 			<tr class="{{profile.status}}">
 				<td>{{username}}</td>
 				<td>{{email}}</td>
+				<td>{{profile.isReset}}</td>
 				<td>
 					<button type="button" class="btn btn-small btn-warning resetP" id="{{username}}">reset</button>
 					<button type="button" class="btn btn-small btn-danger removeP" id="{{username}}">remove</button>

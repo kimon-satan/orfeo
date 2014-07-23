@@ -16,6 +16,8 @@ UI.registerHelper("isSu", function(){
 
 });
 
+UI.registerHelper( 'isReset', function(){ return Meteor.user().profile.isReset });
+
 
 UI.registerHelper('currentElement' , function(){
 
@@ -200,7 +202,6 @@ getRandomColor = function() {
 updateCurrentLevel = function (){
 
 	if(Session.get("currentLevel")){
-		Session.set("currentLevel", DesignerGameMaps.findOne(Session.get("currentLevel")._id));
 
 		var id = Session.get("currentLevel")._id;
 
@@ -216,16 +217,34 @@ updateCurrentLevel = function (){
 
 selectALevel = function(){
 
-	var cr = Session.get('currentFilter') == 'allDesigners' ? Meteor.user()._id : Meteor.users.findOne({username: Session.get('currentFilter')})._id;
+	var cr = (Session.get('currentFilter') == 'allDesigners') ? 'none' : Meteor.users.findOne({username: Session.get('currentFilter')})._id;
 
+	if(Session.get('currentLevel')){
 
-	Session.set("currentLevel",  DesignerGameMaps.findOne({type: 'levelHeader', creator: cr}));
+		if(cr == 'none'){
+			updateCurrentLevel();
+			return;
+		}
+		if(Session.get('currentLevel').creator == cr){
+			updateCurrentLevel();
+			return;
+		}
+		if(Session.get('currentLevel').creator == Meteor.user()._id){
+			updateCurrentLevel();
+			return;
+		}
+
+	}
+
+	if(cr != 'none')Session.set("currentLevel",  DesignerGameMaps.findOne({type: 'levelHeader', creator: cr}));
+
+	if(!Session.get("currentLevel")){
+		Session.set("currentLevel", DesignerGameMaps.findOne({type: 'levelHeader', creator: Meteor.user()._id}));
+	}
 
 	if(!Session.get("currentLevel")){
 		Session.set("currentLevel", DesignerGameMaps.findOne({type: 'levelHeader', creator: "server"}));
 	}
-
-
 
 	updateCurrentLevel();
 

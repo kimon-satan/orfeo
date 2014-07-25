@@ -40,9 +40,18 @@ aapiWrapper.prototype.loadSounds = function(files, callBack){
   var i = 0;
 	for (var a in files) {
 
-    var name = files[a].folder + files[a].audioFile;
+   var isSkip = false;
 
-    if(typeof files[a] === 'undefined' || files[a].folder == 'none' || files[a].audioFile == 'none' || typeof this.sampleSources[name] !== 'undefined'){
+    if(typeof files[a] === 'undefined'){
+      isSkip = true;
+    }else if(files[a].folder == 'none' || files[a].audioFile == 'none'){ 
+      isSkip = true;
+    }else{
+      var name = files[a].folder + files[a].audioFile;
+      if(typeof this.sampleSources[name] !== 'undefined')isSkip = true;
+    }
+
+    if(isSkip){
       i++;
       if(i == files.length)callBack(true);
       continue;

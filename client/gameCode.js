@@ -24,8 +24,6 @@ Template.game.created = function(){
 
      var id = Meteor.user()._id;
 
-     loadedLevels = {};
-
 
      Meteor.subscribe("PlayerGameData", id, { onReady: function(){     
 
@@ -801,6 +799,8 @@ function startAudio (){
 loadAudioFiles = function(){
 
      Session.set("isLoaded" , false);
+
+     loadedLevels = {};
      var files = getAudioDependencies(Session.get('currentLevel')._id);
 
      audio.loadSounds( files , function(){
@@ -813,7 +813,7 @@ loadAudioFiles = function(){
 }
 
 function getAudioDependencies(levelId){
-
+     
      var level = getLevel(levelId);
      var mk = level.mapKey;
      loadedLevels[levelId] = true;
@@ -855,17 +855,20 @@ function getAudioDependencies(levelId){
           }
 
           if(elem.type == 'exitPoint'){
-               if(elem.exitTo != levelId && typeof loadedLevels[levelId] === 'undefined'){ //this is also where the load point block will go
+               if(elem.exitTo != levelId){ //this is also where the load point block will go
 
-                    var nl = getLevel(elem.exitTo);
+                    if(typeof loadedLevels[elem.exitTo] === 'undefined'){
+                         var nl = getLevel(elem.exitTo);
 
-                    if(!nl.isLoadPoint){
+                         if(!nl.isLoadPoint){
 
-                         var newFiles = getAudioDependencies(elem.exitTo);
+                              var newFiles = getAudioDependencies(elem.exitTo);
 
-                         for(i in newFiles){
-                              addUniqueSoundObj(files, newFiles[i]);
-                         };
+                              for(i in newFiles){
+                                   addUniqueSoundObj(files, newFiles[i]);
+                              };
+
+                         }
 
                     }
 

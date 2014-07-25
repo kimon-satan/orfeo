@@ -421,7 +421,7 @@ function keyholeSuccess(idx){
           
           handleTerrain(cTerrain, nTerrain, function(){
 
-               playAudioSequence(audioArray, function(){Session.set('screenMode', 1)});
+               playAudioSequence(audioArray, resetButtons);
 
           });
 
@@ -429,7 +429,7 @@ function keyholeSuccess(idx){
      }else{
 
           playAudioSequence(audioArray, function(){
-               audio.killAll();load
+               audio.killAll();
                Session.set('isLoaded', false);
                Session.set('screenMode', 0);
                loadAudioFiles();
@@ -649,11 +649,14 @@ function resetButtons(){
      isAudioLock = false;
 
      $('.active').removeClass('active');
-     $('.step.disable').removeClass('disable');
-     $('#where').removeClass('disable');
-     $('#inventory').removeClass('disable');
+     $('.disable').removeClass('disable');
 
-     if(isPickup)Session.set('screenMode', 2);
+     if(isPickup){
+          Session.set('screenMode', 2);
+     }else{
+          Session.set('screenMode', 1);
+     }
+
      isPickup = false;
 
 

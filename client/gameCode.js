@@ -16,12 +16,15 @@ isPickup = false;
 maxBagItems = 5;
 
 var loadTrigger = false;
+var loadedLevels = {};
 
 
 
 Template.game.created = function(){
 
      var id = Meteor.user()._id;
+
+     loadedLevels = {};
 
 
      Meteor.subscribe("PlayerGameData", id, { onReady: function(){     
@@ -430,11 +433,14 @@ function handleKeyholeDrop(id ,idx){
           console.log("match");
           var i = inv.bag.indexOf(id);
           if( ~i )inv.bag.splice(i, 1);
-          PlayerGameData.update(inv._id, {$set:{bag: inv.bag}});
+          PlayerGameData.update(inv._id, {$set:{bag: inv.bag}}, {}, function(){
+
+               $('.dropBagItem').addClass('disable');
+               $('.addPickupable').addClass('disable');
+          });
 
           $('#compass').addClass('disable');
-          $('.dropBagItem').addClass('disable');
-          $('.addPickupable').addClass('disable');
+          
 
           if(key.trueSound.audioFile != 'none'){
                key.trueSound.index = kh.id + '_ts';
@@ -810,6 +816,7 @@ function getAudioDependencies(levelId){
 
      var level = getLevel(levelId);
      var mk = level.mapKey;
+     loadedLevels[levelId] = true;
 
      var files = [];
 
@@ -848,7 +855,7 @@ function getAudioDependencies(levelId){
           }
 
           if(elem.type == 'exitPoint'){
-               if(elem.exitTo != levelId){ //this is also where the load point block will go
+               if(elem.exitTo != levelId && typeof loadedLevels[levelId] === 'undefined'){ //this is also where the load point block will go
 
                     var nl = getLevel(elem.exitTo);
 

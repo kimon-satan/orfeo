@@ -19,7 +19,11 @@
 
 
     {{else}}
-      {{>load}}
+      {{#if isRestart}}
+        {{>restart}}
+      {{else}}
+        {{>load}}
+      {{/if}}
     {{/if}}
 </template>
 
@@ -30,12 +34,22 @@
   <img src="images/whiteLoader.gif">
 </template>
 
+
+<template name="restart">
+   <br/>
+  <p>Whoops something went wrong with loading the audio would you like to give it another go ? </p>
+  <br/>
+  <div class="tbspacer"><a href="#" id="restart" class="btn btn-success btn-lg">Ok</a></div>
+</template>
+
 <template name="startSplash">
   <br/>
   <p>This is some place holder text for the introductory story. This screen is needed as an extra UI event has to trigger the audio</p>
   <br/>
   <div class="tbspacer"><a href="#" id="begin" class="btn btn-success btn-lg">Enter</a></div>
 </template>
+
+
 
 
 

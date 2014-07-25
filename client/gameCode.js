@@ -23,6 +23,7 @@ var loadedLevels = {};
 Template.game.created = function(){
 
      var id = Meteor.user()._id;
+     Session.set('isRestart', false);
 
 
      Meteor.subscribe("PlayerGameData", id, { onReady: function(){     
@@ -66,6 +67,10 @@ Template.game.isInGameRegister = function(){
      return Session.get("screenMode") == 3;
 };
 
+Template.game.isRestart = function(){
+     return Session.get('isRestart');
+}
+
 
 Template.game.destroyed = function(){
 
@@ -74,6 +79,19 @@ Template.game.destroyed = function(){
      Session.set('isAudioInit', false);
      Session.set('screenMode', 0);
 }
+
+Template.restart.events({
+
+     'click #restart':function(e){
+
+          Session.set('isLoaded', false);
+          Session.set('isRestart', false);
+          Session.set('isAudioInit', false);
+          startAudio();
+
+          e.preventDefault();
+     }
+});
 
 Template.startSplash.events({
 
@@ -792,6 +810,9 @@ function startAudio (){
 
      }else{
           console.log("init failed");
+          Session.set('isLoaded', false);
+          Session.set('screenMode', 0);
+          Session.set('isRestart', true);
      }
 
 }

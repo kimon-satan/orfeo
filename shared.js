@@ -80,7 +80,7 @@ function designerTest(user , doc){
 	var role = Meteor.users.findOne(user).profile.role;
 
 	if(role == 'admin'){
-		return true;
+		return (doc.creator != 'server');
 	}else if(role == 'designer'){
 		return (doc.creator == user || doc.player == user);
 	}else{

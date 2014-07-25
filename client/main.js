@@ -116,6 +116,12 @@ Template.login.events({
       }
 
     e.preventDefault();
+  },
+
+  'click #back':function(e){
+
+    Session.set('loginMode', 0);
+    e.preventDefault();
   }
 
 

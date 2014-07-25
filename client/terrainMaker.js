@@ -352,16 +352,20 @@ Template.soundControls.events({
 
 	'click .typeOption':function(e){
 		
-		var terrainObj = Session.get("currentElement");
+		var ce = Session.get("currentElement");
 		
 		var classList = e.currentTarget.className.split(/\s+/);
 		var folder = classList[1] + '.folder';
 		var audioFile = classList[1] + '.audioFile';
 		var setObj = {};
+		
 		setObj[folder] = $(e.currentTarget.id).selector;
 		setObj[audioFile] = 'none';
+		ce[classList[1]].folder = $(e.currentTarget.id).selector;
+		ce[classList[1]].audioFile = 'none';
 
 		DesignerGameDefs.update(Session.get("currentElement")._id, {$set: setObj});
+		Session.set('currentElement', ce);
 
 		e.preventDefault();
 	},

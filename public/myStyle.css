@@ -111,6 +111,16 @@
 
 }
 
+.designerTableCell{
+	overflow: hidden;
+	position: relative;
+	width: 40px;
+	height: 40px;
+	max-width: 40px;
+	max-height: 40px;
+		border: 1px solid black;
+}
+
 .designerCell{
 
 	position: relative;
@@ -118,7 +128,7 @@
 	height: 40px;
 	max-width: 40px;
 	max-height: 40px;
-	border: 1px solid black;
+
 
 }
 

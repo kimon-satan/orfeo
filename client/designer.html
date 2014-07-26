@@ -46,7 +46,9 @@
         {{#each mapCol this}}
 
 
-        <td class="designerCell" id="{{this.x}}-{{this.y}}" style = "background-color: {{elementColor this.terrain}}">   
+        <td class="designerTableCell" id="{{this.x}}-{{this.y}}">   
+
+          <div class = "designerCell" style = "background-color: {{elementColor this.terrain}}">
 
           {{#if hasElement "entryPoint"}}
           <img src ="images/triangle.png" class="designerCellImage">
@@ -99,6 +101,7 @@
             class="soundFieldCell"><div style="color: white">{{elementMapSymbol this.id}}</div></div>
           {{/each}}
 
+        </div>
 
         </td>
 

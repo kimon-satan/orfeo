@@ -15,9 +15,14 @@ aapiWrapper = function(){
 aapiWrapper.prototype.init = function(){
 
   try {
-    window.AudioContext = window.AudioContext || window.webkitAudioContext;
-    audio.context = new window.AudioContext();
-    this.initialised = false;
+
+      if (typeof AudioContext !== "undefined") {
+          audio.context = new AudioContext();
+      } else if (typeof webkitAudioContext !== "undefined") {
+          audio.context = new webkitAudioContext();
+      } else {
+          throw new Error('AudioContext not supported. :(');
+      }
 
     return true;
 
@@ -235,7 +240,16 @@ aapiWrapper.prototype.play = function(sample, fadeIn, fadeOut, offset){
       sample.gainNode.gain.linearRampToValueAtTime(sample.amp, ct + fadeIn);
     }else{
       sample.gainNode.gain.value = sample.amp;
-      sample.crossFadeNode.gain.setValueCurveAtTime(sample.crossfades.xIn, ct, 1);
+    }
+
+    if(sample.isLooping){
+        
+      try{
+        sample.crossFadeNode.gain.setValueCurveAtTime(sample.crossfades.xIn, ct, 1);
+      }catch(e){
+        console.log(e);
+      }
+      
     }
 
     //fade out
@@ -243,8 +257,21 @@ aapiWrapper.prototype.play = function(sample, fadeIn, fadeOut, offset){
       sample.gainNode.gain.linearRampToValueAtTime(sample.amp, ct + sample.buffer.duration - fadeOut);
       sample.gainNode.gain.linearRampToValueAtTime(0, ct + sample.buffer.duration);
     }else{
-      sample.crossFadeNode.gain.setValueCurveAtTime(sample.crossfades.xOut, ct + sample.buffer.duration - 1, 1);
+      sample.gainNode.gain.setValueAtTime(0, ct + sample.buffer.duration);
     }
+
+
+    if(sample.isLooping){
+
+     
+      try{
+          sample.crossFadeNode.gain.setValueCurveAtTime(sample.crossfades.xOut, ct + sample.buffer.duration - 1, 1);
+      }catch(e){
+        console.log(e);
+      }
+
+    }
+      
 
     //sched start & stops
     sample.bufSrc.start(ct);

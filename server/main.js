@@ -110,7 +110,7 @@ Meteor.startup(function(){
 
 	if(!DesignerGameDefs.findOne({type: 'soundField'})){
 
-		var sf = {name: 'default', creator: 'server', type: 'soundField', mapSymbol: 'x', sound: daudio, range: 4, isHollow: false};
+		var sf = {name: 'default', creator: 'server', type: 'soundField', mapSymbol: 'x', sound: daudio, range: 4, skew: 2, isHollow: false};
 
 		DesignerGameDefs.insert(sf);
 	}

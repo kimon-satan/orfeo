@@ -13,7 +13,7 @@ inv = {};
 playerPos = {};
 isAudioLock = false;
 isPickup = false;
-maxBagItems = 5;
+maxBagItems = 3;
 
 var loadTrigger = false;
 var loadedLevels = {};
@@ -233,7 +233,7 @@ Template.inventoryScreen.events({
 
           var pos = PlayerGameData.findOne({player: Meteor.user()._id, type: 'pos'});
 
-          if(inv.bag.length > maxBagItems)return;
+          if(inv.bag.length >= maxBagItems)return;
 
           if(typeof inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y] !== 'undefined'){
                inv.bag.push(inv.pickupables[Session.get("currentLevel")._id][pos.x][pos.y]);

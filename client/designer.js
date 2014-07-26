@@ -102,12 +102,19 @@ function updateSoundFieldTraces(loc){
 
 			(function(){
 
-				var dist = Math.sqrt(Math.pow(x - parseInt(loc[0]), 2) + Math.pow(y - parseInt(loc[1]) ,2));
+				var xd = x - parseInt(loc[0]);
+				var yd = y - parseInt(loc[1]);
+				var dist = Math.sqrt(Math.pow(xd, 2) + Math.pow(yd ,2));
+				
+				if(ce.isHollow){
+					dist -= 1;
+				}
 
-				if(ce.isHollow && dist == 0){
-	
+				if(ce.isHollow && xd == 0 && yd == 0){
+				
+
 				}else{
-					var t = {id: ce._id, amp: ce.sound.amp * (1 - dist/maxDist)};
+					var t = {id: ce._id, amp: Math.pow(ce.sound.amp * (1 - dist/maxDist), ce.skew)};
 					if(t.amp > 0)cl.cells[y][x].soundFieldTraces[ce._id] = t;
 				}
 				

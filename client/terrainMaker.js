@@ -646,6 +646,14 @@ Template.soundFieldMaker.events({
 		ce.range = $('#range').val();
 		DesignerGameDefs.update(ce._id, {$set: {range: ce.range}});
 		Session.set('currentElement', ce);
+	},
+
+	'click #skew':function(e){
+
+		var ce = Session.get("currentElement");
+		ce.skew = $('#skew').val();
+		DesignerGameDefs.update(ce._id, {$set: {skew: ce.skew}});
+		Session.set('currentElement', ce);
 	}
 
 

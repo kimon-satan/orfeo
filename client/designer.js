@@ -28,7 +28,7 @@ Template.levelDesigner.created = function(){
 Template.terrainMap.events({
 
 
-	'click .designerCell':function(e){
+	'click .designerTableCell':function(e){
 
 		if(checkClientIsOwner(Meteor.user()._id, Session.get("currentLevel"))){
 

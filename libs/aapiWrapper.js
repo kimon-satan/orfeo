@@ -37,6 +37,8 @@ aapiWrapper.prototype.init = function(){
 
 aapiWrapper.prototype.loadSounds = function(files, callBack){
 
+ 
+
   if(files.length == 0){
     callBack(true);
     return;
@@ -73,6 +75,7 @@ aapiWrapper.prototype.loadSounds = function(files, callBack){
   			req.open('GET', fp, true);
   			req.responseType = 'arraybuffer';
 
+         console.log(fp);
 
         req.addEventListener('load', function(event){
 
@@ -135,10 +138,6 @@ aapiWrapper.prototype.playOnce = function(options, callBack){
 
 }
 
-aapiWrapper.prototype.playSequence = function(sampleNames){
-
-
-}
 
 
 aapiWrapper.prototype.startLooping = function(options){ //n is a key with the fileName
@@ -186,6 +185,7 @@ aapiWrapper.prototype.setLoopAmp = function(n ,amp){
 aapiWrapper.prototype.stopLooping = function(n, fadeOut, offset){
 
 	var sample = this.sampleObjs[n];
+  if(typeof sample === 'undefined')return;
   var ct = this.context.currentTime;
 
 	if(sample.isLooping){

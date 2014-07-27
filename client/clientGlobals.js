@@ -28,6 +28,14 @@ UI.registerHelper('currentElement' , function(){
 	}
 });
 
+UI.registerHelper('currentLevel' , function(){
+
+	if(Session.get("currentLevel")){
+		return Session.get('currentLevel');
+	}
+
+});
+
 
 
 UI.registerHelper('elements', function(eType, filter, addNone){
@@ -60,6 +68,29 @@ UI.registerHelper('elements', function(eType, filter, addNone){
 UI.registerHelper('myElements', function(eType, addNone){
 
 	var elems = DesignerGameDefs.find({type: eType,  creator: Meteor.user()._id}).fetch();
+
+	if(addNone == 'true'){
+		elems.unshift({name: 'none', _id: 'none'});
+	}
+	
+	return elems;
+});
+
+UI.registerHelper('levelElements', function(eType, addNone){
+
+	var elems = DesignerGameDefs.find({type: eType,  creator: Session.get('currentLevel').creator}).fetch();
+
+	if(addNone == 'true'){
+		elems.unshift({name: 'none', _id: 'none'});
+	}
+	
+	return elems;
+});
+
+UI.registerHelper('linkElements', function(eType, addNone){
+
+
+	var elems = DesignerGameDefs.find({type: eType,  creator: Session.get('currentElement').creator}).fetch();
 
 	if(addNone == 'true'){
 		elems.unshift({name: 'none', _id: 'none'});

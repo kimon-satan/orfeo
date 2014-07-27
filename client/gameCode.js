@@ -171,8 +171,10 @@ Template.navScreen.events({
      $(event.target).addClass("active");
      $('.step').addClass('disable');
 
-     
-     audio.playOnce(cTerrain.narrator, resetButtons); //needs modding to play the whole sequence ?
+     audioArray = handleInteractives(true);
+     audio.playOnce(cTerrain.narrator, function(){
+          playAudioSequence(audioArray, resetButtons);
+     });
 
      event.preventDefault();
 
@@ -506,7 +508,7 @@ function handleDropItem(id){
 
 
 
-function handleInteractives(){
+function handleInteractives(isRepeat){
 
      var audioArray = [];
      var isKeyOverride = false;
@@ -552,7 +554,7 @@ function handleInteractives(){
 
                var ss = getElement(cell.simpleSound);
 
-               if(cSimpleSound != cell.simpleSound || !ss.isZone){ 
+               if(cSimpleSound != cell.simpleSound || !ss.isZone || isRepeat){ 
                     ss.index = cell.simpleSound;
                     audioArray.push(ss.sound);
                }
@@ -576,7 +578,7 @@ function handleInteractives(){
 
                if(!isKeyOverride || cell.pickupable != lps[playerPos.x][playerPos.y]){
                     var pu = getElement(lps[playerPos.x][playerPos.y]);
-                    isPickup = true;
+                    if(!isRepeat)isPickup = true;
                     pu.narrator.index = lps[playerPos.x][playerPos.y];
                     audioArray.push(pu.narrator);
                }

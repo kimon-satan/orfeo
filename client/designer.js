@@ -658,11 +658,12 @@ function makeLevelCopy(o_levelName, o_creator, n_levelName, n_creator){
 
 			nlh.mapKey[i] = DesignerGameDefs.insert(o_t);
 		}else{
-			console.log(n_t);
 			nlh.mapKey[i] = n_t._id;
 		}
 
 	}
+
+
 
 	
 	for(var y = 0; y < nlh.height; y++){
@@ -706,15 +707,18 @@ function makeLevelCopy(o_levelName, o_creator, n_levelName, n_creator){
 	nlh.level = n_levelName;
 	delete nlh["_id"];
 	nlh._id = DesignerGameMaps.insert(nlh); 
-
 	var inv = DesignerGameMaps.findOne({type: 'inventory', levelId: clh._id});
+	
 
 	inv.creator = n_creator;
 	inv.level = n_levelName;
 	inv.levelId = nlh._id;
 	delete inv["_id"];
 
-	DesignerGameMaps.insert(inv);
+	DesignerGameMaps.insert(inv, function(err, id){
+		updateInventory(nlh._id);
+	});
+
 
 
 	return nlh._id;
@@ -876,11 +880,16 @@ function repopulateKey(){
 
 function updateLevelInventory(){
 
-	var inv = DesignerGameMaps.findOne({type: 'inventory', levelId: Session.get("currentLevel")._id});
+	updateInventory(Session.get('currentLevel')._id);
+
+}
+
+function updateInventory(levelId){
+
+	var inv = DesignerGameMaps.findOne({type: 'inventory', levelId: levelId});
 	var pickupables = {};
 	var keyholes = {};
-	var id = Session.get("currentLevel")._id;
-	var cl = Session.get('currentLevel');
+	var cl = DesignerGameMaps.findOne(levelId);
 
 	for(var y = 0; y < cl.height; y++){
 		for(var x = 0; x < cl.width; x++){

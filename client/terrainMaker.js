@@ -672,18 +672,27 @@ Template.soundFieldMaker.events({
 
 updateKeyhole = function(keyhole){
 
-	var kp = getElement(keyhole.keyPickupable);
-	var np = DesignerGameDefs.findOne({creator: Meteor.user()._id, type: 'pickupable', name: kp.name});
+
+	if(keyhole.keyPickupable != 'none')copyElemPointer(keyhole, 'keyPickupable', 'pickupable');
+	if(keyhole.removeWall != 'none')copyElemPointer(keyhole, 'removeWall', 'wall');
+	if(keyhole.linkWith != 'none')copyElemPointer(keyhole, 'linkWith', 'keyhole');
+
+
+}
+
+function copyElemPointer(elem, prop, param){
+
+	var kp = getElement(elem[prop]);
+	var np = DesignerGameDefs.findOne({creator: Meteor.user()._id, type: param, name: kp.name});
 
 	if(np){
-		keyhole.keyPickupable = np._id;
+		elem[prop] = np._id;
 	}else{
 		kp.creator = Meteor.user()._id;
 		delete kp._id;
 		var n_id = DesignerGameDefs.insert(kp);
-		keyhole.keyPickupable = n_id;
+		elem[prop] = n_id;
 	}
-
 
 }
 

@@ -12,17 +12,13 @@ Template.sandboxLevelSelector.events({
 
 	'click .levelRow':function(e){
 
+		audio.killAll();
 		Session.set("currentLevel", DesignerGameMaps.findOne({type: 'levelHeader', _id: e.currentTarget.id}));
 
 		playerPos = setPlayerPos();
 		resetInventory();
 
 		loadAudioFiles();
-
-		if(Session.get("screenMode") > 0){
-			audio.killAll();
-			Session.set("screenMode", 0);
-		}
     	
 
 		$('.levelRow').removeClass('selected');

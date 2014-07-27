@@ -169,10 +169,15 @@ Template.elementTable.events({
 	'click #copyElement':function(e){
 
 		ct = Session.get("currentElement");
+
+		//do a proper search here
+
 		if(ct.creator == Meteor.user()._id){
 			ct.name = ct.name + "_" + generateTempId(3);
 		}else{
 			ct.creator = Meteor.user()._id;
+			
+			if(ct.type == 'keyhole')updateKeyhole(ct);
 		}
 
 		delete ct['_id'];
@@ -549,7 +554,7 @@ Template.pickupableMaker.events({
 
 Template.keyholeMaker.keyPickupable = function(){
 	var kp = DesignerGameDefs.findOne(Session.get("currentElement").keyPickupable);
-	if(kp !== undefined)return kp;
+	if(typeof kp !== 'undefined')return kp;
 }
 
 Template.keyholeMaker.removeWall = function(){
@@ -572,6 +577,13 @@ Template.keyholeMaker.linkWith = function(){
 	}else{
 		return getElement(Session.get('currentElement').linkWith).name;
 	}
+}
+
+Template.keyholeMaker.kpCreator = function(){
+
+	var kp = getElement(Session.get('currentElement').keyPickupable);
+	if(typeof kp !== 'undefined')return getCreatorName(kp.creator);
+
 }
 
 Template.keyholeMaker.events({
@@ -658,6 +670,25 @@ Template.soundFieldMaker.events({
 
 
 });
+
+//-------------------helpers
+
+updateKeyhole = function(keyhole){
+
+	var kp = getElement(keyhole.keyPickupable);
+	var np = DesignerGameDefs.findOne({creator: Meteor.user()._id, type: 'pickupable', name: kp.name});
+
+	if(np){
+		keyhole.keyPickupable = np._id;
+	}else{
+		kp.creator = Meteor.user()._id;
+		delete kp._id;
+		var n_id = DesignerGameDefs.insert(kp);
+		keyhole.keyPickupable = n_id;
+	}
+
+
+}
 
 
 

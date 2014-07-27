@@ -653,6 +653,9 @@ function makeLevelCopy(o_levelName, o_creator, n_levelName, n_creator){
 		if(!n_t){
 			delete o_t["_id"];
 			o_t.creator = n_creator;
+
+			if(o_t.type == 'keyhole')updateKeyhole(o_t);
+
 			nlh.mapKey[i] = DesignerGameDefs.insert(o_t);
 		}else{
 			console.log(n_t);

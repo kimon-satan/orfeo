@@ -170,16 +170,13 @@ Template.elementTable.events({
 
 		ct = Session.get("currentElement");
 
-		//do a proper search here
 
-		if(ct.creator == Meteor.user()._id){
+		if(DesignerGameDefs.findOne({type: ct.type, creator: Meteor.user()._id, name: ct.name})){
 			ct.name = ct.name + "_" + generateTempId(3);
-		}else{
-			ct.creator = Meteor.user()._id;
-			
-			if(ct.type == 'keyhole')updateKeyhole(ct);
 		}
-
+		
+		ct.creator = Meteor.user()._id;	
+		if(ct.type == 'keyhole')updateKeyhole(ct);
 		delete ct['_id'];
 		
 

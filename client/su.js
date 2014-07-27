@@ -39,6 +39,14 @@ Template.su.events({
 			updateCurrentLevel();
 			updateCurrentView();
 		}
+	},
+
+	'click #reload':function(e){
+
+		Session.set('currentElement', undefined);
+		Session.set('currentLevel', undefined);
+		window.location.reload(true);
+
 	}
 
 

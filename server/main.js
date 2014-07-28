@@ -294,7 +294,12 @@ Meteor.methods({
 Accounts.onCreateUser(function(options ,user){
 
 	Meteor.call("initPlayer", user._id);
-	user.profile = {role: 'player'};
+	if(options.profile){
+		user.profile = options.profile;
+	}else{
+		user.profile = {role: 'player'};
+	}
+
 	return user;
 
 });

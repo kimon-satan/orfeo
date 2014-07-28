@@ -148,7 +148,7 @@ Template.register.events({
       }
 
       if(error == ""){ //might need more validation here (check what bootstrap does)
-        Accounts.createUser({username: uname, email: email, password: password, profile: {role: 'player'}}, function(err){
+        Accounts.createUser({username: uname, email: email, password: password, profile: {role: 'player', registered: true}}, function(err){
 
           if(!err){
             Session.set("screenMode", 0);

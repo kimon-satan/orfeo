@@ -67,7 +67,7 @@ Template.nameColorPicker.events({
 
 	'changeColor #colPicker':function(e){
 
-		if(checkClientIsOwner(Meteor.user()._id, Session.get("currentElement").creator)){
+		if(checkClientIsOwner(Meteor.user()._id, Session.get("currentElement"))){
 			DesignerGameDefs.update(Session.get("currentElement")._id, {$set: {'color': e.color.toHex()}});
 		}
 

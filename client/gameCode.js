@@ -302,11 +302,17 @@ Template.inventoryScreen.pickupables = function(){
 
 function handleBegin(){
 
-     isAudioLock = true;
+     
      
      var audioArray = handleInteractives();
 
      handleSoundFieldTraces();
+
+     if(cTerrain.narrator.audioFile != 'none' || audioArray.length > 0){
+          isAudioLock = true;
+     }else{
+          isAudioLock = false;
+     }
 
      handleTerrain(cTerrain, nTerrain, function(){
 

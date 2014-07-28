@@ -10,3 +10,9 @@ dump and restore database
 
 mongodump -h 127.0.0.1 --port 3001 -d meteor
 mongorestore -h 127.0.0.1 --port 3001 -d meteor dump/meteor
+
+
+meteor mongo --url orfeo.meteor.com 
+... to get client and password (valid for 1 min)
+
+mongorestore -h production-db-a2.meteor.io:27017 -d orfeo_meteor_com --drop dump/meteor  -u client  -p PASSWORD

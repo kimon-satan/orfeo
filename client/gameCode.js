@@ -14,6 +14,7 @@ playerPos = {};
 isAudioLock = false;
 isPickup = false;
 maxBagItems = 3;
+isKeyOverride = false;
 
 var loadTrigger = false;
 var loadedLevels = {};
@@ -30,6 +31,7 @@ Template.game.created = function(){
 
           var level = PlayerGameData.findOne({player: Meteor.user()._id, type: "level"});
           inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
+          isKeyOverride = false;
 
 
           if(checkClientIsDesigner()){
@@ -109,7 +111,7 @@ Template.startSplash.events({
           
           cSimpleSound = 'none';
 
-          handleBegin(cell, playerPos);
+          handleNewCell(true);
 
           e.preventDefault();
      }
@@ -300,34 +302,11 @@ Template.inventoryScreen.pickupables = function(){
 
 /*----------------------------------------helper functions----------------------------*/
 
-function handleBegin(){
-
-     
-     
-     var audioArray = handleInteractives();
-
-     handleSoundFieldTraces();
-
-     if(cTerrain.narrator.audioFile != 'none' || audioArray.length > 0){
-          isAudioLock = true;
-     }else{
-          isAudioLock = false;
-     }
-
-     handleTerrain(cTerrain, nTerrain, function(){
-
-          playAudioSequence(audioArray, resetButtons);
-
-     });
-     
-}
 
 function handleStep(callback){
 
  
      isAudioLock = true;
-
-     var audioArray;
 
 
      //part of step
@@ -340,46 +319,20 @@ function handleStep(callback){
 
      }else{
 
-          audioArray = handleInteractives();
-
           PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
 
-          
-               nTerrain = getElement(cell.terrain);
 
                audio.playOnce(cTerrain.footsteps, function(){
-
                     if(typeof callback !== 'undefined')callback();
-
-
-                    if(!loadTrigger){
-
-                         handleSoundFieldTraces();
-                         handleTerrain(cTerrain, nTerrain, function(){
-
-                              playAudioSequence(audioArray, resetButtons);
-
-                         });
-
-                         cTerrain = nTerrain;        
-
-                    }else{
-
-                         playAudioSequence(audioArray,function(){
-                              audio.killAll();
-                              Session.set('isLoaded', false);
-                              Session.set('screenMode', 0);
-                              loadAudioFiles();
-                         });
-
-                    }
-
+                    handleNewCell();
                });
 
 
      }
 
 }
+
+
 
 function keyholeSuccess(idx){
 
@@ -417,32 +370,62 @@ function keyholeSuccess(idx){
 
      inv.keyholes[Session.get("currentLevel")._id][playerPos.x][playerPos.y][idx] = kh;
      PlayerGameData.update(inv._id, {$set:{keyholes: inv.keyholes, overrides: inv.overrides}});
-
-     var audioArray = handleInteractives();
-
      PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
 
+     handleNewCell();
+
+  
+
+}
+
+function handleNewCell(isBegin){
+
+    
+     var audioArray = handleInteractives();
+
      if(!loadTrigger){
+
+          if(!isBegin)nTerrain = getElement(cell.terrain);
           handleSoundFieldTraces();
 
-          nTerrain = getElement(cell.terrain);
+
+          if(cTerrain.narrator.audioFile != 'none' || audioArray.length > 0){
+               isAudioLock = true;
+          }else{
+               isAudioLock = false;
+          }
           
+
           handleTerrain(cTerrain, nTerrain, function(){
 
-               playAudioSequence(audioArray, resetButtons);
+               playAudioSequence(audioArray, function(){
+
+                    if(cell.exitPoint != 'none' && !isKeyOverride){
+                         cell = handleExitPoint(cell.exitPoint); 
+                         playerPos.x = cell.x; playerPos.y = cell.y;
+                         PlayerGameData.update(playerPos._id, {$set: {x: playerPos.x, y: playerPos.y}});
+                         handleNewCell();
+                    }else{
+                         resetButtons();
+                    }
+                    
+               });
 
           });
 
-          cTerrain = nTerrain; 
+          if(!isBegin)cTerrain = nTerrain;        
+
      }else{
 
-          playAudioSequence(audioArray, function(){
+          playAudioSequence(audioArray,function(){
                audio.killAll();
                Session.set('isLoaded', false);
                Session.set('screenMode', 0);
                loadAudioFiles();
           });
+
      }
+
 
 }
 
@@ -480,7 +463,7 @@ function handleKeyholeDrop(id ,idx){
           console.log("non match");
           if(key.falseSound.audioFile != 'none'){
                key.falseSound.index = kh.id + '_fs';
-               audio.playOnce(key.falseSound, function(){ handleDropItem(id)});
+               audio.playOnce(key.falseSound);
           }else{
                handleDropItem(id);
           }
@@ -517,10 +500,10 @@ function handleDropItem(id){
 function handleInteractives(isRepeat){
 
      var audioArray = [];
-     var isKeyOverride = false;
      isPickup = false;
 
      var idx = findLockedKeyhole();
+     isKeyOverride = false;
 
      if(checkForKeyholes()){
           
@@ -568,27 +551,24 @@ function handleInteractives(isRepeat){
           
           cSimpleSound = cell.simpleSound;
 
-          if(cell.exitPoint != 'none'){
-               cell = handleExitPoint(cell.exitPoint); 
-               playerPos.x = cell.x; playerPos.y = cell.y;
-          }
      }
 
      
+     if(cell.exitPoint == 'none' || isKeyOverride){
 
-     var lps = inv.pickupables[Session.get("currentLevel")._id];
+          var lps = inv.pickupables[Session.get("currentLevel")._id];
 
-     if(typeof lps[playerPos.x] !== 'undefined'){
-          if(typeof lps[playerPos.x][playerPos.y] !== 'undefined'){
+          if(typeof lps[playerPos.x] !== 'undefined'){
+               if(typeof lps[playerPos.x][playerPos.y] !== 'undefined'){
 
+                    if(!isKeyOverride || cell.pickupable != lps[playerPos.x][playerPos.y]){
+                         var pu = getElement(lps[playerPos.x][playerPos.y]);
+                         if(!isRepeat)isPickup = true;
+                         pu.narrator.index = lps[playerPos.x][playerPos.y];
+                         audioArray.push(pu.narrator);
+                    }
 
-               if(!isKeyOverride || cell.pickupable != lps[playerPos.x][playerPos.y]){
-                    var pu = getElement(lps[playerPos.x][playerPos.y]);
-                    if(!isRepeat)isPickup = true;
-                    pu.narrator.index = lps[playerPos.x][playerPos.y];
-                    audioArray.push(pu.narrator);
                }
-
           }
      }
 
@@ -597,6 +577,7 @@ function handleInteractives(isRepeat){
      return audioArray;
 
 }
+
 
 
 function handleExitPoint(exitPointId){

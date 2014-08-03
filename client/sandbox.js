@@ -3,7 +3,7 @@ Template.sandbox.created = function(){
 	Meteor.defer(function(){
 		selectALevel();
 		setPlayerPos();
-		resetInventory();
+		resetInventory(Session.get('currentLevel')._id);
 	});
 
 }
@@ -16,7 +16,7 @@ Template.sandboxLevelSelector.events({
 		Session.set("currentLevel", DesignerGameMaps.findOne({type: 'levelHeader', _id: e.currentTarget.id}));
 
 		playerPos = setPlayerPos();
-		resetInventory();
+		resetInventory(e.currentTarget.id);
 
 		loadAudioFiles();
     	
@@ -138,18 +138,23 @@ function setPlayerPos(){
 
 }
 
-function resetInventory(){
+function resetInventory(id){
 
-	inv = PlayerGameData.findOne({player: Meteor.user()._id, type: 'inventory'});
-	if(inv)PlayerGameData.remove(inv._id);
+
+	PlayerGameData.find({player: Meteor.user()._id, type: 'inventory'}).forEach(function(e){
+		PlayerGameData.remove(e._id);
+	});
+	
 	var n_inv = {player: Meteor.user()._id, type: "inventory", pickupables: {}, bag: [], keyholes: {}, overrides: {}};
-	var pus = DesignerGameMaps.findOne({type: "inventory", levelId: Session.get("currentLevel")._id}).pickupables;
-	var keys = DesignerGameMaps.findOne({type: "inventory", levelId: Session.get("currentLevel")._id}).keyholes;
-	n_inv.pickupables[Session.get("currentLevel")._id] = pus;
-	n_inv.keyholes[Session.get("currentLevel")._id] = keys;
+	var pus = DesignerGameMaps.findOne({type: "inventory", levelId: id}).pickupables;
+	var keys = DesignerGameMaps.findOne({type: "inventory", levelId: id}).keyholes;
+	n_inv.pickupables[id] = pus;
+	n_inv.keyholes[id] = keys;
 	n_inv.overrides = {};
-	PlayerGameData.insert(n_inv);
-	inv = PlayerGameData.findOne({player: Meteor.user()._id , type: "inventory" });
+	PlayerGameData.insert(n_inv, function(err, id){ 
+		inv = PlayerGameData.findOne(id);
+	});
+	
 
 }
 

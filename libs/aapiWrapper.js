@@ -75,7 +75,7 @@ aapiWrapper.prototype.loadSounds = function(files, callBack){
   			req.open('GET', fp, true);
   			req.responseType = 'arraybuffer';
 
-         console.log(fp);
+        // console.log(fp);
 
         req.addEventListener('load', function(event){
 
@@ -106,15 +106,17 @@ aapiWrapper.prototype.playOnce = function(options, callBack){
   var sample = this.sampleObjs[options.index];
   sample.buffer = this.sampleSources[options.folder + options.audioFile].buffer;
   sample.bufSrc = this.sampleSources[options.folder + options.audioFile].bufSrc;
+  this.setupNodes(sample);
+
 
   //defaults
   if(typeof options.amp !== 'undefined')sample.amp = options.amp;
   if(typeof options.offset === 'undefined')options.offset = 0;
   if(typeof options.fadeIn === 'undefined')options.fadeIn = 0.01;
-  if(typeof options.fadeOut === 'undefined')options.fadeIn = 0.01;
+  if(typeof options.fadeOut === 'undefined')options.fadeOut = 0.01;
 
-
-  this.play(sample, options.fadeIn, options.fadeOut, options.offset);
+  this.setFades(sample, options.fadeIn, options.fadeOut, options.offset);
+  this.play(sample, options.offset);
 
   if(typeof callBack === 'function'){
 
@@ -149,19 +151,21 @@ aapiWrapper.prototype.startLooping = function(options){ //n is a key with the fi
 
   sample.amp = options.amp;
   sample.crossfades = this.calcXFades(1);
+  this.setupNodes(sample);
+  sample.gainNode.gain.value = sample.amp;
 
   if(!sample.isLooping){
 
     sample.isLooping = true;
 
-    this.play(sample, options.fadeIn, -1);
+    this.play(sample);
     sample.loopTime = this.context.currentTime + sample.buffer.duration - 1;
 
     sample.loopThread = window.setInterval(function(){
 
       if(this.context.currentTime > sample.loopTime){
 
-          this.play(sample, -1, -1);
+          this.play(sample);
           sample.loopTime = this.context.currentTime + sample.buffer.duration - 1; //1 sec crossfades
 
       }
@@ -214,42 +218,23 @@ aapiWrapper.prototype.stopLooping = function(n, fadeOut, offset){
 
 }
 
+aapiWrapper.prototype.setupNodes = function(sample){
 
+  sample.gainNode = this.context.createGain();
+  sample.gainNode.connect(this.context.destination);
 
+}
 
-aapiWrapper.prototype.play = function(sample, fadeIn, fadeOut, offset){
+aapiWrapper.prototype.setFades = function(sample, fadeIn, fadeOut, offset){
 
     var ct = this.context.currentTime;
     if(typeof offset !== 'undefined')ct += offset;
-
-    //setup data
-    sample.bufSrc = this.context.createBufferSource();
-    sample.bufSrc.buffer = sample.buffer;
-    sample.gainNode = this.context.createGain();
-    sample.crossFadeNode = this.context.createGain();
-
-    //patch nodes
-
-    sample.bufSrc.connect(sample.crossFadeNode);
-    sample.crossFadeNode.connect(sample.gainNode);
-    sample.gainNode.connect(this.context.destination);
-
     //handle fades
     if(fadeIn > 0){
       sample.gainNode.gain.linearRampToValueAtTime(0, ct);
       sample.gainNode.gain.linearRampToValueAtTime(sample.amp, ct + fadeIn);
     }else{
       sample.gainNode.gain.value = sample.amp;
-    }
-
-    if(sample.isLooping){
-        
-      try{
-        sample.crossFadeNode.gain.setValueCurveAtTime(sample.crossfades.xIn, ct, 1);
-      }catch(e){
-        console.log(e);
-      }
-      
     }
 
     //fade out
@@ -260,12 +245,39 @@ aapiWrapper.prototype.play = function(sample, fadeIn, fadeOut, offset){
       sample.gainNode.gain.setValueAtTime(0, ct + sample.buffer.duration);
     }
 
+}
+
+aapiWrapper.prototype.play = function(sample, offset){
+
+    var ct = this.context.currentTime;
+    if(typeof offset !== 'undefined')ct += offset;
+
+    //setup data
+    sample.bufSrc = this.context.createBufferSource();
+    sample.bufSrc.buffer = sample.buffer;
+    
+    if(sample.crossFadeNode.length > 2)sample.crossFadeNode.shift();
+    var cf = this.context.createGain();
+    sample.crossFadeNode.push(cf);
+
+
+    //patch nodes
+
+    sample.bufSrc.connect(cf);
+    cf.connect(sample.gainNode);
+   
 
     if(sample.isLooping){
-
-     
+        
       try{
-          sample.crossFadeNode.gain.setValueCurveAtTime(sample.crossfades.xOut, ct + sample.buffer.duration - 1, 1);
+        cf.gain.setValueCurveAtTime(sample.crossfades.xIn, ct, 1);
+      }catch(e){
+        console.log(e);
+      }
+      
+
+      try{
+          cf.gain.setValueCurveAtTime(sample.crossfades.xOut, ct + sample.buffer.duration - 1, 1);
       }catch(e){
         console.log(e);
       }
@@ -331,7 +343,7 @@ appiSample = function(fileName){
 
   this.buffer;
   this.bufSrc;
-  this.crossFadeNode;
+  this.crossFadeNode = [];
   this.gainNode;
   this.fileName = fileName;
   this.loopTime;
